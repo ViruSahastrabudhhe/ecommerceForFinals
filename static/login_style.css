@@ -1,0 +1,30 @@
+h1 {
+    font-size: 40px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    margin: auto auto auto auto;
+    text-align: center;
+}
+
+.container {
+    max-width: 500px;
+    margin: 200px auto 200px auto;
+}
+
+.text-fields {
+    max-width: 500px;
+    margin: auto auto auto auto;
+}
+
+.buttons {
+    max-width: 500px;
+    margin: 25px auto auto auto;
+    text-align: center;
+}
+
+.form-group {
+    margin: 25px auto auto auto;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: justify;
+    text-align: center;
+}

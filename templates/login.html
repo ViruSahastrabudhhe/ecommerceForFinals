@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Awesomers E-commerce</title>
+        <link rel="stylesheet" type="text/css" href="static\login_style.css">
+    </head>
+    <body>
+        <div class = "container">
+            <h1>Login</h1>
+            <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
+            <div class = "text-fields">
+                <form action="/login" method="POST">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="text" name="email"><br>
+                    </div>  
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password"><br>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Sign in"><br>
+                    </div>
+                </form>
+            </div>
+            <div class="buttons">
+                <button class="forgotPass">Forgot password</button>
+                <a href="/signUp">
+                    <button>Sign up</button>
+                </a>
+                <!--LINK TO APP.ROUTE, NOT HTML FILE-->
+            </div>
+        </div>
+
+    </body>
+
+</html> 
