@@ -28,8 +28,6 @@ def welcome():
 def home():
     return render_template('home.html', email=session['accountEmail'], username=session['accountUsername'])
 
-@app.route('/homeAdmin')
-def homeAdmin():
     return render_template('home-admin.html', email=session['accountEmail'])
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -42,7 +40,7 @@ def login():
 
         conn = get_db_connection()
         if conn is None:
-            flash("NO DB CONNECTION", category='danger')
+            flash("NO DB CONNECTION", category='error')
             return redirect(url_for('login'))
         
         cursor = conn.cursor(dictionary=True)
@@ -63,37 +61,9 @@ def login():
                 session['accountRole'] = record['accountRole']
                 return redirect(url_for('home'))
         else:
-            flash('Incorrect credentials. Try again!', category='danger')
+            flash('Incorrect credentials. Try again!', category='error')
 
     return render_template('login.html')
-
-@app.route('/loginAdmin', methods=['GET', 'POST'])
-def loginAdmin():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        role = 'admin'
-
-        conn = get_db_connection()
-        if conn is None:
-            flash("NO DB CONNECTION", category='danger')
-            return redirect(url_for('loginAdmin'))
-        
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM accounts WHERE accountEmail=%s AND accountPassword=%s AND accountRole=%s', (email, password, role))
-        record = cursor.fetchone()
-
-        # SESSION COOKIES
-        if record:
-            session['loggedIn'] = True
-            session['accountID'] = record['accountID']
-            session['accountEmail'] = record['accountEmail']
-            session['accountRole'] = record['accountRole']
-            return render_template("home-admin.html")
-        else:
-            flash('Incorrect credentials. Try again!', category='danger')
-
-    return render_template('login-admin.html')
 
 @app.route("/signUp", methods=['GET', 'POST'])
 def signUp():
@@ -103,21 +73,46 @@ def signUp():
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
-        if password!=confirmPassword:
-            flash('Password does not match!', category='error')
+        if isSignUpFormInvalid(email, password, confirmPassword, username):
+            flash("Please input in the fields!", category='error')
             return redirect(url_for('signUp'))
         # security measure, prevents user from inputting invalid email (no @)
         elif not isEmailValid(email): 
+            flash('Email invalid!', category='error')
             return redirect(url_for('signUp'))
         # security measure, prevents user from making a password with <8 characters
         elif not isPasswordValid(password):
+            flash('Password must not be <8 characters!', category='error')
             return redirect(url_for('signUp'))
         # prevents no input from signing up
-        elif isSignUpFormInvalid(email, password, confirmPassword, username):
-            flash("Please input in the fields!", category='error')
+        elif password!=confirmPassword:
+            flash('Password does not match!', category='error')
             return redirect(url_for('signUp'))
         else:
-            signUpAccount(email, username, password, confirmPassword)
+            conn = get_db_connection()
+            if conn is None:
+                flash("NO DB CONNECTION", category='error')
+                return redirect(url_for('signUp'))
+
+            '''
+            FIXME: creates account even if email already exists and conditions are put in check!
+            FIXED: establish sql index accountEmail as unique
+            '''
+            cursor = conn.cursor()
+            hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
+            
+            try:
+                cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountUsername) VALUES (%s, %s, %s)', (email, hashedPassword, username))
+                conn.commit()
+                flash("Successfully signed up!", category='success')
+            except mysql.connector.IntegrityError:
+                flash("Account is already signed up!", category='danger')
+                return redirect(url_for('signUp'))
+            finally:
+                cursor.close()
+                conn.close()
+                    
+            return redirect(url_for('login'))
         
     return render_template('sign_up.html')
 
@@ -152,9 +147,9 @@ def requestToBecomeSeller():
                 flash("CREATED NEW REQUEST", category="success")
             except mysql.connector.IntegrityError:  
                 flash("REQUEST ALREADY EXISTO", category='danger')
-            # finally:
-            #     cursor.close()
-            #     conn.close()
+            finally:
+                cursor.close()
+                conn.close()
 
         return redirect(url_for('home'))
     
@@ -165,12 +160,46 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# admin 
+@app.route('/homeAdmin')
+def homeAdmin():
+    return render_template('home-admin.html', email=session['accountEmail'])
+
+@app.route('/loginAdmin', methods=['GET', 'POST'])
+def loginAdmin():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        role = 'admin'
+
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='danger')
+            return redirect(url_for('loginAdmin'))
+        
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT * FROM accounts WHERE accountEmail=%s AND accountPassword=%s AND accountRole=%s', (email, password, role))
+        record = cursor.fetchone()
+
+        # SESSION COOKIES
+        if record:
+            session['loggedIn'] = True
+            session['accountID'] = record['accountID']
+            session['accountEmail'] = record['accountEmail']
+            session['accountRole'] = record['accountRole']
+            return render_template("home-admin.html")
+        else:
+            flash('Incorrect credentials. Try again!', category='danger')
+
+    return render_template('login-admin.html')
+
+# functions
 def isSignUpFormInvalid(email: str, password: str, confirmPassword: str, username: str):
     if email==" " or password==" " or confirmPassword==" " or username==" ":
         return True
 
 def isEmailValid(email: str):
-    if "@" in email:
+    if "@" in email and len(email)>10:
         return True
     
 def isPasswordValid(password: str):
@@ -185,11 +214,10 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
 
     '''
     FIXME: creates account even if email already exists and conditions are put in check!
+    FIXED: establish sql index accountEmail as unique
     '''
     cursor = conn.cursor()
     hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
-    # cursor.execute("SELECT * FROM accounts WHERE accountEmail ='%s'", email)
-    # row = cursor.fetchone()
     
     try:
         cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountUsername) VALUES (%s, %s, %s)', (email, hashedPassword, username))
@@ -201,8 +229,6 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
     finally:
         cursor.close()
         conn.close()
-
-    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)

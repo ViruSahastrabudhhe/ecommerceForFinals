@@ -25,14 +25,8 @@ h1 {
 .form-group {
     margin: 25px auto auto auto;
     font-family: Arial, Helvetica, sans-serif;
-    text-align: justify;
-    text-align: center;
-}
-
-.displayFlashMessages {
-    font-size: 15px;
-    font-family: Arial, Helvetica, sans-serif;
 
     /* alignment */
-    
+    text-align: justify;
+    text-align: center;
 }
