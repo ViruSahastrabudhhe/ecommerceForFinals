@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" text="text\css" href="static\home_style.css">
+    <title>E-commerce: Become a seller now!</title>
+</head>
+<body>
+    <div class = "headerButtons">
+        <a style="text-decoration: none;" href="/buyerBecomeSeller" id="becomeSeller">Become a seller</a>
+        <a style="text-decoration: none;" href="/logout" id="accountName">{{username}} account</a>
+    </div>
+    <hr>
+    <div class = "container">
+        <form action="/requestToBecomeSeller", method="POST">
+            <div class="form-group">
+                <input type="submit" value="Become A Seller now"><br>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>THIS IS HOME PAGE</title>
+        <title>E-commerce</title>
         <link rel="stylesheet" type="text/css" href="static\home_style.css">
     </head>
     <body>
+        <div class = "headerButtons">
+            <a style="text-decoration: none;" href="/buyerBecomeSeller" id="becomeSeller">Become a seller</a>
+            <a style="text-decoration: none;" href="/logout" id="accountName">{{username}} account</a>
+        </div>
+        <hr>
         <div class ="container">
-            <h1>HOME PAGE</h1>
-            <a href="/logout">
-                <input type="submit" value="Log out">
-            </a>
-            <h2>WELCOME {{username}}</h2>
-            <form action=""></form>
+            <a style="text-decoration: none;" href="/home" id="dashboardName">E-commerce</a>
+            <div class="searchTextBox">
+                <form action="", methods="POST">
+                    <input type="text" name="searchTextBox" size="50"><br>
+                </form>
+            </div>  
         </div>
     </body>
 </html>

@@ -1,3 +1,54 @@
 .container {
     text-align: center;
+    margin-top: 50px;
+}
+
+#dashboardName {
+    object-fit: contain;
+    font-size: 30px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: black;
+    
+    /* alignment */
+    margin: auto 700px auto auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#accountName {
+    color: black;
+}
+
+#becomeSeller {
+    color: black;
+    margin: 15px;
+}
+
+.searchTextBox {
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    
+    /* alignment */
+    margin: auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.headerButtons {
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    
+    /* alignment */
+    text-align: center;
+    margin: auto auto auto 700px;
+    overflow: hidden;
+    resize: none;
+    white-space: nowrap;
+}
+
+.displayFlashMessages {
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
 }
