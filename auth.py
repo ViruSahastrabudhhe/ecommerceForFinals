@@ -1,7 +1,7 @@
 from flask import *
 import mysql.connector 
 from mysql.connector import Error
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import *
 
 app = Flask(__name__)
 app.secret_key = 'secret'
