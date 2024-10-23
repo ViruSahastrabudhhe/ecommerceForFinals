@@ -1,24 +1,22 @@
 h1 {
-    font-size: 40px;
+    text-align: center;
+    margin: 500px auto;
+}
+
+#loginHeader {
+    font-size: 50px;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
-    margin: auto auto auto auto;
-    text-align: center;
 }
 
 .container {
-    max-width: 500px;
-    margin: 200px auto 200px auto;
-}
-
-.text-fields {
-    max-width: 500px;
-    margin: auto auto auto auto;
+    max-width: 200px;   
+    margin: 200px auto;
 }
 
 .buttons {
     max-width: 500px;
-    margin: 25px auto auto auto;
+    margin: 25px auto auto 385px;
     text-align: center;
 }
 
@@ -29,4 +27,9 @@ h1 {
     /* alignment */
     text-align: justify;
     text-align: center;
+}
+
+#input-group {
+    width: 25%;
+    margin: auto auto auto 500px;
 }

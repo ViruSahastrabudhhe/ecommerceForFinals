@@ -28,7 +28,9 @@ def welcome():
 def home():
     return render_template('home.html', email=session['accountEmail'], username=session['accountUsername'])
 
-    return render_template('home-admin.html', email=session['accountEmail'])
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -38,6 +40,10 @@ def login():
         role = 'admin'
         ifArchived = False
 
+        if isLoginFormInvalid(email, password):
+            flash("Please input in the fields!", category='error')
+            return redirect(url_for('login'))
+        
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
@@ -51,6 +57,7 @@ def login():
         cursor.execute('SELECT * FROM accounts WHERE accountEmail=%s AND accountRole!=%s AND accountArchived=%s', (email, role, ifArchived))
         record = cursor.fetchone()
 
+
         # SESSION COOKIES
         if record:
             if check_password_hash(record['accountPassword'], password):
@@ -60,6 +67,8 @@ def login():
                 session['accountUsername'] = record['accountUsername']
                 session['accountRole'] = record['accountRole']
                 return redirect(url_for('home'))
+            else:
+                flash('Incorrect credentials. Try again!', category='error')
         else:
             flash('Incorrect credentials. Try again!', category='error')
 
@@ -88,31 +97,31 @@ def signUp():
         elif password!=confirmPassword:
             flash('Password does not match!', category='error')
             return redirect(url_for('signUp'))
-        else:
-            conn = get_db_connection()
-            if conn is None:
-                flash("NO DB CONNECTION", category='error')
-                return redirect(url_for('signUp'))
+        
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('signUp'))
 
-            '''
-            FIXME: creates account even if email already exists and conditions are put in check!
-            FIXED: establish sql index accountEmail as unique
-            '''
-            cursor = conn.cursor()
-            hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
-            
-            try:
-                cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountUsername) VALUES (%s, %s, %s)', (email, hashedPassword, username))
-                conn.commit()
-                flash("Successfully signed up!", category='success')
-            except mysql.connector.IntegrityError:
-                flash("Account is already signed up!", category='danger')
-                return redirect(url_for('signUp'))
-            finally:
-                cursor.close()
-                conn.close()
-                    
-            return redirect(url_for('login'))
+        '''
+        FIXME: creates account even if email already exists and conditions are put in check!
+        FIXED: establish sql index accountEmail as unique
+        '''
+        cursor = conn.cursor()
+        hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
+        
+        try:
+            cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountUsername) VALUES (%s, %s, %s)', (email, hashedPassword, username))
+            conn.commit()
+            flash("Successfully signed up!", category='success')
+        except mysql.connector.IntegrityError:
+            flash("Account is already signed up!", category='error')
+            return redirect(url_for('signUp'))
+        finally:
+            cursor.close()
+            conn.close()
+                
+        return redirect(url_for('login'))
         
     return render_template('sign_up.html')
 
@@ -125,31 +134,25 @@ def requestToBecomeSeller():
     if request.method=="POST":
         id = session['accountID']
         email = session['accountEmail']
-        username = session['accountUsername']
+        requestType = "BUYER TO BE SELLER"
 
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='danger')
-            return redirect(url_for('login'))
+            return redirect(url_for('login'))   
         
         cursor = conn.cursor()
-        # if a row doesnt have the ff account id -> insert into table
-        cursor.execute(f'SELECT * FROM requests WHERE accountID = {id}')
-        record = cursor.fetchone()
         
-        if record:
-            flash("DUPE", category='danger')
+        try:
+            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType) VALUES (%s, %s, %s)', (id, email, requestType))
+            conn.commit()
+            flash("CREATED NEW REQUEST", category="success")
+        except mysql.connector.IntegrityError:  
+            flash("REQUEST ALREADY EXISTO", category='error')
             return redirect(url_for('buyerBecomeSeller'))
-        else:
-            try:
-                cursor.execute('INSERT INTO requests (accountID, accountEmail, accountUsername) VALUES (%s, %s, %s)', (id, email, username))
-                conn.commit()
-                flash("CREATED NEW REQUEST", category="success")
-            except mysql.connector.IntegrityError:  
-                flash("REQUEST ALREADY EXISTO", category='danger')
-            finally:
-                cursor.close()
-                conn.close()
+        finally:
+            cursor.close()
+            conn.close()
 
         return redirect(url_for('home'))
     
@@ -196,6 +199,10 @@ def loginAdmin():
 # functions
 def isSignUpFormInvalid(email: str, password: str, confirmPassword: str, username: str):
     if email==" " or password==" " or confirmPassword==" " or username==" ":
+        return True
+
+def isLoginFormInvalid(email: str, password: str):
+    if email==" " or password==" ":
         return True
 
 def isEmailValid(email: str):
