@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="static\css/bootstrap.min.css">
 </head>
 <body>
+  <section>
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
@@ -25,65 +26,82 @@
     {% endfor %}
     {% endif %}
     {% endwith %}
+  </section>
 
-    <div class="container">
-    </div>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/home">E-commerce</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Shop</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/buyerBecomeSeller">Become a seller</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Cart</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
-                  Profile
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">My account</a></li>
-                  <li><a class="dropdown-item" href="#">My orders</a></li>
-                  <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
-                  <li><a class="dropdown-item" href="#">My reviews</a></li>
-                  <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Logout</a></li>
+    <section>
+      <div class="container">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/home">E-commerce</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="/buyerBecomeSeller">Become a seller</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Cart</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
+                      Profile
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">My account</a></li>
+                      <li><a class="dropdown-item" href="#">My orders</a></li>
+                      <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
+                      <li><a class="dropdown-item" href="#">My reviews</a></li>
+                      <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#">Logout</a></li>
+                    </ul>
+                  </li>
+                  <!-- <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                  </li> -->
                 </ul>
-              </li>
-              <!-- <li class="nav-item">
-                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-              </li> -->
-            </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchTextBox">
-                <button class="btn btn-outline-success" type="submit" id="searchSubmit">Search</button>
-            </form>
-          </div>
-        </div>
-      </nav>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+              </div>
+            </div>
+          </nav>
+      </div>
+    </section>
 
-    <!-- <div class = "headerButtons">
-        <a style="text-decoration: none;" href="/buyerBecomeSeller" id="becomeSeller">Become a seller</a>
-        <a style="text-decoration: none;" href="/logout" id="accountName">{{username}} account</a>
-    </div>
-    <hr>
-    <div class ="container">
-        <a style="text-decoration: none;" href="/home" id="dashboardName">E-commerce</a>
-        <div class="searchTextBox">
-            <form action="", methods="POST">
-                <input type="text" name="searchTextBox" size="50"><br>
-            </form>
-        </div>  
-    </div> -->
+    <section>
+      <h3>Welcome to E-commerce. Shop and sell.</h3>
+      <figure>
+        <img src="static\shopping.png" alt="A picture of you and a friend shopping." height="500px">
+        <figcaption>Shopping moments.</figcaption>
+      </figure>
+      <h4>Categories</h4>
+      <ul>
+        <li>Clothes</li>
+        <li>Electronics</li>
+        <li>Food</li>
+        <li>Supplies</li>
+      </ul>
+    </section>
+
+    <section>
+      <!-- <div class = "headerButtons">
+          <a style="text-decoration: none;" href="/buyerBecomeSeller" id="becomeSeller">Become a seller</a>
+          <a style="text-decoration: none;" href="/logout" id="accountName">{{username}} account</a>
+      </div>
+      <hr>
+      <div class ="container">
+          <a style="text-decoration: none;" href="/home" id="dashboardName">E-commerce</a>
+          <div class="searchTextBox">
+              <form action="", methods="POST">
+                  <input type="text" name="searchTextBox" size="50"><br>
+              </form>
+          </div>  
+      </div> -->
+    </section>
     <script src="static\js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
