@@ -1,14 +1,10 @@
 from flask import *
-from itsdangerous.url_safe import URLSafeSerializer as Serializer
+from flask_mail import *
+from werkzeug.security import *
 import mysql.connector 
 from mysql.connector import Error
-from werkzeug.security import *
 
-app = Flask(__name__)
-app.secret_key = 'secret'
-
-s1 = Serializer('secret-key', salt='activate')
-s1.dumps(42)
+routes_bp = Blueprint("routes", __name__, static_folder='static', template_folder='templates')
 
 def get_db_connection():
     try:
@@ -24,19 +20,20 @@ def get_db_connection():
         return None
     
 # routes are like labels using goto switches
-@app.route("/")
+@routes_bp.route("/")
 def welcome():
-    return redirect(url_for('login'))
+    return redirect(url_for('routes.login'))
 
-@app.route('/home')
+@routes_bp.route('/home')
 def home():
-    return render_template('home.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
-@app.route('/test')
+@routes_bp.route('/test')
 def test():
     return render_template('test.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+# users ----------------------------------------------------------------------------------------------
+@routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -46,12 +43,12 @@ def login():
 
         if isLoginFormInvalid(email, password):
             flash("Please input in the fields!", category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('routes.login'))
         
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('routes.login'))
         
         cursor = conn.cursor(dictionary=True)
         '''
@@ -70,7 +67,7 @@ def login():
                 session['accountEmail'] = record['accountEmail']
                 session['accountUsername'] = record['accountUsername']
                 session['accountRole'] = record['accountRole']
-                return redirect(url_for('home'))
+                return redirect(url_for('routes.home'))
             else:
                 flash('Incorrect credentials. Try again!', category='error')
         else:
@@ -78,34 +75,35 @@ def login():
 
     return render_template('login.html')
 
-@app.route("/signUp", methods=['GET', 'POST'])
+@routes_bp.route("/signUp", methods=['GET', 'POST'])
 def signUp():
     if request.method == 'POST':
         username = request.form['fName'] + ' ' + request.form['lName']
-        email = request.form['email']
+        email = request.form['emailSignUp']
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
+        # security measure, prevents user from leaving fields blank
         if isSignUpFormInvalid(email, password, confirmPassword, username):
             flash("Please input in the fields!", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('routes.signUp'))
         # security measure, prevents user from inputting invalid email (no @)
         elif not isEmailValid(email): 
             flash('Email invalid!', category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('routes.signUp'))
         # security measure, prevents user from making a password with <8 characters
         elif not isPasswordValid(password):
             flash('Password must not be <8 characters!', category='error')
-            return redirect(url_for('signUp'))
-        # prevents no input from signing up
+            return redirect(url_for('routes.signUp'))
+        # password must be equal to confirm pass
         elif password!=confirmPassword:
             flash('Password does not match!', category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('routes.signUp'))
         
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('routes.signUp'))
 
         '''
         FIXME: creates account even if email already exists and conditions are put in check!
@@ -120,24 +118,48 @@ def signUp():
             flash("Successfully signed up!", category='success')
         except mysql.connector.IntegrityError:
             flash("Account is already signed up!", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('routes.signUp'))
         finally:
             cursor.close()
             conn.close()
                 
-        return redirect(url_for('login'))
+        return redirect(url_for('routes.login'))
         
     return render_template('sign_up.html', purpose="signUp")
 
-@app.route("/forgotPassword", methods=['GET', 'POST'])
+@routes_bp.route("/forgotPassword", methods=['GET', 'POST'])
 def forgotPassword():
+    if request.method=='POST':
+        email=request.form['emailForgotPassword']
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION LOL', category='error')
+            return redirect(url_for('routes.login'))
+        
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM accounts WHERE accountEmail='{email}'")
+        record = cursor.fetchone()
+
+        if record:
+            flash("Password reset request sent!", category='success')
+            return redirect(url_for('routes.login'))
+        else:
+            flash("Email does not existo!", category='error')
+
     return render_template('sign_up.html', purpose="forgotPassword")
 
-@app.route('/buyerBecomeSeller')
-def buyerBecomeSeller():
-    return render_template('home.html', purpose="buyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'])
+@routes_bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('routes.login'))
 
-@app.route('/requestToBecomeSeller', methods=['GET', 'POST'])
+# seller ----------------------------------------------------------------------------------------------
+@routes_bp.route('/renderBuyerBecomeSeller')
+def renderBuyerBecomeSeller():
+    return render_template('home.html', purpose="renderBuyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+
+@routes_bp.route('/requestToBecomeSeller', methods=['GET', 'POST'])
 def requestToBecomeSeller():
     if request.method=="POST":
         id = session['accountID']
@@ -147,7 +169,7 @@ def requestToBecomeSeller():
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='danger')
-            return redirect(url_for('login'))   
+            return redirect(url_for('routes.login'))   
         
         cursor = conn.cursor()
         
@@ -157,36 +179,68 @@ def requestToBecomeSeller():
             flash("CREATED NEW REQUEST", category="success")
         except mysql.connector.IntegrityError:  
             flash("REQUEST ALREADY EXISTO", category='error')
-            return redirect(url_for('buyerBecomeSeller'))
+            return render_template('home.html', purpose='renderBuyerBecomeSeller', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
         finally:
             cursor.close()
             conn.close()
 
-        return redirect(url_for('home'))
+        return redirect(url_for('routes.home'))
     
-    return render_template('buyerBecomeSeller.html',id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'])
+    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
+@routes_bp.route("/renderSellProduct", methods=['GET', 'POST'])
+def renderSellProduct():
+    return render_template('home.html', purpose="renderSellProduct", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+
+@routes_bp.route("/requestToSellProduct", methods=['GET', 'POST'])
+def requestToSellProduct():
+    if request.method=="POST":
+        id = session['accountID']
+        email = session['accountEmail']
+        requestType = "SELL A PRODUCT"
+
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='danger')
+            return redirect(url_for('routes.home'))   
+        
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType, requestArchived) VALUES (%s, %s, %s, %s)', (id, email, requestType, 0))
+            conn.commit()
+            flash("CREATED NEW REQUEST", category="success")
+        except mysql.connector.IntegrityError:  
+            flash("REQUEST ALREADY EXISTO", category='error')
+            return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        finally:
+            cursor.close()
+            conn.close()
+
+        return redirect(url_for('routes.home'))
+    
+    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 # admin ----------------------------------------------------------------------------------------------
-@app.route('/homeAdmin')
+@routes_bp.route('/homeAdmin')
 def homeAdmin():
     conn = get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='danger')
-        return redirect(url_for('login'))   
+        return redirect(url_for('routes.login'))   
     
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
-    rows=cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return render_template('home_admin.html', email=session['accountEmail'], dbhtml=rows)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
+        rows=cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return render_template('home_admin.html', email=session['accountEmail'], dbhtml=rows)
+    except Error as e:
+        flash(f'{e}', category='error')
+        logout()
 
-@app.route('/loginAdmin', methods=['GET', 'POST'])
+@routes_bp.route('/loginAdmin', methods=['GET', 'POST'])
 def loginAdmin():
     if request.method == 'POST':
         email = request.form['email']
@@ -196,7 +250,7 @@ def loginAdmin():
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='danger')
-            return redirect(url_for('loginAdmin'))
+            return redirect(url_for('routes.loginAdmin'))
         
         cursor = conn.cursor(dictionary=True)
         cursor.execute('SELECT * FROM accounts WHERE accountEmail=%s AND accountPassword=%s AND accountRole=%s', (email, password, role))
@@ -208,22 +262,25 @@ def loginAdmin():
             session['accountID'] = record['accountID']
             session['accountEmail'] = record['accountEmail']
             session['accountRole'] = record['accountRole']
-            return redirect(url_for('homeAdmin'))
+            return redirect(url_for('routes.homeAdmin'))
         else:
             flash('Incorrect credentials. Try again!', category='danger')
 
     return render_template('login_admin.html')
 
-@app.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
+@routes_bp.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
 def adminRequestInteraction(email):
     if request.method=='POST':
         approval = request.form['interact']
 
         if approval=="accept":
             updateBuyerToSeller(email)
-            return redirect(url_for('homeAdmin'))
+            flash('Approved request of buyer to become seller!',category="success")
+            return redirect(url_for('routes.homeAdmin'))
         elif approval=="decline":
-            return redirect(url_for('homeAdmin'))
+            rejectBuyerToSeller(email)
+            flash('Declined request of buyer to become seller!',category="error")
+            return redirect(url_for('routes.homeAdmin'))
         
     return render_template('home_admin.html', accountEmail=email)
 
@@ -248,7 +305,7 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
     conn = get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('signUp'))
+        return redirect(url_for('routes.signUp'))
 
     '''
     FIXME: creates account even if email already exists and conditions are put in check!
@@ -263,7 +320,7 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
         flash("CREATED NEW ACCOUNT", category='success')
     except mysql.connector.IntegrityError:
         flash("Account already exists", category='danger')
-        return redirect(url_for('signUp'))
+        return redirect(url_for('routes.signUp'))
     finally:
         cursor.close()
         conn.close()
@@ -272,7 +329,7 @@ def updateBuyerToSeller(email: str):
     conn = get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homeAdmin'))
+        return redirect(url_for('routes.homeAdmin'))
     
     cursor = conn.cursor(dictionary=True)
     cursor.execute(f'UPDATE accounts SET accountRole="seller" WHERE accountEmail="{email}"')
@@ -284,5 +341,17 @@ def updateBuyerToSeller(email: str):
     conn.commit()
     cursor.close()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def rejectBuyerToSeller(email: str):
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('routes.homeAdmin'))
+    
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(f'UPDATE requests SET requestArchived=1 WHERE accountEmail="{email}"')
+    '''
+        FIXME: WONT UPDATE SHIT
+        FIXED: NEED FOR DB TO COMMIT LOL FUCK ME SHIT WAS SO BASIC XDDD
+    '''
+    conn.commit()
+    cursor.close()
