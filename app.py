@@ -26,7 +26,7 @@ def welcome():
 
 @app.route('/home')
 def home():
-    return render_template('home.html', email=session['accountEmail'], username=session['accountUsername'])
+    return render_template('home.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route('/test')
 def test():
@@ -144,7 +144,7 @@ def requestToBecomeSeller():
         cursor = conn.cursor()
         
         try:
-            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType) VALUES (%s, %s, %s)', (id, email, requestType))
+            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType, requestArchived) VALUES (%s, %s, %s, %s)', (id, email, requestType, 0))
             conn.commit()
             flash("CREATED NEW REQUEST", category="success")
         except mysql.connector.IntegrityError:  
@@ -163,7 +163,7 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# admin 
+# admin ----------------------------------------------------------------------------------------------
 @app.route('/homeAdmin')
 def homeAdmin():
     conn = get_db_connection()
@@ -172,7 +172,7 @@ def homeAdmin():
         return redirect(url_for('login'))   
     
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM requests")
+    cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
     rows=cursor.fetchall()
     cursor.close()
     conn.close()
@@ -206,22 +206,20 @@ def loginAdmin():
 
     return render_template('login_admin.html')
 
-@app.route('/adminRequestInteraction', methods=['GET', 'POST'])
-def adminRequestInteraction():
+@app.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
+def adminRequestInteraction(email):
     if request.method=='POST':
         approval = request.form['interact']
 
         if approval=="accept":
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute('UPDATE accountRole FROM accounts')
-            return "accepted"
+            updateBuyerToSeller(email)
+            return redirect(url_for('homeAdmin'))
         elif approval=="decline":
-            return "declined"
+            return redirect(url_for('homeAdmin'))
         
-    return "hello"
+    return render_template('home_admin.html', accountEmail=email)
 
-# functions
+# functions ----------------------------------------------------------------------------------------------
 def isSignUpFormInvalid(email: str, password: str, confirmPassword: str, username: str):
     if email==" " or password==" " or confirmPassword==" " or username==" ":
         return True
@@ -261,6 +259,22 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
     finally:
         cursor.close()
         conn.close()
+
+def updateBuyerToSeller(email: str):
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homeAdmin'))
+    
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(f'UPDATE accounts SET accountRole="seller" WHERE accountEmail="{email}"')
+    cursor.execute(f'UPDATE requests SET requestArchived=1 WHERE accountEmail="{email}"')
+    '''
+        FIXME: WONT UPDATE SHIT
+        FIXED: NEED FOR DB TO COMMIT LOL FUCK ME SHIT WAS SO BASIC XDDD
+    '''
+    conn.commit()
+    cursor.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
