@@ -9,63 +9,85 @@
     <script src="static\js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    {% if category == 'error'%}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% else %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <section>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'error'%}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </section>
 
-    <div class = "container">
-        <h1>Sign up</h1>
-        <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
+    <section>
+        {% if purpose == 'forgotPassword' %}
+        <h1>Forgot password</h1>
         <div class = "text-fields">
-            <form action="/signUp" method="POST">
+            <form action="/forgotPassword" method="POST">
                 <div class="form-group">
-                    <label for="fName">First name:</label>
-                    <input type="text" name="fName"><br>
+                    <label for="email">Email: </label>
+                        <input type="text" name="email"><br>
+                    <input type="submit" value="Forgot password"><br>
                 </div>
-
-                <div class="form-group">
-                    <label for="lName">Last name:</label>
-                    <input type="text" name="lName"><br>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="text" name="email"><br>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" name="password"><br>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm password:</label>
-                    <input type="password" name="confirmPassword"><br>
-                </div>
-                <div class = "form-group">
-                    <input type="submit" value="Sign up"><br>
-                </div>
-            </form>
+            </form>    
+            <div class="form-group">
+                <a href="/login">
+                    <input type="submit" value="Back to login"><br>
+                </a>
+            </div>
         </div>
-        <div class="buttons">
-            <a href="/login">
-                <button>Already have an account? Sign in</button>
-            </a>
+        {% else %}
+        <div class = "container">
+            <h1>Sign up</h1>
+            <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
+            <div class = "text-fields">
+                <form action="/signUp" method="POST">
+                    <div class="form-group">
+                        <label for="fName">First name:</label>
+                        <input type="text" name="fName"><br>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="lName">Last name:</label>
+                        <input type="text" name="lName"><br>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="text" name="email"><br>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password"><br>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm password:</label>
+                        <input type="password" name="confirmPassword"><br>
+                    </div>
+                    <div class = "form-group">
+                        <input type="submit" value="Sign up"><br>
+                    </div>
+                </form>
+            </div>
+            <div class="buttons">
+                <a href="/login">
+                    <button>Already have an account? Sign in</button>
+                </a>
+            </div>
         </div>
-    </div>
+        {% endif %}
+    </section>
 </body>
 
 </html> 

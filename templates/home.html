@@ -28,6 +28,63 @@
     {% endwith %}
   </section>
   
+  {% if purpose=='buyerBecomeSeller' %}
+  <section>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/home">E-commerce</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto">
+                {% if role=='seller' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Sell a product</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/buyerBecomeSeller">Become a seller</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Cart</a>
+                </li>
+                <form class="d-flex" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
+                    Profile
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">My account</a></li>
+                    <li><a class="dropdown-item" href="#">My orders</a></li>
+                    <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
+                    <li><a class="dropdown-item" href="#">My reviews</a></li>
+                    <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                  </ul>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                </li> -->
+              </ul>
+            </div>
+          </div>
+        </nav>
+    </div>
+  </section>
+
+  <section>
+    <form action="/requestToBecomeSeller", method="POST">
+      <input class="btn btn-primary" type="submit" value="Become a seller now!">
+    </form>
+  </section>
+  {% else %}
     <section>
       <div class="container">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -92,6 +149,7 @@
         <li>Supplies</li>
       </ul>
     </section>
+    {% endif %}
 
     <section>
       <!-- <div class = "headerButtons">
@@ -105,10 +163,9 @@
               <form action="", methods="POST">
                   <input type="text" name="searchTextBox" size="50"><br>
               </form>
-          </div>  
-      </div> -->
-    </section>
-
+            </div>  
+          </div> -->
+        </section>
     <footer>DEMERIN SOFTWARE SOLUTIONS</footer>
     <script src="static\js/bootstrap.bundle.min.js"></script>
 </body>

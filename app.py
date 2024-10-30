@@ -1,10 +1,14 @@
 from flask import *
+from itsdangerous.url_safe import URLSafeSerializer as Serializer
 import mysql.connector 
 from mysql.connector import Error
 from werkzeug.security import *
 
 app = Flask(__name__)
 app.secret_key = 'secret'
+
+s1 = Serializer('secret-key', salt='activate')
+s1.dumps(42)
 
 def get_db_connection():
     try:
@@ -123,11 +127,15 @@ def signUp():
                 
         return redirect(url_for('login'))
         
-    return render_template('sign_up.html')
+    return render_template('sign_up.html', purpose="signUp")
+
+@app.route("/forgotPassword", methods=['GET', 'POST'])
+def forgotPassword():
+    return render_template('sign_up.html', purpose="forgotPassword")
 
 @app.route('/buyerBecomeSeller')
 def buyerBecomeSeller():
-    return render_template('buyerBecomeSeller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'])
+    return render_template('home.html', purpose="buyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'])
 
 @app.route('/requestToBecomeSeller', methods=['GET', 'POST'])
 def requestToBecomeSeller():
