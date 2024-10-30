@@ -22,7 +22,7 @@ def get_db_connection():
 # routes are like labels using goto switches
 @app.route("/")
 def welcome():
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 @app.route('/home')
 def home():
@@ -166,7 +166,17 @@ def logout():
 # admin 
 @app.route('/homeAdmin')
 def homeAdmin():
-    return render_template('home-admin.html', email=session['accountEmail'])
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='danger')
+        return redirect(url_for('login'))   
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM requests")
+    rows=cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('home_admin.html', email=session['accountEmail'], dbhtml=rows)
 
 @app.route('/loginAdmin', methods=['GET', 'POST'])
 def loginAdmin():
@@ -190,11 +200,26 @@ def loginAdmin():
             session['accountID'] = record['accountID']
             session['accountEmail'] = record['accountEmail']
             session['accountRole'] = record['accountRole']
-            return render_template("home-admin.html")
+            return redirect(url_for('homeAdmin'))
         else:
             flash('Incorrect credentials. Try again!', category='danger')
 
-    return render_template('login-admin.html')
+    return render_template('login_admin.html')
+
+@app.route('/adminRequestInteraction', methods=['GET', 'POST'])
+def adminRequestInteraction():
+    if request.method=='POST':
+        approval = request.form['interact']
+
+        if approval=="accept":
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('UPDATE accountRole FROM accounts')
+            return "accepted"
+        elif approval=="decline":
+            return "declined"
+        
+    return "hello"
 
 # functions
 def isSignUpFormInvalid(email: str, password: str, confirmPassword: str, username: str):

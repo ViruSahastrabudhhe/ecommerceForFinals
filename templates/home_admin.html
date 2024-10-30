@@ -4,10 +4,32 @@
         <title>ADMIN HOME PAGE</title>
     </head>
     <body>
-        <h1>ADMIN HOME PAGE</h1>
-        <a href="/logout">
-            <input type="submit" value="Log out">
-        </a>
-        <h2>WELCOME {{email}}</h2>
+        <section>
+            <h1>ADMIN HOME PAGE</h1>
+            <a href="/logout">
+                <input type="submit" value="Log out">
+            </a>
+            <h2>WELCOME {{email}}</h2>
+        </section>
+
+        <section>
+            <table>
+                <tr>
+                    <th>Account email</th>
+                    <th>Type of request</th>
+                </tr>
+                {% for row in dbhtml %}
+                <tr>
+                    <td>{{row.2}}</td>
+                    <td>{{row.3}}</td>
+                    <td><form action="/adminRequestInteraction", method="POST">
+                        <button type="submit" value="accept" name="interact">Accept</button>
+                        <button type="submit" value="decline" name="interact">Decline</button>
+                    </form>
+                    </td>
+                </tr>   
+                {% endfor %}
+            </table>
+        </section>
     </body>
 </html>
