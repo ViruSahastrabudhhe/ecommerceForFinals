@@ -1,8 +1,9 @@
 from flask import *
 from flask_mail import *
 from werkzeug.security import *
-import mysql.connector 
+import mysql.connector
 from mysql.connector import Error
+from models import *
 
 routes_bp = Blueprint("routes", __name__, static_folder='static', template_folder='templates')
 
@@ -132,6 +133,10 @@ def forgotPassword():
     if request.method=='POST':
         email=request.form['emailForgotPassword']
 
+        if not isEmailValid(email):
+            flash("Email invalid!", category='error')
+            return render_template('sign_up.html', purpose="forgotPassword")
+
         conn = get_db_connection()
         if conn is None:
             flash('NO DB CONNECTION LOL', category='error')
@@ -146,6 +151,7 @@ def forgotPassword():
             return redirect(url_for('routes.login'))
         else:
             flash("Email does not existo!", category='error')
+            return render_template('sign_up.html', purpose="forgotPassword")
 
     return render_template('sign_up.html', purpose="forgotPassword")
 
