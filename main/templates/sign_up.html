@@ -4,9 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-commerce</title>
-    <link rel="stylesheet" type="text/css" href="static\login_style.css">
-    <link rel="stylesheet" href="static\css/bootstrap.min.css">
-    <script src="static\js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/login_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 </head>
 <body>
     <!--FLASH ALERTS-->
@@ -35,7 +34,7 @@
     <section>
         <h1>Forgot password</h1>
         <div class = "text-fields">
-            <form action="/forgotPassword" method="POST">
+            <form action="/requestPasswordReset" method="POST">
                 <div class="form-group">
                     <label for="email">Email: </label>
                         <input type="text" name="emailForgotPassword" required><br>
@@ -49,7 +48,6 @@
             </div>
         </div>
     </section>
-
     <!--ELSE, RENDER SIGN UP-->
     {% else %}
     <section>
@@ -94,6 +92,6 @@
         </div>
     </section>
     {% endif %}
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
-
 </html> 

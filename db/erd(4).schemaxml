@@ -100,7 +100,7 @@
   KEY `requestsAccountID` (`accountID`),
   CONSTRAINT `requestsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `requestsEmailID` FOREIGN KEY (`accountEmail`) REFERENCES `accounts` (`accountEmail`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="accounts" view="colnames">
 <left>18</left>
@@ -116,7 +116,7 @@
   `accountArchived` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`accountID`),
   UNIQUE KEY `accountEmail` (`accountEmail`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products" view="colnames">
 <left>408</left>

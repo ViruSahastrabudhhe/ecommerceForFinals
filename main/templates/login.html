@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-commerce</title>
-    <link rel="stylesheet" type="text/css" href="static\login_style.css">
-    <link rel="stylesheet" href="static\css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/login_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="components\toasts.html">
 </head>
 <body>
@@ -48,7 +48,7 @@
             </div>
         </form>
         <div class="buttons">
-            <a href="/forgotPassword">
+            <a href="/requestPasswordReset">
                 <button type="button" class="btn btn-primary btn-sm">Forgot password</button>
             </a>
             <a href="/signUp">
@@ -57,7 +57,7 @@
             <!--LINK TO APP.ROUTE, NOT HTML FILE-->
         </div>
     </div>
-    <script src="static\js/bootstrap.bundle.min.js"></script>
+    <script src="{{url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html> 

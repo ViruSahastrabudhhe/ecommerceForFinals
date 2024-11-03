@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ADMIN E-commerce</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/login_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <section>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'error'%}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </section>
+
+    <section>
+        <div class = "container">
+            <h1>ADMIN LOGIN</h1>
+            <fieldset>
+                <div class = "text-field">
+                    <form action="/loginAdmin" method="POST">
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="text" name="email" required><br>
+                        </div>  
+                        
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" name="password" required><br>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="ADMIN SIGN IN"><br>
+                        </div>
+                    </form>
+                </div>
+                <div class="buttons">
+                    <a href="/login">
+                        <button>RETURN TO LOGIn</button>
+                    </a>
+                </div>
+            </fieldset>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

@@ -1,6 +1,12 @@
 h1 {
     text-align: center;
     margin: 500px auto;
+    font-weight: bold;
+}
+
+h3 {
+    text-align: center;
+    margin: 500px auto;
 }
 
 #loginHeader {

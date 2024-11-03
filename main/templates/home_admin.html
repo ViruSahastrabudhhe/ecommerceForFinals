@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADMIN E-commerce</title>
-    <link rel="stylesheet" type="text/css" href="static\home_style.css">
-    <link rel="stylesheet" href="static\css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/home_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 </head>
 <body>
     <section>
@@ -45,7 +45,7 @@
             <tr>
                 <td>{{row.2}}</td>
                 <td>{{row.3}}</td>
-                <td><form action="{{ url_for('routes.adminRequestInteraction', email=row[2]) }}", method="POST">
+                <td><form action="{{ url_for('adminRequestInteraction', email=row[2]) }}", method="POST">
                     <button type="submit" value="accept" name="interact">Accept</button>
                     <button type="submit" value="decline" name="interact">Decline</button>
                 </form>
@@ -55,6 +55,6 @@
         </table>
     </section>
 
-    <script src="static\js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/boostrap.bundle.min.js') }}"></script>
 </body>
 </html>
