@@ -16,4 +16,4 @@ app.static_folder = 'static'
 
 mail=Mail(app)
 
-from main import routes
+from awesomers import routes

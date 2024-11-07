@@ -1,4 +1,4 @@
-from main import app
+from awesomers import app
 from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 import mysql.connector
 from mysql.connector import Error

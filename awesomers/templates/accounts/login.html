@@ -1,0 +1,59 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Login | Awesomers{% endblock %}
+
+{% block content %}
+<body>
+    <!-- FLASH ALERTS -->
+    <section>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'error'%}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %} 
+        {% endwith %}
+    </section>
+
+    <section>
+        <div class = "container">
+            <h1>{{legend}}</h1>
+            <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <div class="input-group input-group-sm mb-3" id="input-group">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" id="input-group-label" name="email" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" required>
+                    </div>
+    
+                    <div class="input-group input-group-sm mb-3" id="input-group">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
+                            <input type="password" id="input-group-label" name="password" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" required>
+                    </div>
+
+                    <a href="{{ url_for('requestPasswordReset') }}" id="login_forgotPassword">Forgot Password</a>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Sign in&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                </div>
+            </form>
+            <div class="form-group">
+                <a href="{{ url_for('signUp') }}">
+                    <button type="button" class="btn btn-primary btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Create account&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                </a>
+                <!--LINK TO APP.ROUTE, NOT HTML FILE-->
+            </div>
+        </div>
+    </section>
+</body>
+{% endblock %}

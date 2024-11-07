@@ -1,4 +1,4 @@
-from main import app, mail
+from awesomers import app, mail
 from flask import render_template, redirect, session, flash, request, url_for
 from flask_mail import Message
 from email.mime.text import MIMEText
@@ -7,7 +7,7 @@ import smtplib
 from smtplib import SMTP
 import mysql.connector
 from mysql.connector import Error
-from main.models import get_db_connection, generateToken, verifyToken
+from awesomers.models import get_db_connection, generateToken, verifyToken
 from werkzeug.security import *
 
 # routes are like labels using goto switches
@@ -17,11 +17,15 @@ def welcome():
 
 @app.route('/home')
 def home():
-    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    if session['accountRole']=='seller':
+        return render_template('dashboard/dashboard_seller.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    elif session['accountRole']=='buyer':
+        return render_template('dashboard/dashboard_buyer.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    # return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route('/test')
 def test():
-    return render_template('test.html')
+    return render_template('accounts/forgot_password.html', legend="TEST")
 
 # users ----------------------------------------------------------------------------------------------
 @app.route('/login', methods=['GET', 'POST'])
@@ -32,7 +36,7 @@ def login():
         role = 'admin'
         ifArchived = False
 
-        if isLoginFormInvalid(email, password):
+        if isLoginFormEmpty(email, password):
             flash("Please input in the fields!", category='error')
             return redirect(url_for('login'))
         
@@ -50,20 +54,21 @@ def login():
         record = cursor.fetchone()
 
         # SESSION COOKIES
-        if record:
-            if check_password_hash(record['accountPassword'], password):
-                session['loggedIn'] = True
-                session['accountID'] = record['accountID']
-                session['accountEmail'] = record['accountEmail']
-                session['accountUsername'] = record['accountUsername']
-                session['accountRole'] = record['accountRole']
-                return redirect(url_for('home'))
-            else:
-                flash('Incorrect password! Try again.', category='error')
-        else:
+        if record is None:
             flash('Email does not exist! Try again.', category='error')
+            return redirect(url_for('login'))
 
-    return render_template('login.html')
+        if check_password_hash(record['accountPassword'], password):
+            session['loggedIn'] = True
+            session['accountID'] = record['accountID']
+            session['accountEmail'] = record['accountEmail']
+            session['accountUsername'] = record['accountUsername']
+            session['accountRole'] = record['accountRole']
+            return redirect(url_for('home'))
+        else:
+            flash('Incorrect password! Try again.', category='error')
+
+    return render_template('accounts/login.html', legend="Login")
 
 @app.route("/signUp", methods=['GET', 'POST'])
 def signUp():
@@ -74,15 +79,15 @@ def signUp():
         confirmPassword = request.form['confirmPassword']
 
         # security measure, prevents user from leaving fields blank
-        if isSignUpFormInvalid(email, password, confirmPassword, username):
+        if isSignUpFormEmpty(email, password, confirmPassword, username):
             flash("Please input in the fields!", category='error')
             return redirect(url_for('signUp'))
         # security measure, prevents user from inputting invalid email (no @)
-        elif not isEmailValid(email): 
+        elif not isEmailFormatValid(email): 
             flash('Email invalid!', category='error')
             return redirect(url_for('signUp'))
         # security measure, prevents user from making a password with <8 characters
-        elif not isPasswordValid(password):
+        elif not isPasswordLongEnough(password):
             flash('Password must not be <8 characters!', category='error')
             return redirect(url_for('signUp'))
         # password must be equal to confirm pass
@@ -115,7 +120,7 @@ def signUp():
                 
         return redirect(url_for('login'))
         
-    return render_template('sign_up.html', purpose="signUp")
+    return render_template('accounts/sign_up.html', legend="Sign up")
 
 @app.route('/resetPassword/<token>', methods=['GET', 'POST'])
 def resetPassword(token):
@@ -136,7 +141,7 @@ def resetPassword(token):
             flash('Passwords do not match!', category='error')
             return redirect(url_for('resetPassword', token=token))
 
-        if not isPasswordValid(newPassword):
+        if not isPasswordLongEnough(newPassword):
             flash('Password must not be <8 characters!', category='error')
             return redirect(url_for('resetPassword', token=token))
 
@@ -161,14 +166,14 @@ def resetPassword(token):
 
         return redirect(url_for('login'))
 
-    return render_template('forgot_password.html', legend='Change Password', userToken=token, userEmail=email)
+    return render_template('accounts/reset_password.html', legend='Reset password', userToken=token, userEmail=email)
         
 @app.route("/requestPasswordReset", methods=['GET', 'POST'])
 def requestPasswordReset():
     if request.method=='POST':
         email=request.form['emailForgotPassword']
 
-        if not isEmailValid(email):
+        if not isEmailFormatValid(email):
             flash("Email invalid!", category='error')
             return render_template('sign_up.html', purpose="forgotPassword")
 
@@ -189,7 +194,7 @@ def requestPasswordReset():
             flash("Email does not existo!", category='error')
             return render_template('sign_up.html', purpose="forgotPassword")
 
-    return render_template('sign_up.html', purpose="forgotPassword")
+    return render_template('accounts/forgot_password.html',  legend="Forgot password")
 
 @app.route('/logout')
 def logout():
@@ -335,19 +340,19 @@ def adminRequestInteraction(email):
     return render_template('home_admin.html', accountEmail=email)
 
 # functions ----------------------------------------------------------------------------------------------
-def isSignUpFormInvalid(email: str, password: str, confirmPassword: str, username: str):
+def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, username: str):
     if email==" " or password==" " or confirmPassword==" " or username==" ":
         return True
 
-def isLoginFormInvalid(email: str, password: str):
+def isLoginFormEmpty(email: str, password: str):
     if email==" " or password==" ":
         return True
 
-def isEmailValid(email: str):
+def isEmailFormatValid(email: str):
     if "@" in email and len(email)>10:
         return True
     
-def isPasswordValid(password: str):
+def isPasswordLongEnough(password: str):
     if len(password) > 8:
         return True
 
