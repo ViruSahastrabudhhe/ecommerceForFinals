@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_style.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 
     {% block head %}{% endblock %}
 </head>
+<body>
 <body>
     <!-- FLASH ALERTS -->
     <section>
@@ -30,8 +30,9 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-    </section>        
-    {% block content%}
+    </section>
+    {% block content %}
     {% endblock %}
+</body>
 </body>
 </html>

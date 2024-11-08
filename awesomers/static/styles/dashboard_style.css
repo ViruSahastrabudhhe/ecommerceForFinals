@@ -1,0 +1,7 @@
+.border {
+    border-width: 1px;
+}
+
+.dropdown-menu .dropdown-item {
+    white-space: wrap;
+}

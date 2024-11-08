@@ -1,0 +1,38 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Home | Awesomers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <h1>ADMIN HOME PAGE</h1>
+        <a href="{{ url_for('logout') }}">
+            <input type="submit" value="Log out">
+        </a>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <section>
+            <table>
+                <tr>
+                    <th>Account email</th>
+                    <th>Type of request</th>
+                </tr>
+                {% for row in dbhtml %}
+                <tr>
+                    <td>{{row.2}}</td>
+                    <td>{{row.3}}</td>
+                    <td><form action="{{ url_for('adminRequestInteraction', email=row[2]) }}", method="POST">
+                        <button type="submit" class="btn btn-success btn-sm" name="interact" value ="accept">&nbsp;Accept&nbsp;</button>
+                        <button type="submit" class="btn btn-danger btn-sm" name="interact" value ="decline">&nbsp;Decline&nbsp;</button>
+                    </form>
+                    </td>
+                </tr>   
+                {% endfor %}
+            </table>
+        </section>
+    </div>
+</section>
+{% endblock %}

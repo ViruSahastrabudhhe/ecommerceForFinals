@@ -31,7 +31,7 @@ def test():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form['emailLogin']
         password = request.form['password']
         role = 'admin'
         ifArchived = False
@@ -204,7 +204,7 @@ def logout():
 # seller ----------------------------------------------------------------------------------------------
 @app.route('/renderBuyerBecomeSeller')
 def renderBuyerBecomeSeller():
-    return render_template('home.html', purpose="renderBuyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('dashboard/dashboard_buyer.html', purpose="renderBuyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route('/requestToBecomeSeller', methods=['GET', 'POST'])
 def requestToBecomeSeller():
@@ -237,7 +237,7 @@ def requestToBecomeSeller():
 
 @app.route("/renderSellProduct", methods=['GET', 'POST'])
 def renderSellProduct():
-    return render_template('home.html', purpose="renderSellProduct", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('dashboard/dashboard_seller.html', purpose="renderSellProduct", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route("/requestToSellProduct", methods=['GET', 'POST'])
 def requestToSellProduct():
@@ -282,7 +282,7 @@ def homeAdmin():
         rows=cursor.fetchall()
         cursor.close()
         conn.close()
-        return render_template('home_admin.html', email=session['accountEmail'], dbhtml=rows)
+        return render_template('admin/home_admin.html', email=session['accountEmail'], dbhtml=rows)
     except Error as e:
         flash(f'{e}', category='error')
         logout()
@@ -290,7 +290,7 @@ def homeAdmin():
 @app.route('/loginAdmin', methods=['GET', 'POST'])
 def loginAdmin():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form['emailAdmin']
         password = request.form['password']
         role = 'admin'
         ifArchived = False
@@ -321,7 +321,7 @@ def loginAdmin():
         else:
             flash('Email does not exist! Try again.', category='error')
 
-    return render_template('login_admin.html')
+    return render_template('admin/login_admin.html', legend='Admin Login')
 
 @app.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
 def adminRequestInteraction(email):
@@ -337,7 +337,7 @@ def adminRequestInteraction(email):
             flash('Declined request of buyer to become seller!',category="error")
             return redirect(url_for('homeAdmin'))
         
-    return render_template('home_admin.html', accountEmail=email)
+    return render_template('admin/home_admin.html', accountEmail=email)
 
 # functions ----------------------------------------------------------------------------------------------
 def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, username: str):
