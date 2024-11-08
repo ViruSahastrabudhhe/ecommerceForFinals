@@ -3,28 +3,6 @@
 {% block title %}Login | Awesomers{% endblock %}
 
 {% block content %}
-<body>
-    <!-- FLASH ALERTS -->
-    <section>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        {% if category == 'error'%}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% else %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
-        {% endfor %}
-        {% endif %} 
-        {% endwith %}
-    </section>
-
     <section>
         <div class = "container">
             <h1>{{legend}}</h1>
@@ -55,5 +33,4 @@
             </div>
         </div>
     </section>
-</body>
 {% endblock %}

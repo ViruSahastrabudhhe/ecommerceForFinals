@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-commerce</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/home_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+  <section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'error'%}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% else %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </section>
+  
+  <!--IF USER CLICKS ON BECOME A SELLER NOW, WILL RENDER THE FF-->
+  {% if purpose=='renderBuyerBecomeSeller' %}
+  <section>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/home">E-commerce</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto">
+                {% if role=='seller' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Sell a product</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/renderBuyerBecomeSeller">Become a seller</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Cart</a>
+                </li>
+                <form class="d-flex" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
+                    {{ username }}
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">My account</a></li>
+                    <li><a class="dropdown-item" href="#">My orders</a></li>
+                    <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
+                    <li><a class="dropdown-item" href="#">My reviews</a></li>
+                    <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                  </ul>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                </li> -->
+              </ul>
+            </div>
+          </div>
+        </nav>
+    </div>
+  </section>
+
+  <section>
+    <h1>Become a seller now!</h1>
+  </section>
+
+  <section>
+    <form action="/requestToBecomeSeller", method="POST">
+      <input class="btn btn-primary" type="submit" value="Become a seller now!">
+    </form>
+  </section>
+  
+  <!--IF USER CLICKS ON SELL A PRODUCT, WILL RENDER THE FF-->
+  {% elif purpose =='renderSellProduct' %}
+  <section>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/home">E-commerce</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto">
+                {% if role=='seller' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/renderSellProduct">Sell a product</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/renderBuyerBecomeSeller">Become a seller</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Cart</a>
+                </li>
+                <form class="d-flex" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
+                    {{ username }}
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">My account</a></li>
+                    <li><a class="dropdown-item" href="#">My orders</a></li>
+                    <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
+                    <li><a class="dropdown-item" href="#">My reviews</a></li>
+                    <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                  </ul>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                </li> -->
+              </ul>
+            </div>
+          </div>
+        </nav>
+    </div>
+  </section>
+  <section>
+    <h1>Sell a product now, seller!</h1>
+  </section>
+
+  <section>
+    <form action="/requestToSellProduct", method="POST">
+      <input class="btn btn-primary" type="submit" value="Request to sell a product!">
+    </form>
+  </section>
+
+  <!--IF USER IS NOT CLICKING ON THE BTNS ABOVE, RENDER HOMEPAGE OTHERWISE-->
+  {% else %}
+    <section>
+      <div class="container">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/home">E-commerce</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto">
+                  {% if role=='seller' %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="/renderSellProduct">Sell a product</a>
+                  </li>
+                  {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="/renderBuyerBecomeSeller">Become a seller</a>
+                  </li>
+                  {% endif %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Cart</a>
+                  </li>
+                  <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profileBtn">
+                      {{ username }}
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">My account</a></li>
+                      <li><a class="dropdown-item" href="#">My orders</a></li>
+                      <li><a class="dropdown-item" href="#">My wishlist and followed stores</a></li>
+                      <li><a class="dropdown-item" href="#">My reviews</a></li>
+                      <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                  </li>
+                  <!-- <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                  </li> -->
+                </ul>
+              </div>
+            </div>
+          </nav>
+      </div>
+    </section>
+
+    <section>
+      <h3>Welcome to E-commerce. Shop and sell.</h3>
+      <figure>
+        <img src="static\shopping.png" alt="A picture of you and a friend shopping." height="500px">
+        <figcaption>Shopping moments.</figcaption>
+      </figure>
+      <h4>Categories</h4>
+      <ul>
+        <li>Clothes</li>
+        <li>Electronics</li>
+        <li>Food</li>
+        <li>Supplies</li>
+      </ul>
+    </section>
+  {% endif %}
+
+    <section>
+      <!-- <div class = "headerButtons">
+          <a style="text-decoration: none;" href="/buyerBecomeSeller" id="becomeSeller">Become a seller</a>
+          <a style="text-decoration: none;" href="/logout" id="accountName">{{username}} account</a>
+      </div>
+      <hr>
+      <div class ="container">
+          <a style="text-decoration: none;" href="/home" id="dashboardName">E-commerce</a>
+          <div class="searchTextBox">
+              <form action="", methods="POST">
+                  <input type="text" name="searchTextBox" size="50"><br>
+              </form>
+            </div>  
+          </div> -->
+        </section>
+    <footer>DEMERIN SOFTWARE SOLUTIONS</footer>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>
