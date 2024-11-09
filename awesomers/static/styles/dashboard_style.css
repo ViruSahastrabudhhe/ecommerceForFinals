@@ -1,7 +1,8 @@
-.border {
-    border-width: 1px;
-}
-
 .dropdown-menu .dropdown-item {
     white-space: wrap;
+}
+
+#header {
+    white-space: nowrap;
+    padding: 2px;
 }

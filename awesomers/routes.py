@@ -18,10 +18,9 @@ def welcome():
 @app.route('/home')
 def home():
     if session['accountRole']=='seller':
-        return render_template('dashboard/dashboard_seller.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('dashboard/dashboard_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
-        return render_template('dashboard/dashboard_buyer.html', email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-    # return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route('/test')
 def test():
@@ -78,19 +77,15 @@ def signUp():
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
-        # security measure, prevents user from leaving fields blank
         if isSignUpFormEmpty(email, password, confirmPassword, username):
             flash("Please input in the fields!", category='error')
             return redirect(url_for('signUp'))
-        # security measure, prevents user from inputting invalid email (no @)
         elif not isEmailFormatValid(email): 
             flash('Email invalid!', category='error')
             return redirect(url_for('signUp'))
-        # security measure, prevents user from making a password with <8 characters
         elif not isPasswordLongEnough(password):
             flash('Password must not be <8 characters!', category='error')
             return redirect(url_for('signUp'))
-        # password must be equal to confirm pass
         elif password!=confirmPassword:
             flash('Password does not match!', category='error')
             return redirect(url_for('signUp'))
@@ -172,10 +167,12 @@ def resetPassword(token):
 def requestPasswordReset():
     if request.method=='POST':
         email=request.form['emailForgotPassword']
+        role='admin'
+        ifArchived=False
 
         if not isEmailFormatValid(email):
             flash("Email invalid!", category='error')
-            return render_template('sign_up.html', purpose="forgotPassword")
+            return redirect(url_for('requestPasswordReset'))
 
         conn = get_db_connection()
         if conn is None:
@@ -183,17 +180,25 @@ def requestPasswordReset():
             return redirect(url_for('login'))
         
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM accounts WHERE accountEmail='{email}'")
+        cursor.execute(f"SELECT * FROM accounts WHERE accountEmail='{email}' AND accountRole!='{role}' AND accountArchived={ifArchived}")
         record = cursor.fetchone()
 
-        if record:
+        if record is None:
+            flash("Email does not existo!", category='error')
+            return redirect(url_for('requestPasswordReset'))
+        
+        try:
             sendForgotPasswordMail(email)
             flash("Password reset request sent!", category='success')
-            return redirect(url_for('login'))
-        else:
-            flash("Email does not existo!", category='error')
-            return render_template('sign_up.html', purpose="forgotPassword")
+        except:
+            flash("Failed to send password request!", category='error')
+            return redirect(url_for('requestPasswordReset'))
+        finally:
+            cursor.close()
+            conn.close()
 
+        return redirect(url_for('login'))
+    
     return render_template('accounts/forgot_password.html',  legend="Forgot password")
 
 @app.route('/logout')
@@ -215,7 +220,7 @@ def requestToBecomeSeller():
 
         conn = get_db_connection()
         if conn is None:
-            flash("NO DB CONNECTION", category='danger')
+            flash("NO DB CONNECTION", category='error')
             return redirect(url_for('login'))   
         
         cursor = conn.cursor()
@@ -226,14 +231,14 @@ def requestToBecomeSeller():
             flash("CREATED NEW REQUEST", category="success")
         except mysql.connector.IntegrityError:  
             flash("REQUEST ALREADY EXISTO", category='error')
-            return render_template('home.html', purpose='renderBuyerBecomeSeller', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+            return redirect(url_for('renderBuyerBecomeSeller'))
         finally:
             cursor.close()
             conn.close()
 
         return redirect(url_for('home'))
     
-    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 @app.route("/renderSellProduct", methods=['GET', 'POST'])
 def renderSellProduct():
@@ -248,7 +253,7 @@ def requestToSellProduct():
 
         conn = get_db_connection()
         if conn is None:
-            flash("NO DB CONNECTION", category='danger')
+            flash("NO DB CONNECTION", category='error')
             return redirect(url_for('home'))   
         
         cursor = conn.cursor()
@@ -259,21 +264,21 @@ def requestToSellProduct():
             flash("CREATED NEW REQUEST", category="success")
         except mysql.connector.IntegrityError:  
             flash("REQUEST ALREADY EXISTO", category='error')
-            return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+            return redirect(url_for('renderSellProduct'))
         finally:
             cursor.close()
             conn.close()
 
         return redirect(url_for('home'))
     
-    return render_template('home.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('dashboard/dashboard_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 # admin ----------------------------------------------------------------------------------------------
 @app.route('/homeAdmin')
 def homeAdmin():
     conn = get_db_connection()
     if conn is None:
-        flash("NO DB CONNECTION", category='danger')
+        flash("NO DB CONNECTION", category='error')
         return redirect(url_for('loginAdmin'))   
     
     try:
@@ -374,7 +379,7 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
         conn.commit()
         flash("CREATED NEW ACCOUNT", category='success')
     except mysql.connector.IntegrityError:
-        flash("Account already exists", category='danger')
+        flash("Account already exists", category='error')
         return redirect(url_for('signUp'))
     finally:
         cursor.close()
