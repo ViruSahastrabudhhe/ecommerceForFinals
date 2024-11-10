@@ -1,0 +1,81 @@
+{% extends 'seller/base.html' %}
+
+{% block title %}Seller Center | Awesomers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="row">
+        <div class="col-10">
+            <h2>{{legend}}</h2>
+        </div>
+
+        <form action="{{ url_for('seller.addProduct') }}" method="POST">
+            <div class="col-8">
+                <!-- <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="inputGroupFile02">
+                    <label class="input-group-text" name="productImg" for="inputGroupFile02">Upload image</label>
+                </div> -->
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="productName" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Product name</label>
+                  </div>
+                  
+                <div class="form-floating">
+                    <textarea class="form-control" name="productDescription" placeholder="Enter product description here" id="floatingTextarea2" style="height: 100px"></textarea>
+                    <label for="floatingTextarea2">Description</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="productCategory" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Product category</label>
+                  </div>
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="productVariation" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Product variation</label>
+                  </div>
+                  
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="productQuantity" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Product quantity</label>
+                  </div>
+                  
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="productPrice" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Product price</label>
+                  </div>
+
+                <button type="submit" class="btn btn-success btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Add product&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                  <!-- <div class="mb-3">
+                    <label for="basic-url" class="form-label">Your vanity URL</label>
+                    <div class="input-group">
+                      <span class="input-group-text" id="basic-addon3">https://example.com/users/</span>
+                      <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                    </div>
+                    <div class="form-text" id="basic-addon4">Example help text goes outside the input group.</div>
+                  </div>
+                  
+                  <div class="input-group mb-3">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+                    <span class="input-group-text">.00</span>
+                  </div>
+                  
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Username" aria-label="Username">
+                    <span class="input-group-text">@</span>
+                    <input type="text" class="form-control" placeholder="Server" aria-label="Server">
+                  </div>
+                  
+                  <div class="input-group">
+                    <span class="input-group-text">With textarea</span>
+                    <textarea class="form-control" aria-label="With textarea"></textarea>
+                  </div> -->
+            </div>
+        </form>
+
+
+    </div>
+</section>
+{% endblock %}

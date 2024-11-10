@@ -1,8 +1,16 @@
 from flask import Flask
-from flask_mail import Mail
+from .extensions import mail
 
 app=Flask(__name__)
+mail.init_app(app)
 app.config['SECRET_KEY']='supersecretkey'
+
+from .users import users as users_blueprint
+app.register_blueprint(users_blueprint)
+from .homepage import homepage as homepage_blueprint
+app.register_blueprint(homepage_blueprint)
+from .seller import seller as seller_blueprint
+app.register_blueprint(seller_blueprint)
 
 app.config['MAIL_SERVER']='live.smtp.mailtrap.io'
 app.config['MAIL_PORT']=587
@@ -13,7 +21,3 @@ app.config['MAIL_USE_TLS']=True
 
 app.static_folder = 'static'
 # app.template_folder = 'templates'
-
-mail=Mail(app)
-
-from awesomers import routes

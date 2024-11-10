@@ -7,7 +7,7 @@
     <div class = "container">
         <h1>{{legend}}</h1>
         <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
-        <form action="{{ url_for('signUp') }}" method="POST">
+        <form action="{{ url_for('users.signUp') }}" method="POST">
             <div class="form-group">
                 <div class="input-group mb-3">
                     <span class="input-group-text">F&nbsp;&nbsp;</span>
@@ -49,7 +49,7 @@
             </div>
         </form>
         <div class="form-group">
-            <a href="{{ url_for('login') }}">
+            <a href="{{ url_for('users.login') }}">
                 <button type="button" class="btn btn-primary btn-sm">Already have an account? Sign in</button>
             </a>
         </div>

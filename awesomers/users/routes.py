@@ -1,5 +1,6 @@
-from awesomers import app, mail
-from flask import render_template, redirect, session, flash, request, url_for
+from . import users
+from flask import render_template, redirect, url_for, flash, session, request
+from awesomers.extensions import mail
 from flask_mail import Message
 from email.mime.text import MIMEText
 import os
@@ -10,24 +11,16 @@ from mysql.connector import Error
 from awesomers.models import get_db_connection, generateToken, verifyToken
 from werkzeug.security import *
 
-# routes are like labels using goto switches
-@app.route("/")
+@users.route('/')
 def welcome():
-    return redirect(url_for('login'))
+    return redirect(url_for('users.login'))
 
-@app.route('/home')
-def home():
-    if session['accountRole']=='seller':
-        return render_template('dashboard/dashboard_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-    elif session['accountRole']=='buyer':
-        return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-
-@app.route('/test')
+@users.route('/test')
 def test():
-    return render_template('accounts/forgot_password.html', legend="TEST")
+    return render_template('seller/seller_center.html')
 
 # users ----------------------------------------------------------------------------------------------
-@app.route('/login', methods=['GET', 'POST'])
+@users.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['emailLogin']
@@ -37,12 +30,12 @@ def login():
 
         if isLoginFormEmpty(email, password):
             flash("Please input in the fields!", category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
         
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
         
         cursor = conn.cursor(dictionary=True)
         '''
@@ -55,7 +48,7 @@ def login():
         # SESSION COOKIES
         if record is None:
             flash('Email does not exist! Try again.', category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
 
         if check_password_hash(record['accountPassword'], password):
             session['loggedIn'] = True
@@ -63,13 +56,13 @@ def login():
             session['accountEmail'] = record['accountEmail']
             session['accountUsername'] = record['accountUsername']
             session['accountRole'] = record['accountRole']
-            return redirect(url_for('home'))
+            return redirect(url_for('homepage.home'))
         else:
             flash('Incorrect password! Try again.', category='error')
 
     return render_template('accounts/login.html', legend="Login")
 
-@app.route("/signUp", methods=['GET', 'POST'])
+@users.route("/signUp", methods=['GET', 'POST'])
 def signUp():
     if request.method == 'POST':
         username = request.form['fName'] + ' ' + request.form['lName']
@@ -79,21 +72,21 @@ def signUp():
 
         if isSignUpFormEmpty(email, password, confirmPassword, username):
             flash("Please input in the fields!", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
         elif not isEmailFormatValid(email): 
             flash('Email invalid!', category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
         elif not isPasswordLongEnough(password):
             flash('Password must not be <8 characters!', category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
         elif password!=confirmPassword:
             flash('Password does not match!', category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
         
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
 
         '''
         FIXME: creates account even if email already exists and conditions are put in check!
@@ -108,16 +101,16 @@ def signUp():
             flash("Successfully signed up!", category='success')
         except mysql.connector.IntegrityError:
             flash("Account is already signed up!", category='error')
-            return redirect(url_for('signUp'))
+            return redirect(url_for('users.signUp'))
         finally:
             cursor.close()
             conn.close()
                 
-        return redirect(url_for('login'))
+        return redirect(url_for('users.login'))
         
     return render_template('accounts/sign_up.html', legend="Sign up")
 
-@app.route('/resetPassword/<token>', methods=['GET', 'POST'])
+@users.route('/resetPassword/<token>', methods=['GET', 'POST'])
 def resetPassword(token):
     email = verifyToken(token, expiration=3600)
     # '''
@@ -126,7 +119,7 @@ def resetPassword(token):
     # '''
     if email==False:
         flash('Invalid token or token has expired. Please try again!', category='error')
-        return redirect(url_for('login'))
+        return redirect(url_for('users.login'))
     
     if request.method=='POST':
         newPassword=request.form['newPassword']
@@ -134,16 +127,16 @@ def resetPassword(token):
 
         if newPassword!=confirmNewPassword:
             flash('Passwords do not match!', category='error')
-            return redirect(url_for('resetPassword', token=token))
+            return redirect(url_for('users.resetPassword', token=token))
 
         if not isPasswordLongEnough(newPassword):
             flash('Password must not be <8 characters!', category='error')
-            return redirect(url_for('resetPassword', token=token))
+            return redirect(url_for('users.resetPassword', token=token))
 
         conn = get_db_connection()
         if conn is None:
             flash('NO DB CONNECTION LOL', category='error')
-            return redirect(url_for('requestPasswordReset'))
+            return redirect(url_for('users.requestPasswordReset'))
         
         hashedPassword = generate_password_hash(newPassword, method="pbkdf2:sha256")
         cursor=conn.cursor()
@@ -154,16 +147,16 @@ def resetPassword(token):
             flash('Password successfully reset!', category='success')
         except:
             flash('An unexpected error has occurred!', category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
         finally:
             cursor.close()
             conn.close()
 
-        return redirect(url_for('login'))
+        return redirect(url_for('users.login'))
 
     return render_template('accounts/reset_password.html', legend='Reset password', userToken=token, userEmail=email)
         
-@app.route("/requestPasswordReset", methods=['GET', 'POST'])
+@users.route("/requestPasswordReset", methods=['GET', 'POST'])
 def requestPasswordReset():
     if request.method=='POST':
         email=request.form['emailForgotPassword']
@@ -172,12 +165,12 @@ def requestPasswordReset():
 
         if not isEmailFormatValid(email):
             flash("Email invalid!", category='error')
-            return redirect(url_for('requestPasswordReset'))
+            return redirect(url_for('users.requestPasswordReset'))
 
         conn = get_db_connection()
         if conn is None:
             flash('NO DB CONNECTION LOL', category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
         
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM accounts WHERE accountEmail='{email}' AND accountRole!='{role}' AND accountArchived={ifArchived}")
@@ -185,114 +178,29 @@ def requestPasswordReset():
 
         if record is None:
             flash("Email does not existo!", category='error')
-            return redirect(url_for('requestPasswordReset'))
+            return redirect(url_for('users.requestPasswordReset'))
         
         try:
             sendForgotPasswordMail(email)
             flash("Password reset request sent!", category='success')
         except:
             flash("Failed to send password request!", category='error')
-            return redirect(url_for('requestPasswordReset'))
+            return redirect(url_for('users.requestPasswordReset'))
         finally:
             cursor.close()
             conn.close()
 
-        return redirect(url_for('login'))
+        return redirect(url_for('users.login'))
     
     return render_template('accounts/forgot_password.html',  legend="Forgot password")
 
-@app.route('/logout')
+@users.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
-
-# seller ----------------------------------------------------------------------------------------------
-@app.route('/renderBuyerBecomeSeller')
-def renderBuyerBecomeSeller():
-    return render_template('dashboard/dashboard_buyer.html', purpose="renderBuyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-
-@app.route('/requestToBecomeSeller', methods=['GET', 'POST'])
-def requestToBecomeSeller():
-    if request.method=="POST":
-        id = session['accountID']
-        email = session['accountEmail']
-        requestType = "BUYER TO BE SELLER"
-
-        conn = get_db_connection()
-        if conn is None:
-            flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('login'))   
-        
-        cursor = conn.cursor()
-        
-        try:
-            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType, requestArchived) VALUES (%s, %s, %s, %s)', (id, email, requestType, 0))
-            conn.commit()
-            flash("CREATED NEW REQUEST", category="success")
-        except mysql.connector.IntegrityError:  
-            flash("REQUEST ALREADY EXISTO", category='error')
-            return redirect(url_for('renderBuyerBecomeSeller'))
-        finally:
-            cursor.close()
-            conn.close()
-
-        return redirect(url_for('home'))
-    
-    return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-
-@app.route("/renderSellProduct", methods=['GET', 'POST'])
-def renderSellProduct():
-    return render_template('dashboard/dashboard_seller.html', purpose="renderSellProduct", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-
-@app.route("/requestToSellProduct", methods=['GET', 'POST'])
-def requestToSellProduct():
-    if request.method=="POST":
-        id = session['accountID']
-        email = session['accountEmail']
-        requestType = "SELL A PRODUCT"
-
-        conn = get_db_connection()
-        if conn is None:
-            flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('home'))   
-        
-        cursor = conn.cursor()
-        
-        try:
-            cursor.execute('INSERT INTO requests (accountID, accountEmail, requestType, requestArchived) VALUES (%s, %s, %s, %s)', (id, email, requestType, 0))
-            conn.commit()
-            flash("CREATED NEW REQUEST", category="success")
-        except mysql.connector.IntegrityError:  
-            flash("REQUEST ALREADY EXISTO", category='error')
-            return redirect(url_for('renderSellProduct'))
-        finally:
-            cursor.close()
-            conn.close()
-
-        return redirect(url_for('home'))
-    
-    return render_template('dashboard/dashboard_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return redirect(url_for('users.login'))
 
 # admin ----------------------------------------------------------------------------------------------
-@app.route('/homeAdmin')
-def homeAdmin():
-    conn = get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('loginAdmin'))   
-    
-    try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
-        rows=cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return render_template('admin/home_admin.html', email=session['accountEmail'], dbhtml=rows)
-    except Error as e:
-        flash(f'{e}', category='error')
-        logout()
-
-@app.route('/loginAdmin', methods=['GET', 'POST'])
+@users.route('/loginAdmin', methods=['GET', 'POST'])
 def loginAdmin():
     if request.method == 'POST':
         email = request.form['emailAdmin']
@@ -303,7 +211,7 @@ def loginAdmin():
         conn = get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
-            return redirect(url_for('loginAdmin'))
+            return redirect(url_for('users.loginAdmin'))
         
         cursor = conn.cursor(dictionary=True)
         '''
@@ -314,37 +222,22 @@ def loginAdmin():
         record = cursor.fetchone()
 
         # SESSION COOKIES
-        if record:
-            if check_password_hash(record['accountPassword'], password):
-                session['loggedIn'] = True
-                session['accountID'] = record['accountID']
-                session['accountEmail'] = record['accountEmail']
-                session['accountRole'] = record['accountRole']
-                return redirect(url_for('homeAdmin'))
-            else:
-                flash('Incorrect password! Try again.', category='error')
-        else:
+        if record is None:
             flash('Email does not exist! Try again.', category='error')
+            return redirect(url_for('users.loginAdmin'))
+        
+        if check_password_hash(record['accountPassword'], password):
+            session['loggedIn'] = True
+            session['accountID'] = record['accountID']
+            session['accountEmail'] = record['accountEmail']
+            session['accountRole'] = record['accountRole']
+            return redirect(url_for('homepage.homeAdmin'))
+        else:
+            flash('Incorrect password! Try again.', category='error')
 
     return render_template('admin/login_admin.html', legend='Admin Login')
 
-@app.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
-def adminRequestInteraction(email):
-    if request.method=='POST':
-        approval = request.form['interact']
-
-        if approval=="accept":
-            updateBuyerToSeller(email)
-            flash('Approved request of buyer to become seller!',category="success")
-            return redirect(url_for('homeAdmin'))
-        elif approval=="decline":
-            rejectBuyerToSeller(email)
-            flash('Declined request of buyer to become seller!',category="error")
-            return redirect(url_for('homeAdmin'))
-        
-    return render_template('admin/home_admin.html', accountEmail=email)
-
-# functions ----------------------------------------------------------------------------------------------
+# methods ----------------------------------------------------------------------------------------------
 def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, username: str):
     if email==" " or password==" " or confirmPassword==" " or username==" ":
         return True
@@ -384,37 +277,6 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
     finally:
         cursor.close()
         conn.close()
-
-def updateBuyerToSeller(email: str):
-    conn = get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homeAdmin'))
-    
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(f'UPDATE accounts SET accountRole="seller" WHERE accountEmail="{email}"')
-    cursor.execute(f'UPDATE requests SET requestArchived=1 WHERE accountEmail="{email}"')
-    '''
-        FIXME: WONT UPDATE SHIT
-        FIXED: NEED FOR DB TO COMMIT LOL FUCK ME SHIT WAS SO BASIC XDDD
-    '''
-    conn.commit()
-    cursor.close()
-
-def rejectBuyerToSeller(email: str):
-    conn = get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homeAdmin'))
-    
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(f'UPDATE requests SET requestArchived=1 WHERE accountEmail="{email}"')
-    '''
-        FIXME: WONT UPDATE SHIT
-        FIXED: NEED FOR DB TO COMMIT LOL FUCK ME SHIT WAS SO BASIC XDDD
-    '''
-    conn.commit()
-    cursor.close()
 
 def sendForgotPasswordMail(email):
     token=generateToken(email)

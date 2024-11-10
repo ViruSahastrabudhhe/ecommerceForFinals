@@ -6,3 +6,8 @@
     white-space: nowrap;
     padding: 2px;
 }
+
+#logo {
+    padding: 15px;
+    white-space: normal;
+}

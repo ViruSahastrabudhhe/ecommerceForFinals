@@ -5,12 +5,12 @@
 {% block content %} 
 
 <section>
-    <div class="container-fluid">
+    <div class="container-xxl">
         <div class="row bg-secondary" id="header">
             <div class="col ms-auto"><h4></h4></div>
             <div class="col ms-auto"><h4></h4></div>
             <div class="col ms-auto">
-                <a class="nav-link active" aria-current="page" href="{{ url_for('renderSellProduct') }}"><strong>Sell a product</strong></a>
+                <a class="nav-link active" aria-current="page" href="{{ url_for('homepage.redirectToSellerCenter') }}"><strong>Seller Center</strong></a>
             </div>
         </div>
         
@@ -18,7 +18,7 @@
             <nav class="navbar navbar-expand bg-body-tertiary">
                 <div class="container">
                     <div class="col-3">
-                        <a class="navbar-brand" href="{{ url_for('home') }}">Awesomers</a>
+                        <a class="navbar-brand" href="{{ url_for('homepage.home') }}">Awesomers</a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="col-1">
-                        <a class="nav-link active ms-3" aria-current="page" href="#">Cart</a>
+                        <a class="nav-link active" aria-current="page" href="#">Cart</a>
                     </div>
                     <div class="col-2">
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -48,7 +48,7 @@
                                     <li><a class="dropdown-item" href="#">My reviews</a></li>
                                     <li><a class="dropdown-item" href="#">My returns and cancellations</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('users.logout') }}">Logout</a></li>
                                 </ul>
                             </li>
                             </ul>
@@ -59,18 +59,4 @@
         </div>
     </div>
 </section>
-
-{% if purpose=='renderSellProduct' %}
-<section>
-    <div class="container-xxl">
-        <div class="row">
-            <h1>BECOME A SELLER</h1>
-            <form action="{{ url_for('requestToSellProduct') }}" method="POST">
-                <button type="submit" class="btn btn-success btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Send request to sell a product&nbsp;&nbsp;&nbsp;&nbsp;</button>
-            </form>
-        </div>
-    </div>
-</section>
-{% endif %}
-
 {% endblock %}

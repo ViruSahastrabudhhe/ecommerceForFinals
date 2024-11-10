@@ -7,12 +7,12 @@
     <div class = "container">
         <h1>{{legend}}</h1>
         <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
-        <form action="{{ url_for('login') }}" method="POST">
+        <form action="{{ url_for('users.login') }}" method="POST">
             <div class="form-group">
                 <div class="input-group mb-3">
                     <span class="input-group-text">@</span>
                     <div class="form-floating">
-                    <input type="text" class="form-control" id="floatingInputGroup1" name="emailLogin" placeholder="Username" required>
+                    <input type="text" class="form-control" id="floatingInputGroup1" name="emailLogin" placeholder="Email" required>
                     <label for="floatingInputGroup1">Email</label>
                     </div>
                 </div>
@@ -20,12 +20,12 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text">#&nbsp;</span>
                     <div class="form-floating">
-                    <input type="password" class="form-control" id="floatingInputGroup1" name="password" placeholder="Username" required>
-                    <label for="floatingInputGroup1">Password</label>
+                        <input type="password" class="form-control" id="floatingInputGroup1" name="password" placeholder="Password" required>
+                        <label for="floatingInputGroup1">Password</label>
                     </div>
                 </div>
 
-                <a href="{{ url_for('requestPasswordReset') }}" id="login_forgotPassword">Forgot Password</a>
+                <a href="{{ url_for('users.requestPasswordReset') }}" id="login_forgotPassword">Forgot Password</a>
             </div>
 
             <div class="form-group">
@@ -33,7 +33,7 @@
             </div>
         </form>
         <div class="form-group">
-            <a href="{{ url_for('signUp') }}">
+            <a href="{{ url_for('users.signUp') }}">
                 <button type="button" class="btn btn-primary btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Create account&nbsp;&nbsp;&nbsp;&nbsp;</button>
             </a>
             <!--LINK TO APP.ROUTE, NOT HTML FILE-->

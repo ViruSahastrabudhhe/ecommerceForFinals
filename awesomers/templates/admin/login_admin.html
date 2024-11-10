@@ -7,7 +7,7 @@
     <div class = "container">
         <h1>{{legend}}</h1>
         <fieldset>
-            <form action="{{ url_for('loginAdmin') }}" method="POST">
+            <form action="{{ url_for('users.loginAdmin') }}" method="POST">
                 <div class="form-group">
                     <div class="input-group input-group-sm mb-3" id="input-group">
                         <span class="input-group-text" id="inputGroup-sizing-default">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -25,7 +25,7 @@
                 </div>
             </form>
             <div class="form-group">
-                <a href="{{ url_for('login') }}">
+                <a href="{{ url_for('users.login') }}">
                     <button type="button" class="btn btn-primary btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;Back to login&nbsp;&nbsp;&nbsp;&nbsp;</button>
                 </a>
                 <!--LINK TO APP.ROUTE, NOT HTML FILE-->
