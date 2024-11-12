@@ -4,6 +4,8 @@ from .extensions import mail
 app=Flask(__name__)
 mail.init_app(app)
 app.config['SECRET_KEY']='supersecretkey'
+app.config['UPLOAD_FOLDER'] = 'static/imgs'
+app.config['UPLOADED_FILES'] = 'static/imgs'
 
 from .users import users as users_blueprint
 app.register_blueprint(users_blueprint)

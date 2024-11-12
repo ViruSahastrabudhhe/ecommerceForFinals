@@ -9,40 +9,40 @@
             <h2>{{legend}}</h2>
         </div>
 
-        <form action="{{ url_for('seller.addProduct') }}" method="POST">
+        <form action="{{ url_for('seller.addProduct') }}" method="POST" enctype="multipart/form-data">
             <div class="col-8">
-                <!-- <div class="input-group mb-3">
-                    <input type="file" class="form-control" id="inputGroupFile02">
-                    <label class="input-group-text" name="productImg" for="inputGroupFile02">Upload image</label>
-                </div> -->
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                  <input type="file" class="form-control" name="productImg" id="inputGroupFile01" accept="image/jpeg, image/png">
+                </div>
 
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="productName" id="floatingInput" placeholder="name@example.com">
+                    <input type="text" class="form-control" name="productName" id="floatingInput" placeholder="name" required>
                     <label for="floatingInput">Product name</label>
                   </div>
                   
                 <div class="form-floating">
-                    <textarea class="form-control" name="productDescription" placeholder="Enter product description here" id="floatingTextarea2" style="height: 100px"></textarea>
+                    <textarea class="form-control" name="productDescription" placeholder="Enter product description here" id="floatingTextarea2" style="height: 100px" required></textarea>
                     <label for="floatingTextarea2">Description</label>
                 </div>
 
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="productCategory" id="floatingInput" placeholder="name@example.com">
+                    <input type="text" class="form-control" name="productCategory" id="floatingInput" placeholder="electronics, clothing" required>
                     <label for="floatingInput">Product category</label>
                   </div>
 
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="productVariation" id="floatingInput" placeholder="name@example.com">
+                    <input type="text" class="form-control" name="productVariation" id="floatingInput" placeholder="blue, white" required>
                     <label for="floatingInput">Product variation</label>
                   </div>
                   
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="productQuantity" id="floatingInput" placeholder="name@example.com">
+                    <input type="number" min="1" step="1" class="form-control" name="productQuantity" id="floatingInput" placeholder="name@example.com" required>
                     <label for="floatingInput">Product quantity</label>
                   </div>
                   
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="productPrice" id="floatingInput" placeholder="name@example.com">
+                    <input type="number" min="1" step="1" class="form-control" name="productPrice" id="floatingInput" placeholder="name@example.com" required>
                     <label for="floatingInput">Product price</label>
                   </div>
 

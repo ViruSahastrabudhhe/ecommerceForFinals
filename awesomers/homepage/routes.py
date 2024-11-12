@@ -36,6 +36,7 @@ def requestToBecomeSeller():
             conn.commit()
             flash("CREATED NEW REQUEST", category="success")
         except mysql.connector.IntegrityError:  
+            conn.rollback()
             flash("REQUEST ALREADY EXISTO", category='error')
             return redirect(url_for('homepage.renderBuyerBecomeSeller'))
         finally:

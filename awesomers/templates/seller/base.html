@@ -52,9 +52,19 @@
                             Products
                         </button>
                         <ul class="dropdown-menu bg-dark-subtle">
+                            {% if purpose=='renderProducts' %}
                             <li><a class="dropdown-item active" href="{{ url_for('seller.products') }}">Add product</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('seller.inventory') }}">Inventory</a></li>
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            {% elif purpose=='renderInventory' %}
+                            <li><a class="dropdown-item" href="{{ url_for('seller.products') }}">Add product</a></li>
+                            <li><a class="dropdown-item active" href="{{ url_for('seller.inventory') }}">Inventory</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{{ url_for('seller.products') }}">Add product</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('seller.inventory') }}">Inventory</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            {% endif %}
                         </ul>
                         </div>
                     </form>

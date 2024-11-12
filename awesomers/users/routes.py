@@ -100,6 +100,7 @@ def signUp():
             conn.commit()
             flash("Successfully signed up!", category='success')
         except mysql.connector.IntegrityError:
+            conn.rollback()
             flash("Account is already signed up!", category='error')
             return redirect(url_for('users.signUp'))
         finally:
@@ -146,6 +147,7 @@ def resetPassword(token):
             conn.commit()
             flash('Password successfully reset!', category='success')
         except:
+            conn.rollback()
             flash('An unexpected error has occurred!', category='error')
             return redirect(url_for('users.login'))
         finally:
@@ -184,6 +186,7 @@ def requestPasswordReset():
             sendForgotPasswordMail(email)
             flash("Password reset request sent!", category='success')
         except:
+            conn.rollback()
             flash("Failed to send password request!", category='error')
             return redirect(url_for('users.requestPasswordReset'))
         finally:
@@ -272,6 +275,7 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
         conn.commit()
         flash("CREATED NEW ACCOUNT", category='success')
     except mysql.connector.IntegrityError:
+        conn.rollback()
         flash("Account already exists", category='error')
         return redirect(url_for('signUp'))
     finally:
