@@ -39,7 +39,7 @@
                     <li class="nav-item">
                     <div class="container" id="logo">
                         <a class="navbar-brand" href="{{ url_for('seller.sellerCenter') }}">
-                        <img src="{{ url_for('static', filename='images/clearlyudonthaveadad.png') }}" alt="Bootstrap" width="40" height="40">
+                        <img src="{{ url_for('static', filename='img/clearlyudonthaveadad.png') }}" alt="Bootstrap" width="40" height="40">
                         Awesomers Seller Center
                         </a>
                     </div>
@@ -58,7 +58,7 @@
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                             {% elif purpose=='renderInventory' %}
                             <li><a class="dropdown-item" href="{{ url_for('seller.products') }}">Add product</a></li>
-                            <li><a class="dropdown-item active" href="{{ url_for('seller.inventory') }}">Inventory</a></li>
+                            <li><a class="dropdown-item active" href="{{ url_for('seller.productManagement') }}">Inventory</a></li>
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                             {% else %}
                             <li><a class="dropdown-item" href="{{ url_for('seller.products') }}">Add product</a></li>

@@ -17,7 +17,7 @@ def welcome():
 
 @users.route('/test')
 def test():
-    return render_template('kaiAdmin/index.html')
+    return render_template('kaiAdmin/forms/forms.html')
 
 # users ----------------------------------------------------------------------------------------------
 @users.route('/login', methods=['GET', 'POST'])

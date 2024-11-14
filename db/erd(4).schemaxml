@@ -90,8 +90,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products" view="colnames">
-<left>470</left>
-<top>446</top>
+<left>511</left>
+<top>517</top>
 <width>122</width>
 <height>265</height>
 <sql_create_table>CREATE TABLE `products` (
@@ -110,7 +110,7 @@
   KEY `productsAccountID` (`accountID`),
   KEY `productsCategoryID` (`category`),
   CONSTRAINT `productsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_categories" view="colnames">
 <left>728</left>
@@ -142,8 +142,8 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_admin" view="colnames">
-<left>195</left>
-<top>471</top>
+<left>103</left>
+<top>465</top>
 <width>207</width>
 <height>269</height>
 <sql_create_table>CREATE TABLE `products_admin` (
