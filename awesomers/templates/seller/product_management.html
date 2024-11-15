@@ -240,16 +240,17 @@
                   <tbody>
                     {% for product in products %}
                     <tr>
-                      <td>
-                        <input
+                      <td>{{product.3}}
+                        <!-- <input
                         type="text"
+                        name="productName"
                         class="form-control"
                         id="inlineinput"
-                        placeholder="{{product.3}}"
-                      />
+                        value="{{product.3}}"
+                      /> -->
                       </td>
-                      <td>
-                        <div class="form-group">
+                      <td>{{product.5}}
+                        <!-- <div class="form-group">
                           <label for="exampleFormControlSelect2"
                             >Example multiple select</label
                           >
@@ -264,10 +265,10 @@
                             <option>4</option>
                             <option>5</option>
                           </select>
-                        </div>
+                        </div> -->
                       </td>
-                      <td>
-                        <div class="form-group">
+                      <td>{{product.6}}
+                        <!-- <div class="form-group">
                           <label for="exampleFormControlSelect2"
                             >Example multiple select</label
                           >
@@ -282,10 +283,26 @@
                             <option>4</option>
                             <option>5</option>
                           </select>
-                        </div>
+                        </div> -->
                       </td>
-                      <td>{{product.7}}</td>
-                      <td>{{product.8}}</td>
+                      <td>{{product.7}}
+                        <!-- <input
+                        type="number"
+                        name="productPrice"
+                        class="form-control"
+                        id="inlineinput"
+                        value="{{product.7}}"
+                      /> -->
+                      </td>
+                      <td>{{product.8}}
+                        <!-- <input
+                        type="number"
+                        name="productQuantity"
+                        class="form-control"
+                        id="inlineinput"
+                        value="{{product.8}}"
+                      /> -->
+                      </td>
                       <td>{{product.9}}</td>
                       <td>
                         <div class="form-button-action">

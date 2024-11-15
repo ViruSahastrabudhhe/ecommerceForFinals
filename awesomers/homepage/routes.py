@@ -49,9 +49,13 @@ def requestToBecomeSeller():
 
 
 # seller ----------------------------------------------------------------------------------------------
-@homepage.route("/redirectToSellerCenter",)
+@homepage.route("/redirectToSellerCenter")
 def redirectToSellerCenter():
     return redirect(url_for('seller.sellerCenter'))
+
+@homepage.route("/redirectToSellerBase")
+def redirectToSellerBase():
+    return redirect(url_for('seller.sellerBase'))
 
 # admin ----------------------------------------------------------------------------------------------
 @homepage.route('/homeAdmin')

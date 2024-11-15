@@ -89,29 +89,6 @@
   CONSTRAINT `paymentProductsID` FOREIGN KEY (`paymentID`) REFERENCES `products` (`productID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
-<table name="products" view="colnames">
-<left>511</left>
-<top>517</top>
-<width>122</width>
-<height>265</height>
-<sql_create_table>CREATE TABLE `products` (
-  `productID` int(11) NOT NULL AUTO_INCREMENT,
-  `accountID` int(11) NOT NULL,
-  `img` longblob NOT NULL,
-  `productName` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `category` varchar(255) DEFAULT NULL,
-  `variation` varchar(255) DEFAULT NULL,
-  `price` int(11) DEFAULT NULL,
-  `quantity` int(11) DEFAULT NULL,
-  `dateAdded` datetime DEFAULT NULL,
-  `isArchived` tinyint(1) DEFAULT 0,
-  PRIMARY KEY (`productID`,`accountID`),
-  KEY `productsAccountID` (`accountID`),
-  KEY `productsCategoryID` (`category`),
-  CONSTRAINT `productsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
-</table>
 <table name="products_categories" view="colnames">
 <left>728</left>
 <top>481</top>
@@ -139,7 +116,7 @@
   KEY `requestsAccountID` (`accountID`),
   CONSTRAINT `requestsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `requestsEmailID` FOREIGN KEY (`accountEmail`) REFERENCES `accounts` (`accountEmail`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_admin" view="colnames">
 <left>103</left>
@@ -149,19 +126,39 @@
 <sql_create_table>CREATE TABLE `products_admin` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `accountID` int(11) NOT NULL,
-  `img` varchar(255) DEFAULT 'lol.jpg',
-  `productName` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `category` varchar(255) DEFAULT NULL,
-  `variation` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `price` int(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `quantity` int(255) DEFAULT NULL,
-  `dateAdded` datetime DEFAULT NULL,
-  `isArchived` tinyint(1) DEFAULT 0,
+  `variation` varchar(255) DEFAULT NULL,
+  `date` date DEFAULT NULL,
   PRIMARY KEY (`id`,`accountID`),
   KEY `productsRequestsAccountID` (`accountID`),
   CONSTRAINT `productsRequestsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+</table>
+<table name="products" view="colnames">
+<left>367</left>
+<top>392</top>
+<width>122</width>
+<height>265</height>
+<sql_create_table>CREATE TABLE `products` (
+  `productID` int(11) NOT NULL AUTO_INCREMENT,
+  `accountID` int(11) NOT NULL,
+  `picture` longblob DEFAULT NULL,
+  `productName` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `category` varchar(255) DEFAULT NULL,
+  `variation` varchar(255) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `dateAdded` datetime NOT NULL,
+  `isArchived` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`productID`,`accountID`),
+  KEY `productsAccountID` (`accountID`),
+  KEY `productsCategoryID` (`category`),
+  CONSTRAINT `productsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

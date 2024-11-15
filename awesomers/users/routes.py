@@ -77,7 +77,7 @@ def signUp():
             flash('Email invalid!', category='error')
             return redirect(url_for('users.signUp'))
         elif not isPasswordLongEnough(password):
-            flash('Password must not be <8 characters!', category='error')
+            flash('Password must be greater than 8 characters!', category='error')
             return redirect(url_for('users.signUp'))
         elif password!=confirmPassword:
             flash('Password does not match!', category='error')
