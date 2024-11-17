@@ -1,6 +1,6 @@
 from . import users
 from flask import render_template, redirect, url_for, flash, session, request
-from awesomers.extensions import mail
+from awesomers import mail
 from flask_mail import Message
 from email.mime.text import MIMEText
 import os
@@ -181,17 +181,17 @@ def requestPasswordReset():
         if record is None:
             flash("Email does not existo!", category='error')
             return redirect(url_for('users.requestPasswordReset'))
-        
-        try:
-            sendForgotPasswordMail(email)
-            flash("Password reset request sent!", category='success')
-        except:
-            conn.rollback()
-            flash("Failed to send password request!", category='error')
-            return redirect(url_for('users.requestPasswordReset'))
-        finally:
-            cursor.close()
-            conn.close()
+        else:
+            try:
+                sendForgotPasswordMail(email)
+                flash("Password reset request sent!", category='success')
+            except Error as e:
+                conn.rollback()
+                flash(f"{e}", category='error')
+                return redirect(url_for('users.requestPasswordReset'))
+            finally:
+                cursor.close()
+                conn.close()
 
         return redirect(url_for('users.login'))
     
@@ -282,16 +282,16 @@ def signUpAccount(email: str, username: str, password: str, confirmPassword: str
         cursor.close()
         conn.close()
 
-def sendForgotPasswordMail(email):
+def sendForgotPasswordMail(email: str):
     token=generateToken(email)
     msg=Message(
-        subject='Password reset request sent!',
-        recipients=['awesomersecommerce@gmail.com'],
-        sender='example@demomailtrap.com'
+        subject='Password reset request!',
+        sender='noreply@gmail.com',
+        recipients=[f"{email}"]
     )
-    msg.body=f''' To reset your password. Please follow the link below.
-    
-    {url_for('resetPassword', token=token, _external=True)}
+    msg.body = f''' To reset your password. Please follow the link below.
+
+    {url_for('users.resetPassword', token=token, _external=True)}
 
     ...
 
@@ -299,4 +299,4 @@ def sendForgotPasswordMail(email):
 
     '''
     mail.send(msg)
-    return "Message sent!"
+    return 'Password reset request sent!'

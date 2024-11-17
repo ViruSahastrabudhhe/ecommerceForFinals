@@ -1,5 +1,4 @@
 from . import seller
-from awesomers import app
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -8,10 +7,8 @@ from awesomers.models import get_db_connection
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import uuid as uuid
+import pathlib
 import os
-
-app.config['UPLOAD_FOLDER'] = "awesomers/static/imgs"
-dateNow = datetime.now()
 
 # renders ----------------------------------------------------------------------------------------------
 @seller.route('/sellerCenter')
@@ -31,16 +28,42 @@ def renderProductManagement():
     try:
         cursor.execute(f'SELECT * FROM products WHERE accountID={accountID} AND isArchived=0')
         rows=cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return render_template('seller/product_management.html', legend="Product management", purpose="manageProducts", activeSubmenu="productManagement", products=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('seller/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
     except:
         flash('Could not fetch products from database!', category='error')
         return redirect(url_for('seller.sellerCenter'))
+    finally:
+        cursor.close()
+        conn.close()
 
 @seller.route('/renderAddProducts')
 def renderAddProducts():
     return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+
+@seller.route('/renderEditProducts')
+def renderEditProducts():
+    return render_template('seller/edit_products.html', legend="Edit products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+
+@seller.route('/renderArchivedProducts')
+def renderArchivedProducts():
+    conn = get_db_connection()
+
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('seller.sellerCenter'))
+    
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM products WHERE isArchived=1")
+        rows=cursor.fetchall()
+        return render_template('seller/archived_products.html', legend="Archived products", archivedProducts=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    except:
+        flash('Could not fetch products from database!', category='error')
+        return redirect(url_for('seller.sellerCenter'))
+    finally:
+        cursor.close()
+        conn.close()
 
 @seller.route('/renderOrders')
 def renderOrders():
@@ -86,7 +109,10 @@ def inventory():
 # functions ----------------------------------------------------------------------------------------------
 @seller.route('/addProduct', methods=['GET', 'POST'])
 def addProduct():
+    dateNow = datetime.now()
+
     if request.method=='POST':
+        interact = request.form['submitButton']
         accountID = session['accountID']
         productImg = request.files['productImg']
         productName = request.form['productName']
@@ -98,33 +124,35 @@ def addProduct():
         productDate = dateNow
         productIsArchived = 0
 
-    conn = get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('seller.renderAddProducts'))
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('seller.renderAddProducts'))
 
-    cursor=conn.cursor()
+        cursor=conn.cursor()
 
-    picFilename = secure_filename(productImg.filename)
-    picName = str(uuid.uuid1()) + "_" + picFilename
-    # productImg.save(os.path.join(app.config['UPLOAD_FOLDER']), picName)
-    productImg = picName
+        picFilename = secure_filename(productImg.filename)
+        picName = str(uuid.uuid1()) + "_" + picFilename
+        productImg.save(os.path.join("awesomers/static/imgs", picName))
+        productImg = picName
 
-    try:
-        cursor.execute('INSERT INTO products (accountID, picture, productName, description, category, variation, price, quantity, dateAdded, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (accountID, productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
-        conn.commit()
-        flash('Product added successfully!', category='success')
-    except mysql.connector.IntegrityError:
-        conn.rollback()
-        flash('Product already exists!', category='error')
-        return redirect(url_for('seller.products'))
-    finally:
-        cursor.close()
-        conn.close()
+        if interact=="addProduct":
+            try:
+                cursor.execute('INSERT INTO products (accountID, picture, productName, description, category, variation, price, quantity, dateAdded, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (accountID, productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
+                conn.commit()
+                flash('Product added successfully!', category='success')
+                return redirect(url_for('seller.renderAddProducts'))
+            except mysql.connector.IntegrityError:
+                conn.rollback()
+                flash('Product already exists!', category='error')
+                return redirect(url_for('seller.renderAddProducts'))
+            finally:
+                cursor.close()
+                conn.close()
 
-    return redirect(url_for('seller.products'))
+    return redirect(url_for('seller.renderAddProducts'))
 
-# @seller.route('/editProducts/', methods=['GET', 'POST'])
+# @seller.route('/editProduct/', methods=['GET', 'POST'])
 # def editProducts():
 #     if request.method=="POST":
 #         accountID = request.args.get(session['accountID'])
@@ -133,28 +161,57 @@ def addProduct():
 #         productPrice = request.form['productPrice']
 #         productQuantity = request.form['productQuantity']
         
-# @seller.route('/deleteProduct/<productID>', methods=['GET', 'POST'])
-# def deleteProduct(productID):
-#     if request.method=="POST":
-#         conn = get_db_connection()
-#         if conn is None:
-#             flash('NO DB CONNECTION', category='error')
-#             return redirect(url_for('seller.sellerCenter'))
-        
-#         cursor=conn.cursor()
+@seller.route('/deleteProduct/<productID>', methods=['GET', 'POST'])
+def deleteProduct(productID):
+    if request.method=="POST":
+        archive=request.form['deleteProduct']
 
-#         try:
-#             cursor.execute(f"UPDATE products SET isArchived=1 WHERE productID={productID}")
-#             conn.commit()
-#             flash('Product deleted!', category='success')
-#             return redirect(url_for('seller.renderProductManagement'))
-#         except:
-#             conn.rollback()
-#             flash('Product not deleted!', category='error')
-#             return redirect(url_for('seller.renderProductManagement'))
-#         finally:
-#             cursor.close()
-#             conn.close()
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('seller.sellerCenter'))
+        
+        cursor=conn.cursor()
+
+        if archive=="delete":
+            try:
+                cursor.execute(f"UPDATE products SET isArchived=1 WHERE productID={productID}")
+                conn.commit()
+                flash('Product archived!', category='success')
+                return redirect(url_for('seller.renderProductManagement'))
+            except:
+                conn.rollback()
+                flash('Product not archived!', category='error')
+                return redirect(url_for('seller.renderProductManagement'))
+            finally:
+                cursor.close()
+                conn.close()
+
+@seller.route('/restoreProduct/<productID>', methods=['GET', 'POST'])
+def restoreProduct(productID):
+    if request.method=="POST":
+        restore=request.form['restoreProduct']
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('seller.sellerCenter'))
+        
+        cursor=conn.cursor()
+
+        if restore=="restore":
+            try:
+                cursor.execute(f"UPDATE products SET isArchived=0 WHERE productID={productID}")
+                conn.commit()
+                flash('Product restored!', category='success')
+                return redirect(url_for('seller.renderArchivedProducts'))
+            except:
+                conn.rollback()
+                flash('Product not restored!', category='error')
+                return redirect(url_for('seller.renderArchivedProducts'))
+            finally:
+                cursor.close()
+                conn.close()
 
 def convertToBinaryData(filename):
     with open(filename, 'rb') as file:

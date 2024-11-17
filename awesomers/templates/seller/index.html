@@ -46,30 +46,32 @@
     {% for category, message in messages %}
     {% if category == 'error'%}
     <script>
-      swal("{{message}}", {
-        icon: "error",
-        buttons: {
-          confirm: {
-            className: "btn btn-danger",
-          },
-        },
-      });
+      alert("{{message}}");
+      // swal("{{message}}", {
+      //   icon: "error",
+      //   buttons: {
+      //     confirm: {
+      //       className: "btn btn-danger",
+      //     },
+      //   },
+      // });
     </script>   
     {% else %}
     <script>
-      swal("{{message}}", {
-        buttons: {
-          confirm: {
-            className: "btn btn-success",
-          },
-        },
-      });
+      alert("{{message}}");
+      // swal("{{message}}", {
+      //   buttons: {
+      //     confirm: {
+      //       className: "btn btn-success",
+      //     },
+      //   },
+      // });
     </script>
     {% endif %}
     {% endfor %}
     {% endif %}
     {% endwith %}
-</section>   
+  </section>   
 
   <div class="wrapper">
     <!-- Sidebar -->

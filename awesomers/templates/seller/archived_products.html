@@ -12,7 +12,7 @@
     </a>
     <div class="collapse show" id="base">
       <ul class="nav nav-collapse">
-        <li class="active">
+        <li>
           <a href="{{ url_for('seller.renderProductManagement') }}">
             <span class="sub-item">Manage products</span>
           </a>
@@ -22,10 +22,10 @@
             <span class="sub-item">Add products</span>
           </a>
         </li>
-        <li>
-          <a href="{{ url_for('seller.renderArchivedProducts') }}">
-            <span class="sub-item">Archived products</span>
-          </a>
+        <li class="active">
+            <a href="{{ url_for('seller.renderArchivedProducts') }}">
+                <span class="sub-item">Archived products</span>
+            </a>
         </li>
       </ul>
     </div>
@@ -87,7 +87,7 @@
 </ul>
 {% endblock %}
 
-{% block mainPanel %}
+{% block mainPanel %}s
 <div class="container">
   <div class="page-inner">
     <div class="page-header">
@@ -117,7 +117,7 @@
         <div class="card">
           <div class="card-header">
             <div class="d-flex align-items-center">
-              <h4 class="card-title">Products in store</h4>
+              <h4 class="card-title">Archived products in store</h4>
               <a href=" {{ url_for('seller.renderAddProducts') }} " class="ms-auto">
                 <button
                   class="btn btn-primary btn-round ms-auto"
@@ -126,6 +126,14 @@
                   Add Product
                 </button>
               </a>
+              <!-- <button
+                class="btn btn-primary btn-round ms-auto"
+                data-bs-toggle="modal"
+                data-bs-target="#addRowModal"
+              >
+                <i class="fa fa-plus"></i>
+                Add Product
+              </button> -->
             </div>
           </div>
           <div class="card-body">
@@ -146,7 +154,7 @@
                     </h5>
                     <button
                       type="button"
-                      class="close ms-auto"
+                      class="close"
                       data-dismiss="modal"
                       aria-label="Close"
                     >
@@ -218,18 +226,18 @@
 
             <div class="table-responsive">
               <table
-                id="products-in-store"
+                id="add-row"
                 class="display table table-striped table-hover"
               >
                 <thead>
                   <tr>
-                    <th style="width: 100px">Product Name</th>
-                    <th style="width: 70px">Category</th>
-                    <th style="width: 70px">Variations</th>
+                    <th style="width: 120px">Product Name</th>
+                    <th>Category</th>
+                    <th>Variations</th>
                     <th style="width: 70px">Price</th>
                     <th style="width: 70px">Quantity</th>
                     <th style="width: 50px">Date Added</th> 
-                    <th style="width: 5%">Action</th>
+                    <th style="width: 60px" rowspan="1" colspan="1">Action</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -244,17 +252,10 @@
                   </tr>
                 </tfoot>
                   <tbody>
-                    {% for product in products %}
+                    {% for product in archivedProducts %}
                     <tr>
                       <td>
-                        <p 
-                        style="font-size: 10px; margin-bottom: 0px;">
-                          ID: {{product.0}}
-                        </p>
-                        <p 
-                        style="margin-bottom: 5px;">
-                          {{product.3}}
-                        </p>
+                        {{product.3}}
                       </td>
                       <td>
                         {{product.5}}
@@ -267,26 +268,14 @@
                       <td>{{product.10}}</td>
                       <td>
                         <div class="form-button-action">
-                          <a href="{{ url_for('seller.renderEditProducts') }}">
-                            <button
-                              style="padding: 15px;"
-                              title=""
-                              class="btn btn-link btn-primary btn-sm"
-                            >
-                              <i class="fa fa-edit"></i>
-                          </a>
-                          </button>
-                          <form action="{{ url_for('seller.deleteProduct', productID=product[0]) }}", method="POST">
+                          <form action="{{ url_for('seller.restoreProduct', productID=product[0]) }}", method="POST">
                             <button
                             type="submit"
-                            name="deleteProduct"
-                            value="delete"
-                            style="padding: 15px;"
+                            name="restoreProduct"
+                            value="restore"
                             title=""
-                            class="btn btn-link btn-danger"
-                            id=""
-                          >
-                            <i class="fa fa-times"></i>
+                            class="btn btn-success"
+                            >Restore   
                           </button>
                           </form>
                         </div>
@@ -334,6 +323,208 @@
 
 {% block script %}
 <script>
+    var SweetAlert2Demo = (function () {
+        //== Demos
+        var initDemos = function () {
+          //== Sweetalert Demo 1
+          $("#alert_demo_1").click(function (e) {
+            swal("Good job!", {
+              buttons: {
+                confirm: {
+                  className: "btn btn-success",
+                },
+              },
+            });
+          });
+
+          //== Sweetalert Demo 2
+          $("#alert_demo_2").click(function (e) {
+            swal("Here's the title!", "...and here's the text!", {
+              buttons: {
+                confirm: {
+                  className: "btn btn-success",
+                },
+              },
+            });
+          });
+
+          //== Sweetalert Demo 3
+          $("#alert_demo_3_1").click(function (e) {
+            swal("Good job!", "You clicked the button!", {
+              icon: "warning",
+              buttons: {
+                confirm: {
+                  className: "btn btn-warning",
+                },
+              },
+            });
+          });
+
+          $("#alert_demo_3_2").click(function (e) {
+            swal("Good job!", "You clicked the button!", {
+              icon: "error",
+              buttons: {
+                confirm: {
+                  className: "btn btn-danger",
+                },
+              },
+            });
+          });
+
+          $("#alert_demo_3_3").click(function (e) {
+            swal("Good job!", "You clicked the button!", {
+              icon: "success",
+              buttons: {
+                confirm: {
+                  className: "btn btn-success",
+                },
+              },
+            });
+          });
+
+          $("#alert_demo_3_4").click(function (e) {
+            swal("Good job!", "You clicked the button!", {
+              icon: "info",
+              buttons: {
+                confirm: {
+                  className: "btn btn-info",
+                },
+              },
+            });
+          });
+
+          //== Sweetalert Demo 4
+          $("#alert_demo_4").click(function (e) {
+            swal({
+              title: "Good job!",
+              text: "You clicked the button!",
+              icon: "success",
+              buttons: {
+                confirm: {
+                  text: "Confirm Me",
+                  value: true,
+                  visible: true,
+                  className: "btn btn-success",
+                  closeModal: true,
+                },
+              },
+            });
+          });
+
+          $("#alert_demo_5").click(function (e) {
+            swal({
+              title: "Input Something",
+              html: '<br><input class="form-control" placeholder="Input Something" id="input-field">',
+              content: {
+                element: "input",
+                attributes: {
+                  placeholder: "Input Something",
+                  type: "text",
+                  id: "input-field",
+                  className: "form-control",
+                },
+              },
+              buttons: {
+                cancel: {
+                  visible: true,
+                  className: "btn btn-danger",
+                },
+                confirm: {
+                  className: "btn btn-success",
+                },
+              },
+            }).then(function () {
+              swal("", "You entered : " + $("#input-field").val(), "success");
+            });
+          });
+
+          $("#alert_demo_6").click(function (e) {
+            swal("This modal will disappear soon!", {
+              buttons: false,
+              timer: 3000,
+            });
+          });
+
+          $("#alert_demo_7").click(function (e) {
+            swal({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              type: "warning",
+              buttons: {
+                confirm: {
+                  text: "Yes, delete it!",
+                  className: "btn btn-success",
+                },
+                cancel: {
+                  visible: true,
+                  className: "btn btn-danger",
+                },
+              },
+            }).then((Delete) => {
+              if (Delete) {
+                swal({
+                  title: "Deleted!",
+                  text: "Your file has been deleted.",
+                  type: "success",
+                  buttons: {
+                    confirm: {
+                      className: "btn btn-success",
+                    },
+                  },
+                });
+              } else {
+                swal.close();
+              }
+            });
+          });
+
+          $("#alert_demo_8").click(function (e) {
+            swal({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              type: "warning",
+              buttons: {
+                cancel: {
+                  visible: true,
+                  text: "No, cancel!",
+                  className: "btn btn-danger",
+                },
+                confirm: {
+                  text: "Yes, delete it!",
+                  className: "btn btn-success",
+                },
+              },
+            }).then((willDelete) => {
+              if (willDelete) {
+                swal("Poof! Your imaginary file has been deleted!", {
+                  icon: "success",
+                  buttons: {
+                    confirm: {
+                      className: "btn btn-success",
+                    },
+                  },
+                });
+              } else {
+                swal("Your imaginary file is safe!", {
+                  buttons: {
+                    confirm: {
+                      className: "btn btn-success",
+                    },
+                  },
+                });
+              }
+            });
+          });
+        };
+
+        return {
+          //== Init
+          init: function () {
+            initDemos();
+          },
+        };
+      })();
+
   $(document).ready(function () {
     $("#basic-datatables").DataTable({});
 
@@ -370,28 +561,23 @@
     });
 
     // Add Row
-    $("#products-in-store").DataTable({
+    $("#add-row").DataTable({
       pageLength: 5,
     });
 
     var action =
       '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
 
-    $("#addRowModal").click(function () {
+    $("#addRowButton").click(function () {
       $("#add-row")
         .dataTable()
-        .setBackdropStatic(true)
+        .fnAddData([
+          $("#addName").val(),
+          $("#addPosition").val(),
+          $("#addOffice").val(),
+          action,
+        ]);
       $("#addRowModal").modal("hide");
-    });
-  
-    $("#alert_demo_2").click(function (e) {
-      swal("Here's the title!", "...and here's the text!", {
-        buttons: {
-          confirm: {
-            className: "btn btn-success",
-          },
-        },
-      });
     });
   });
 </script>
