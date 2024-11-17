@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_style.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+
 
     {% block head %}{% endblock %}
 </head>
@@ -17,15 +19,27 @@
         {% if messages %}
         {% for category, message in messages %}
         {% if category == 'error'%}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <script>
+            swal("Good job!", "You clicked the button!", {
+              icon: "warning",
+              buttons: {
+                confirm: {
+                  className: "btn btn-warning",
+                },
+              },
+            });
+        </script>   
         {% else %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <script>
+            swal("{{message}}", {
+              icon: "success",
+              buttons: {
+                confirm: {
+                  className: "btn btn-success",
+                },
+              },
+            });
+        </script>
         {% endif %}
         {% endfor %}
         {% endif %}

@@ -223,13 +223,13 @@
               >
                 <thead>
                   <tr>
-                    <th style="width: 100px">Product Name</th>
-                    <th style="width: 70px">Category</th>
-                    <th style="width: 70px">Variations</th>
-                    <th style="width: 70px">Price</th>
-                    <th style="width: 70px">Quantity</th>
-                    <th style="width: 50px">Date Added</th> 
-                    <th style="width: 5%">Action</th>
+                    <th style="width: 100px;">Product Name</th>
+                    <th style="width: 70px;">Category</th>
+                    <th style="width: 70px;">Variations</th>
+                    <th style="width: 70px;">Price</th>
+                    <th style="width: 70px;">Quantity</th>
+                    <th style="width: 50px;">Date Added</th> 
+                    <th style="width: 5%;">Action</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -240,7 +240,7 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Date Added</th>
-                    <th>Action</th>
+                    <th style="width: 5%;">Action</th>
                   </tr>
                 </tfoot>
                   <tbody>
@@ -267,15 +267,15 @@
                       <td>{{product.10}}</td>
                       <td>
                         <div class="form-button-action">
-                          <a href="{{ url_for('seller.renderEditProducts') }}">
+                          <a href="{{ url_for('seller.renderEditProducts', productID=product[0]) }}">
                             <button
                               style="padding: 15px;"
                               title=""
-                              class="btn btn-link btn-primary btn-sm"
+                              class="btn btn-link btn-primary"
                             >
                               <i class="fa fa-edit"></i>
+                            </button>
                           </a>
-                          </button>
                           <form action="{{ url_for('seller.deleteProduct', productID=product[0]) }}", method="POST">
                             <button
                             type="submit"
@@ -302,34 +302,6 @@
     </div>
   </div>
 </div>
-
-<footer class="footer">
-  <div class="container-fluid d-flex justify-content-between">
-    <nav class="pull-left">
-      <ul class="nav">
-        <li class="nav-item">
-          <a class="nav-link" href="http://www.themekita.com">
-            ThemeKita
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"> Help </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"> Licenses </a>
-        </li>
-      </ul>
-    </nav>
-    <div class="copyright">
-      2024, made with <i class="fa fa-heart heart text-danger"></i> by
-      <a href="http://www.themekita.com">ThemeKita</a>
-    </div>
-    <div>
-      Distributed by
-      <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
-    </div>
-  </div>
-</footer>
 {% endblock %}
 
 {% block script %}

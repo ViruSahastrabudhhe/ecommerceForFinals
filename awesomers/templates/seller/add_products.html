@@ -125,7 +125,6 @@
                 <div class="card-title">Add products to store</div>
                 <div 
                   class="ms-auto"
-                  style="padding: 20px"
                 >
                   <button 
                     class="btn btn-success"
@@ -134,13 +133,11 @@
                     value="addProduct"
                   >Add product</button>
 
-                  <button 
+                  <input 
+                    type="reset"
                     class="btn btn-danger"
-                    type="submit"
-                    name="submitButton"
-                    value="deleteFields"
-                    id="deleteFieldsButton"
-                  >Delete fields</button>
+                    value="Delete Fields"
+                  >
                 </div>
               </div>
             </div>
@@ -158,7 +155,6 @@
                       name="productImg"
                       id="exampleFormControlFile1"
                       accept="image/jpeg, image/jpg, image/png"
-                      required
                     />
                   </div>
                 </div>
@@ -1081,38 +1077,7 @@
     </div>
   </div> -->
 </section>
-
-<footer class="footer">
-  <div class="container-fluid d-flex justify-content-between">
-    <nav class="pull-left">
-      <ul class="nav">
-        <li class="nav-item">
-          <a class="nav-link" href="http://www.themekita.com">
-            ThemeKita
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"> Help </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"> Licenses </a>
-        </li>
-      </ul>
-    </nav>
-    <div class="copyright">
-      2024, made with <i class="fa fa-heart heart text-danger"></i> by
-      <a href="http://www.themekita.com">ThemeKita</a>
-    </div>
-    <div>
-      Distributed by
-      <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
-    </div>
-  </div>
-</footer>
 {% endblock %}
 
 {% block script %}
-<script>
-  $('deleteFieldsButton').val('');
-</script>
 {% endblock %}

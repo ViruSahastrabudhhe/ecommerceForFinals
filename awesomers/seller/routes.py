@@ -15,6 +15,10 @@ import os
 def sellerCenter():
     return render_template('seller/seller_center.html', legend="Dashboard", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
+@seller.route('/testTemplate')
+def testTemplate():
+    return render_template('kaiAdmin/index.html')
+
 @seller.route('/renderProductManagement')
 def renderProductManagement():
     accountID = session['accountID']
@@ -29,8 +33,8 @@ def renderProductManagement():
         cursor.execute(f'SELECT * FROM products WHERE accountID={accountID} AND isArchived=0')
         rows=cursor.fetchall()
         return render_template('seller/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-    except:
-        flash('Could not fetch products from database!', category='error')
+    except Error as e:
+        flash(f'{e}', category='error')
         return redirect(url_for('seller.sellerCenter'))
     finally:
         cursor.close()
@@ -40,9 +44,27 @@ def renderProductManagement():
 def renderAddProducts():
     return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
-@seller.route('/renderEditProducts')
-def renderEditProducts():
-    return render_template('seller/edit_products.html', legend="Edit products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+@seller.route('/renderEditProducts/<productID>')
+def renderEditProducts(productID):
+    # FIXME: WONT RENDER CSS
+    accountID = session['accountID']
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('seller.sellerCenter'))
+    
+    cursor=conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM products WHERE productID=%s AND accountID=%s", (productID, accountID))
+        rows=cursor.fetchall()
+        return render_template('seller/edit_products.html', legend="Edit products", productToBeEdited=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    except Error as e:
+        flash(f"{e}", category='error')
+        return redirect(url_for('seller.sellerCenter'))
+    finally:
+        cursor.close()
+        conn.close()
 
 @seller.route('/renderArchivedProducts')
 def renderArchivedProducts():
@@ -112,8 +134,10 @@ def addProduct():
     dateNow = datetime.now()
 
     if request.method=='POST':
+        # listOfProductImages = []
         interact = request.form['submitButton']
         accountID = session['accountID']
+        # productImgs = request.files.getlist('productImg')
         productImg = request.files['productImg']
         productName = request.form['productName']
         productDescription = request.form['productDescription']
@@ -131,14 +155,20 @@ def addProduct():
 
         cursor=conn.cursor()
 
+        # for productImg in productImgs:
         picFilename = secure_filename(productImg.filename)
         picName = str(uuid.uuid1()) + "_" + picFilename
         productImg.save(os.path.join("awesomers/static/imgs", picName))
         productImg = picName
+            # listOfProductImages.append(productImg)
 
         if interact=="addProduct":
             try:
-                cursor.execute('INSERT INTO products (accountID, picture, productName, description, category, variation, price, quantity, dateAdded, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (accountID, productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
+                sql = "INSERT INTO products (accountID, picture, productName, description, category, variation, price, quantity, dateAdded, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                # for img in productImgs:
+                    # val.append((accountID, img, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
+                val = accountID, productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived
+                cursor.execute(sql, val)
                 conn.commit()
                 flash('Product added successfully!', category='success')
                 return redirect(url_for('seller.renderAddProducts'))
@@ -152,14 +182,47 @@ def addProduct():
 
     return redirect(url_for('seller.renderAddProducts'))
 
-# @seller.route('/editProduct/', methods=['GET', 'POST'])
-# def editProducts():
-#     if request.method=="POST":
-#         accountID = request.args.get(session['accountID'])
-#         productID = request.args.get(session['productID'])
-#         productName = request.form['productName']
-#         productPrice = request.form['productPrice']
-#         productQuantity = request.form['productQuantity']
+@seller.route('/editProduct/<productID>', methods=['GET', 'POST'])
+def editProduct(productID):
+    if request.method=="POST":
+        interact = request.form['submitButton']
+        accountID = session['accountID']
+        productImg = request.files['productImg']
+        productName = request.form['productName']
+        productDescription = request.form['productDescription']
+        productCategory = request.form['productCategory']
+        productVariation = request.form['productVariation']
+        productQuantity = request.form['productQuantity']
+        productPrice = request.form['productPrice']
+
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION LOL", category='error')
+            return redirect(url_for('seller.sellerCenter'))
+        
+        cursor=conn.cursor()
+
+        picFilename = secure_filename(productImg.filename)
+        picName = str(uuid.uuid1()) + "_" + picFilename
+        # productImg.save(os.path.join("awesomers/static/imgs", picName))
+        productImg = picName
+
+        if interact=='editProduct':
+            try:
+                sql = "UPDATE products SET picture=%s, productName=%s, description=%s, category=%s, variation=%s, price=%s, quantity=%s WHERE productID=%s AND accountID=%s"
+                val = productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productID, accountID
+                cursor.execute(sql, val)
+                conn.commit()
+                flash('Product edited successfully!', category='success')
+            except Error as e:
+                conn.rollback()
+                flash(f'{e}', category='error')
+                return redirect(url_for('seller.renderAddProducts'))
+            finally:
+                cursor.close()
+                conn.close()
+
+    return redirect(url_for('seller.renderProductManagement'))
         
 @seller.route('/deleteProduct/<productID>', methods=['GET', 'POST'])
 def deleteProduct(productID):
