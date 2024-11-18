@@ -248,23 +248,38 @@
                     <tr>
                       <td>
                         <p 
-                        style="font-size: 10px; margin-bottom: 0px;">
+                        style="margin-bottom: 0px;">
+                          {{product.3}}
+                        </p>
+                        <p 
+                        style="font-size: 12px; margin-bottom: 0px;">
                           ID: {{product.0}}
                         </p>
                         <p 
-                        style="margin-bottom: 5px;">
-                          {{product.3}}
+                        style="font-size: 12px; margin-bottom: 0px;">
+                          Brand: {{product.4}}
                         </p>
                       </td>
                       <td>
-                        {{product.5}}
+                        {{product.6}}
                       </td>
                       <td>
-                          {{product.7}}
+                          {{product.8}}
                       </td>
-                      <td>{{product.8}}</td>
                       <td>{{product.9}}</td>
                       <td>{{product.10}}</td>
+                      <td>
+                        <p 
+                        style="font-size: 12px; margin-bottom: 0px;">
+                          Date added: {{product.11}}
+                        </p>
+                        {% if product.12 != None  %}
+                        <p 
+                        style="font-size: 12px;   margin-bottom: 5px;">
+                          Date edited: {{product.12}}
+                        </p>
+                        {% endif %}
+                      </td>
                       <td>
                         <div class="form-button-action">
                           <a href="{{ url_for('seller.renderEditProducts', productID=product[0]) }}">

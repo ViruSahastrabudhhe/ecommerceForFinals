@@ -140,6 +140,7 @@ def addProduct():
         # productImgs = request.files.getlist('productImg')
         productImg = request.files['productImg']
         productName = request.form['productName']
+        productBrand = request.form['productBrand']
         productDescription = request.form['productDescription']
         productCategory = request.form['productCategory']
         productVariation = request.form['productVariation']
@@ -147,6 +148,7 @@ def addProduct():
         productPrice = request.form['productPrice']
         productDate = dateNow
         productIsArchived = 0
+        productIsActive = 0
 
         conn = get_db_connection()
         if conn is None:
@@ -164,10 +166,10 @@ def addProduct():
 
         if interact=="addProduct":
             try:
-                sql = "INSERT INTO products (accountID, picture, productName, description, category, variation, price, quantity, dateAdded, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO products (accountID, picture, productName, brand, description, category, variation, price, quantity, dateAdded, isActive, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 # for img in productImgs:
                     # val.append((accountID, img, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
-                val = accountID, productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived
+                val = accountID, productImg, productName, productBrand, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsActive, productIsArchived
                 cursor.execute(sql, val)
                 conn.commit()
                 flash('Product added successfully!', category='success')
@@ -184,11 +186,14 @@ def addProduct():
 
 @seller.route('/editProduct/<productID>', methods=['GET', 'POST'])
 def editProduct(productID):
+    dateEdited = datetime.now()
+
     if request.method=="POST":
         interact = request.form['submitButton']
         accountID = session['accountID']
         productImg = request.files['productImg']
         productName = request.form['productName']
+        productBrand = request.form['productBrand']
         productDescription = request.form['productDescription']
         productCategory = request.form['productCategory']
         productVariation = request.form['productVariation']
@@ -209,8 +214,8 @@ def editProduct(productID):
 
         if interact=='editProduct':
             try:
-                sql = "UPDATE products SET picture=%s, productName=%s, description=%s, category=%s, variation=%s, price=%s, quantity=%s WHERE productID=%s AND accountID=%s"
-                val = productImg, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productID, accountID
+                sql = "UPDATE products SET picture=%s, productName=%s, brand=%s, description=%s, category=%s, variation=%s, price=%s, quantity=%s, dateEdited=%s WHERE productID=%s AND accountID=%s"
+                val = productImg, productName, productBrand, productDescription, productCategory, productVariation, productPrice, productQuantity, dateEdited, productID, accountID
                 cursor.execute(sql, val)
                 conn.commit()
                 flash('Product edited successfully!', category='success')

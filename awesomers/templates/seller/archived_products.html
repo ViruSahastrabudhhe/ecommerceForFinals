@@ -255,17 +255,28 @@
                     {% for product in archivedProducts %}
                     <tr>
                       <td>
-                        {{product.3}}
+                        <p 
+                        style="margin-bottom: 0px;">
+                          {{product.3}}
+                        </p>
+                        <p 
+                        style="font-size: 12px; margin-bottom: 0px;">
+                          ID: {{product.0}}
+                        </p>
+                        <p 
+                        style="font-size: 12px; margin-bottom: 0px; margin-top: 0%;">
+                          Brand: {{product.4}}
+                        </p>
                       </td>
                       <td>
-                        {{product.5}}
+                        {{product.6}}
                       </td>
                       <td>
-                          {{product.7}}
+                          {{product.8}}
                       </td>
-                      <td>{{product.8}}</td>
                       <td>{{product.9}}</td>
                       <td>{{product.10}}</td>
+                      <td>{{product.11}}</td>
                       <td>
                         <div class="form-button-action">
                           <form action="{{ url_for('seller.restoreProduct', productID=product[0]) }}", method="POST">

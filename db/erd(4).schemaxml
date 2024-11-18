@@ -105,15 +105,16 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_admin" view="colnames">
-<left>528</left>
-<top>288</top>
-<width>125</width>
-<height>254</height>
+<left>516</left>
+<top>287</top>
+<width>135</width>
+<height>300</height>
 <sql_create_table>CREATE TABLE `products_admin` (
   `productAdminID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
   `picture` longblob DEFAULT NULL,
   `productName` varchar(255) NOT NULL,
+  `brand` varchar(255) DEFAULT 'No brand',
   `description` varchar(255) DEFAULT NULL,
   `category` varchar(255) NOT NULL,
   `subcategory` varchar(255) DEFAULT NULL,
@@ -121,7 +122,10 @@
   `price` int(255) NOT NULL,
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
+  `dateEdited` datetime DEFAULT NULL,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
+  `dateArchived` datetime DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productAdminID`,`accountID`),
   KEY `productsRequestsAccountID` (`accountID`),
   CONSTRAINT `adminProductID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -131,12 +135,13 @@
 <left>656</left>
 <top>286</top>
 <width>110</width>
-<height>254</height>
+<height>310</height>
 <sql_create_table>CREATE TABLE `products` (
   `productID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
   `picture` longblob DEFAULT NULL,
   `productName` varchar(255) NOT NULL,
+  `brand` varchar(255) DEFAULT 'No brand',
   `description` varchar(255) DEFAULT NULL,
   `category` varchar(255) NOT NULL,
   `subcategory` varchar(255) DEFAULT NULL,
@@ -144,12 +149,15 @@
   `price` int(255) NOT NULL,
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
+  `dateEdited` datetime DEFAULT NULL,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
+  `dateArchived` datetime DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productID`,`accountID`),
   KEY `productsCategoryID` (`category`),
   KEY `productsSellerID` (`accountID`),
   CONSTRAINT `productsSellerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="reviews" view="colnames">
 <left>790</left>
@@ -231,8 +239,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_imgs" view="colnames">
-<left>789</left>
-<top>533</top>
+<left>797</left>
+<top>532</top>
 <width>112</width>
 <height>116</height>
 <sql_create_table>CREATE TABLE `products_imgs` (
