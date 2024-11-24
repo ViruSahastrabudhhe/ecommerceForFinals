@@ -12,6 +12,8 @@ from .homepage import homepage as homepage_blueprint
 app.register_blueprint(homepage_blueprint)
 from .seller import seller as seller_blueprint
 app.register_blueprint(seller_blueprint)
+from .profiles import profiles as profiles_blueprint
+app.register_blueprint(profiles_blueprint)
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT']=587

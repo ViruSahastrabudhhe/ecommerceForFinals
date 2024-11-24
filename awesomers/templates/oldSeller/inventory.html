@@ -4,13 +4,14 @@
 
 {% block content %}
 <section>
+    <button id="find-row">Find row</button>
     <div class="row">
         <div class="col-10">
             <h2>{{legend}}</h2>
         </div>
 
         <div class="col-10">
-            <table class="table">
+            <table class="table" id="tableID">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -24,22 +25,26 @@
                     <th scope="col">Date added</th>
                   </tr>
                 </thead>
-                {% for product in products%}
                 <tbody>
-                  <tr>
-                    <th scope="row">{{loop.index}}</th>
-                    <td>{{product.1}}</td>
-                    <td>{{product.2}}</td>
-                    <td>{{product.3}}</td>
-                    <td>{{product.4}}</td>
-                    <td>{{product.5}}</td>
-                    <td>{{product.6}}</td>
-                    <td>{{product.7}}</td>
-                    <td>{{product.8}}</td>
-                    <td>{{product.9}}</td>
+                    {% for product in products%}
+                    <tr>
+                        <th scope="row">{{loop.index}}</th>
+                        <td>{{product.1}}</td>
+                        <td>{{product.2}}</td>
+                        <td>{{product.3}}</td>
+                        <td>{{product.4}}</td>
+                        <td>{{product.5}}</td>
+                        <td>{{product.6}}</td>
+                        <td>{{product.7}}</td>
+                        <td>{{product.8}}</td>
+                        <td>{{product.9}}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>1</td>
+                        <td>43</td>
                     </tr>
                 </tbody>
-                {% endfor %}
             </table>
             <!-- <table class="table">
                 <thead>
@@ -59,4 +64,12 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $('td').eq(3).css("background-color", "red");
+    });
+</script>
 {% endblock %}

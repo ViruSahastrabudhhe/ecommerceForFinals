@@ -35,44 +35,13 @@
 
   <!-- CSS Files -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}" type="text/css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins.min.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/kaiadmin.min.css') }}" />
 
   {% block head %}{% endblock %}
 </head>
 <body>
-  <section>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    {% if category == 'error'%}
-    <script>
-      alert("{{message}}");
-      // swal("{{message}}", {
-      //   icon: "error",
-      //   buttons: {
-      //     confirm: {
-      //       className: "btn btn-danger",
-      //     },
-      //   },
-      // });
-    </script>   
-    {% else %}
-    <script>
-      alert("{{message}}");
-      // swal("{{message}}", {
-      //   buttons: {
-      //     confirm: {
-      //       className: "btn btn-success",
-      //     },
-      //   },
-      // });
-    </script>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-  </section>   
 
   <div class="wrapper">
     <!-- Sidebar -->
@@ -146,7 +115,7 @@
             <nav
               class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
             >
-              <div class="input-group">
+              <div class="input-group" hidden="">
                 <div class="input-group-prepend">
                   <button type="submit" class="btn btn-search pe-1">
                     <i class="fa fa-search search-icon"></i>
@@ -757,8 +726,8 @@
   <script src="{{ url_for('static', filename='js/kaiadmin.min.js') }}"></script>
 
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-  <script src="{{ url_for('static', filename='js/setting-demo.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/demo.js') }}"></script>
+  <!-- <script src="{{ url_for('static', filename='js/setting-demo.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='js/demo.js') }}"></script> -->
   <script>
     $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
       type: "line",
@@ -787,6 +756,37 @@
       fillColor: "rgba(255, 165, 52, .14)",
     });
   </script>
+
+  <section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'error'%}
+    <script>
+      swal("{{message}}", {
+        icon: "error",
+        buttons: {
+          confirm: {
+            className: "btn btn-danger",
+          },
+        },
+      });
+    </script>   
+    {% else %}
+    <script>
+      swal("{{message}}", {
+        buttons: {
+          confirm: {
+            className: "btn btn-success",
+          },
+        },
+      });
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </section>   
 
   {% block script %}
   {% endblock %}

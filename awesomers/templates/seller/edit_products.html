@@ -130,22 +130,19 @@
             <div class="card-header">
               <div class="d-flex align-items-center">
                 <div class="card-title">Edit products in store</div>
-                <div 
-                  class="ms-auto"
-                >
+                <div class="d-flex justify-content-end ms-auto">
                   <button 
                     class="btn btn-success"
                     type="submit"
                     name="submitButton"
                     value="editProduct"
                   >Edit product</button>
-
+                  <p>&nbsp;&nbsp;&nbsp;</p>
                   <input 
                     type="reset"
                     class="btn btn-danger"
-                    value="Delete Fields"
+                    value="Revert changes"
                   >
-                </div>
               </div>
             </div>
             <div class="card-body">
@@ -238,7 +235,12 @@
                 <div class="col-md-6 col-lg-4">
                   <div class="form-group">
                     <label for="comment">Product description</label>
-                    <textarea class="form-control" name="productDescription" id="comment" rows="9">{{product.5}}</textarea>
+                    <textarea 
+                    class="form-control" 
+                    name="productDescription" 
+                    id="comment" 
+                    placeholder="Enter product description"
+                    rows="9">{{product.5}}</textarea>
                   </div>
                 </div>
                 <div class="col-md-6 col-lg-4">

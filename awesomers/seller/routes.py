@@ -40,6 +40,10 @@ def renderProductManagement():
         cursor.close()
         conn.close()
 
+@seller.route('/renderActiveProducts')
+def renderActiveProducts():
+    return render_template('kaiAdmin/forms/forms.html')
+
 @seller.route('/renderAddProducts')
 def renderAddProducts():
     return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
@@ -47,6 +51,7 @@ def renderAddProducts():
 @seller.route('/renderEditProducts/<productID>')
 def renderEditProducts(productID):
     # FIXME: WONT RENDER CSS
+    # FIXED: TURN EVERY NON-URL_FOR LINK IN THE INDEX.HTML INTO A URL_FOR
     accountID = session['accountID']
     conn = get_db_connection()
     if conn is None:
@@ -164,6 +169,15 @@ def addProduct():
         productImg = picName
             # listOfProductImages.append(productImg)
 
+        cursor.execute(f"SELECT * FROM products WHERE productName='{productName}'")
+        item = cursor.fetchone()
+
+        if item:
+            flash("Product already exists!", category='error')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('seller.renderAddProducts'))
+
         if interact=="addProduct":
             try:
                 sql = "INSERT INTO products (accountID, picture, productName, brand, description, category, variation, price, quantity, dateAdded, isActive, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -174,9 +188,9 @@ def addProduct():
                 conn.commit()
                 flash('Product added successfully!', category='success')
                 return redirect(url_for('seller.renderAddProducts'))
-            except mysql.connector.IntegrityError:
+            except Error as e:
                 conn.rollback()
-                flash('Product already exists!', category='error')
+                flash(f'{e}', category='error')
                 return redirect(url_for('seller.renderAddProducts'))
             finally:
                 cursor.close()
@@ -209,7 +223,7 @@ def editProduct(productID):
 
         picFilename = secure_filename(productImg.filename)
         picName = str(uuid.uuid1()) + "_" + picFilename
-        # productImg.save(os.path.join("awesomers/static/imgs", picName))
+        productImg.save(os.path.join("awesomers/static/imgs", picName))
         productImg = picName
 
         if interact=='editProduct':
@@ -280,6 +294,47 @@ def restoreProduct(productID):
             finally:
                 cursor.close()
                 conn.close()
+
+@seller.route('/productActivation/<productID>', methods=['GET', 'POST'])
+def productActivation(productID):
+    if request.method=="POST":
+        activation=request.form['activationButton']
+
+        conn=get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('seller.sellerCenter'))
+
+        cursor=conn.cursor()
+
+        if activation=="activate":
+            try:
+                cursor.execute(f"UPDATE products SET isActive=0 WHERE productID={productID}")
+                conn.commit()
+                flash('Product activated!', category='success')
+                return redirect(url_for('seller.renderProductManagement'))
+            except:
+                conn.rollback()
+                flash('Product not activated!', category='error')
+                return redirect(url_for('seller.renderProductManagement'))
+            finally:
+                cursor.close()
+                conn.close()
+
+        if activation=="deactivate":
+            try:
+                cursor.execute(f"UPDATE products SET isActive=1 WHERE productID={productID}")
+                conn.commit()
+                flash('Product deactivated!', category='success')
+            except:
+                conn.rollback()
+                flash('Product not deactivated!', category='error')
+                return redirect(url_for('seller.renderProductManagement'))
+            finally:
+                cursor.close()
+                conn.close()
+
+    return redirect(url_for('seller.renderProductManagement'))
 
 def convertToBinaryData(filename):
     with open(filename, 'rb') as file:

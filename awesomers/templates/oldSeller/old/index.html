@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>{% block title %}{% endblock %}</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css" />
+
+  <!-- Fonts and icons -->
+  <script src="{{ url_for('static', filename='js/plugin/webfont/webfont.min.js' ) }}"></script>
+  <script>
+    WebFont.load({
+      google: { families: ["Public Sans:300,400,500,600,700"] },
+      custom: {
+        families: [
+          "Font Awesome 5 Solid",
+          "Font Awesome 5 Regular",
+          "Font Awesome 5 Brands",
+          'simple-line-icons',
+        ],
+        urls: ["{{ url_for('static', filename='css/fonts.min.css') }}"],
+      },
+      active: function () {
+        sessionStorage.fonts = true;
+      },
+    });
+  </script>
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/templatemo-lugx-gaming.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/swiper-bundle.min.css') }}" />
+<!--
+
+TemplateMo 589 lugx gaming
+
+https://templatemo.com/tm-589-lugx-gaming
+
+-->
+</head>
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <!-- <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div> -->
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" style="width: 158px;">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Search for products" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <button role="button">
+                            <span>
+                            <i class="fa fa-search"></i>
+                          </span>
+                        </button>
+                      </form>
+                    </div> -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="index.html" class="active">Home</a></li>
+                      <li><a href="shop.html">Shop</a></li>
+                      <li><a href="product-details.html">Cart</a></li>
+                      <!-- <li><a href="contact.html">Contact Us</a></li> -->
+                      <li><a href="{{ url_for('users.login')}}">Log In</a></li>
+                      <li><a href="{{ url_for('users.signUp')}}">Sign Up</a></li>
+                  </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  {% block mainPanel %}
+  {% endblock %}
+
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2048 LUGX Gaming Company. All rights reserved. &nbsp;&nbsp; <a rel="nofollow" href="https://templatemo.com" target="_blank">Design: TemplateMo</a> &nbsp;&nbsp; <a href="contact.html" style="margin-top: 0%;">Contact Us</a></p>
+        <!-- <p>
+          <a href="contact.html" style="margin-top: 0%;">Contact Us</a>
+        </p> -->
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="{{ url_for('static', filename='js/core/jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/core/boostrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/isotope.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/owl-carousel.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/counter.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+  <section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'error'%}
+    <script>
+        swal("{{message}}", {
+          icon: "error",
+          buttons: {
+            confirm: {
+              className: "btn btn-danger",
+            },
+          },
+        });
+    </script>   
+    {% else %}
+    <script>
+        swal("{{message}}", {
+          icon: "success",
+          buttons: {
+            confirm: {
+              className: "btn btn-success",
+            },
+          },
+        });
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </section>
+</body>
+</html>

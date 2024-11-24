@@ -1,9 +1,8 @@
 /*
 SQLyog Ultimate v10.00 Beta1
-MySQL - 5.5.5-10.4.28-MariaDB : Database - ecommerce
+MySQL - 5.5.5-10.4.32-MariaDB : Database - ecommerce
 *********************************************************************
-*/
-
+*/
 
 /*!40101 SET NAMES utf8 */;
 
@@ -134,6 +133,7 @@ CREATE TABLE `products` (
   `accountID` bigint(20) NOT NULL,
   `picture` longblob DEFAULT NULL,
   `productName` varchar(255) NOT NULL,
+  `brand` varchar(255) DEFAULT 'No brand',
   `description` varchar(255) DEFAULT NULL,
   `category` varchar(255) NOT NULL,
   `subcategory` varchar(255) DEFAULT NULL,
@@ -141,16 +141,19 @@ CREATE TABLE `products` (
   `price` int(255) NOT NULL,
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
+  `dateEdited` datetime DEFAULT NULL,
+  `dateArchived` datetime DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 0,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productID`,`accountID`),
   KEY `productsCategoryID` (`category`),
   KEY `productsSellerID` (`accountID`),
   CONSTRAINT `productsSellerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `products` */
 
-insert  into `products`(`productID`,`accountID`,`picture`,`productName`,`description`,`category`,`subcategory`,`variation`,`price`,`quantity`,`dateAdded`,`isArchived`) values (1,43,'98e0459f-a4e6-11ef-bbf5-e4f3d99e8070_','haha','joji','Desktops',NULL,'Desktops',1000,1,'2024-11-10 12:05:14',0),(2,43,NULL,'joji','Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i','vlogs',NULL,'filthy, frank',1000,0,'2024-11-10 12:05:14',0),(3,43,NULL,'a','a','a',NULL,'a',0,0,'2024-11-10 12:05:14',1),(4,43,NULL,'asd','asd','asdaas',NULL,'asda',2325,129,'2024-11-10 13:18:19',1),(5,43,NULL,'asd','asd','asd',NULL,'asd',120,127,'2024-11-10 13:20:23',1),(6,43,NULL,'asd','asd','asd',NULL,'asd',123,123,'2024-11-10 13:21:25',1),(7,43,NULL,'asd','asd','asdaas',NULL,'asd',123,123,'2024-11-10 13:22:14',0),(8,43,NULL,'TANGINA MO','XD PA MORE ASSHOLE','asd',NULL,'asd',2000,6,'2024-11-10 13:25:35',0),(9,43,NULL,'he','ewq','qwe',NULL,'dasd',1,1,'2024-11-12 12:06:47',1),(10,43,NULL,'kasjd','lansiod','ansd',NULL,'lasdjpasd',123,10,'2024-11-12 12:11:11',0),(11,43,NULL,'dsa','asd','sdds',NULL,'ssdds',321,123,'2024-11-15 18:26:39',0),(12,43,NULL,'asdasd','asd','Desktops',NULL,'Desktops',123123,123123,'2024-11-15 20:15:13',0),(13,43,NULL,'jameng house','the design is very fun','Desktops',NULL,'Desktops',123,22,'2024-11-16 11:39:17',0),(14,43,NULL,'asd','asdasd','Desktops',NULL,'Desktops',321,123,'2024-11-16 13:00:47',0),(15,43,NULL,'delete fields','delete','Desktops',NULL,'Desktops',2443,23,'2024-11-16 13:05:32',0),(16,43,NULL,'delete fields','321','Desktops',NULL,'Desktops',233,123,'2024-11-16 13:05:42',1),(17,43,NULL,'asd','123','Desktops',NULL,'Desktops',123,123,'2024-11-16 13:37:29',0),(18,43,NULL,'Because this function is fairly verbose and used frequently in JavaScript, the $ has long been used as its alias, and many of the libraries available for use with JavaScript create a $() function that references an element from the DOM if you pass it the ','asdasd','Desktops',NULL,'Desktops',123,321,'2024-11-16 14:16:30',0),(19,43,NULL,'noImageTest','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:13:43',0),(20,43,NULL,'multipleImageTest','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:15:37',0),(21,43,NULL,'multipleImageTestWithHTMLUpdate','','Desktops',NULL,'Desktops',123,3,'2024-11-17 18:20:17',0),(22,43,'d3a8f69b-a4d1-11ef-b3d9-e4f3d99e8070_Acer_Wallpaper_01_3840x2400.jpg','testExecuteForList','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',0),(23,43,'d3adcc64-a4d1-11ef-bda4-e4f3d99e8070_Acer_Wallpaper_02_3840x2400.jpg','testExecuteForList','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',0),(24,43,'d3b02f1b-a4d1-11ef-bea3-e4f3d99e8070_Acer_Wallpaper_03_3840x2400.jpg','testExecuteForList','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',0),(25,43,'16946f3f-a4d3-11ef-8cd4-e4f3d99e8070_Acer_Wallpaper_01_3840x2400.jpg','testExecutemanySqlVal','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',0),(26,43,'1696d28f-a4d3-11ef-8949-e4f3d99e8070_Acer_Wallpaper_02_3840x2400.jpg','testExecutemanySqlVal','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',0),(27,43,'169b9709-a4d3-11ef-820d-e4f3d99e8070_Acer_Wallpaper_03_3840x2400.jpg','testExecutemanySqlVal','','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',0),(28,43,'1381535d-a4e1-11ef-85ae-e4f3d99e8070_','testOneImgFile','asd','Desktops',NULL,'Desktops',123,2,'2024-11-17 19:46:14',0);
+insert  into `products`(`productID`,`accountID`,`picture`,`productName`,`brand`,`description`,`category`,`subcategory`,`variation`,`price`,`quantity`,`dateAdded`,`dateEdited`,`dateArchived`,`isActive`,`isArchived`) values (1,43,'98e0459f-a4e6-11ef-bbf5-e4f3d99e8070_','haha',NULL,'joji','Desktops',NULL,'Desktops',1000,1,'2024-11-10 12:05:14',NULL,NULL,0,0),(2,43,NULL,'joji',NULL,'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i','vlogs',NULL,'filthy, frank',1000,0,'2024-11-10 12:05:14',NULL,NULL,0,0),(3,43,NULL,'a',NULL,'a','a',NULL,'a',0,0,'2024-11-10 12:05:14',NULL,NULL,0,1),(4,43,NULL,'asd',NULL,'asd','asdaas',NULL,'asda',2325,129,'2024-11-10 13:18:19',NULL,NULL,0,1),(5,43,NULL,'asd',NULL,'asd','asd',NULL,'asd',120,127,'2024-11-10 13:20:23',NULL,NULL,1,1),(6,43,NULL,'asd',NULL,'asd','asd',NULL,'asd',123,123,'2024-11-10 13:21:25',NULL,NULL,1,1),(7,43,'d4a3e187-a68a-11ef-9a96-3c7c3f2bb6c4_','aproduct1','None','asd','asdaas',NULL,'asd',123,123,'2024-11-10 13:22:14','2024-11-19 23:27:47',NULL,1,0),(8,43,NULL,'TANGINA MO',NULL,'XD PA MORE ASSHOLE','asd',NULL,'asd',2000,6,'2024-11-10 13:25:35',NULL,NULL,1,0),(9,43,NULL,'he',NULL,'ewq','qwe',NULL,'dasd',1,1,'2024-11-12 12:06:47',NULL,NULL,1,1),(10,43,NULL,'kasjd',NULL,'lansiod','ansd',NULL,'lasdjpasd',123,10,'2024-11-12 12:11:11',NULL,NULL,1,0),(11,43,NULL,'dsa',NULL,'asd','sdds',NULL,'ssdds',321,123,'2024-11-15 18:26:39',NULL,NULL,1,0),(12,43,NULL,'asdasd',NULL,'asd','Desktops',NULL,'Desktops',123123,123123,'2024-11-15 20:15:13',NULL,NULL,1,0),(13,43,NULL,'jameng house',NULL,'the design is very fun','Desktops',NULL,'Desktops',123,22,'2024-11-16 11:39:17',NULL,NULL,1,0),(14,43,NULL,'asd',NULL,'asdasd','Desktops',NULL,'Desktops',321,123,'2024-11-16 13:00:47',NULL,NULL,1,1),(15,43,NULL,'delete fields',NULL,'delete','Desktops',NULL,'Desktops',2443,23,'2024-11-16 13:05:32',NULL,NULL,1,0),(16,43,NULL,'delete fields',NULL,'321','Desktops',NULL,'Desktops',233,123,'2024-11-16 13:05:42',NULL,NULL,1,1),(17,43,'c82f9897-a68a-11ef-9d70-3c7c3f2bb6c4_','product1','None','123','Desktops',NULL,'Desktops',123,123,'2024-11-16 13:37:29','2024-11-19 23:27:26',NULL,1,0),(18,43,'de4adbf4-a68a-11ef-8a79-3c7c3f2bb6c4_','Because this function is fairly verbose and used frequently in JavaScript, the $ has long been used as its alias, and many of the libraries available for use with JavaScript create a $() function that references an element from the DOM if you pass it the ','None','asdasd','Desktops',NULL,'Desktops',123,321,'2024-11-16 14:16:30','2024-11-19 23:28:03',NULL,1,0),(19,43,NULL,'noImageTest',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:13:43',NULL,NULL,0,0),(20,43,NULL,'multipleImageTest',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:15:37',NULL,NULL,0,0),(21,43,NULL,'multipleImageTestWithHTMLUpdate',NULL,'','Desktops',NULL,'Desktops',123,3,'2024-11-17 18:20:17',NULL,NULL,0,0),(22,43,'d3a8f69b-a4d1-11ef-b3d9-e4f3d99e8070_Acer_Wallpaper_01_3840x2400.jpg','testExecuteForList',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',NULL,NULL,0,0),(23,43,'d3adcc64-a4d1-11ef-bda4-e4f3d99e8070_Acer_Wallpaper_02_3840x2400.jpg','testExecuteForList',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',NULL,NULL,0,0),(24,43,'d3b02f1b-a4d1-11ef-bea3-e4f3d99e8070_Acer_Wallpaper_03_3840x2400.jpg','testExecuteForList',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:50:57',NULL,NULL,0,0),(25,43,'16946f3f-a4d3-11ef-8cd4-e4f3d99e8070_Acer_Wallpaper_01_3840x2400.jpg','testExecutemanySqlVal',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',NULL,NULL,0,0),(26,43,'1696d28f-a4d3-11ef-8949-e4f3d99e8070_Acer_Wallpaper_02_3840x2400.jpg','testExecutemanySqlVal',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',NULL,NULL,0,0),(27,43,'169b9709-a4d3-11ef-820d-e4f3d99e8070_Acer_Wallpaper_03_3840x2400.jpg','testExecutemanySqlVal',NULL,'','Desktops',NULL,'Desktops',123,321,'2024-11-17 18:59:59',NULL,NULL,0,0),(28,43,'1381535d-a4e1-11ef-85ae-e4f3d99e8070_','testOneImgFile',NULL,'asd','Desktops',NULL,'Desktops',123,2,'2024-11-17 19:46:14',NULL,NULL,0,0),(29,43,'0bef1cdf-a54c-11ef-8d6b-3c7c3f2bb6c4_','testBrand','brand','','Desktops',NULL,'Desktops',123,3,'2024-11-18 09:25:50',NULL,NULL,0,0),(30,43,'c191e261-a54c-11ef-b2dd-3c7c3f2bb6c4_','testIsActive','','','Desktops',NULL,'Desktops',123,3,'2024-11-18 09:30:55',NULL,NULL,1,0),(31,43,'e3e34179-a54c-11ef-bb48-3c7c3f2bb6c4_','testDefaultbrand','No brand','','Desktops',NULL,'Desktops',123,3,'2024-11-18 09:31:53',NULL,NULL,0,0),(32,43,'b7fddd45-a54f-11ef-ae0c-3c7c3f2bb6c4_','testDateEditedArchived','No brand','','Desktops',NULL,'Desktops',123,3,'2024-11-18 09:52:07',NULL,NULL,0,0),(33,43,'0002b8ce-a550-11ef-af14-3c7c3f2bb6c4_','testDateWhenEdited','No brand','edited here','Desktops',NULL,'Desktops',123,3,'2024-11-18 09:53:48','2024-11-18 09:54:08',NULL,0,0),(34,43,'0a674c7a-a62b-11ef-b0e7-3c7c3f2bb6c4_','testDelete','No brand','','Desktops',NULL,'Desktops',4444,4,'2024-11-19 12:02:06',NULL,NULL,0,0),(35,43,'5a11adbc-a684-11ef-bd3c-3c7c3f2bb6c4_','testActivated','No brand','','Desktops',NULL,'Desktops',123,3,'2024-11-19 22:41:24',NULL,NULL,0,0);
 
 /*Table structure for table `products_admin` */
 
@@ -161,6 +164,7 @@ CREATE TABLE `products_admin` (
   `accountID` bigint(20) NOT NULL,
   `picture` longblob DEFAULT NULL,
   `productName` varchar(255) NOT NULL,
+  `brand` varchar(255) DEFAULT 'No brand',
   `description` varchar(255) DEFAULT NULL,
   `category` varchar(255) NOT NULL,
   `subcategory` varchar(255) DEFAULT NULL,
@@ -168,7 +172,10 @@ CREATE TABLE `products_admin` (
   `price` int(255) NOT NULL,
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
+  `dateEdited` datetime DEFAULT NULL,
+  `dateArchived` datetime DEFAULT NULL,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productAdminID`,`accountID`),
   KEY `productsRequestsAccountID` (`accountID`),
   CONSTRAINT `adminProductID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE

@@ -22,7 +22,7 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="cart" view="colnames">
-<left>299</left>
+<left>300</left>
 <top>53</top>
 <width>115</width>
 <height>147</height>
@@ -38,10 +38,10 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="orders" view="colnames">
-<left>416</left>
+<left>417</left>
 <top>49</top>
 <width>127</width>
-<height>193</height>
+<height>177</height>
 <sql_create_table>CREATE TABLE `orders` (
   `orderID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
@@ -57,7 +57,7 @@
 </table>
 <table name="orders_status" view="colnames">
 <left>562</left>
-<top>56</top>
+<top>57</top>
 <width>114</width>
 <height>116</height>
 <sql_create_table>CREATE TABLE `orders_status` (
@@ -88,7 +88,7 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="requests" view="colnames">
-<left>168</left>
+<left>169</left>
 <top>49</top>
 <width>125</width>
 <height>147</height>
@@ -108,7 +108,7 @@
 <left>516</left>
 <top>287</top>
 <width>135</width>
-<height>300</height>
+<height>297</height>
 <sql_create_table>CREATE TABLE `products_admin` (
   `productAdminID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
@@ -123,8 +123,8 @@
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
   `dateEdited` datetime DEFAULT NULL,
-  `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   `dateArchived` datetime DEFAULT NULL,
+  `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   `isActive` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productAdminID`,`accountID`),
   KEY `productsRequestsAccountID` (`accountID`),
@@ -134,8 +134,8 @@
 <table name="products" view="colnames">
 <left>656</left>
 <top>286</top>
-<width>110</width>
-<height>310</height>
+<width>108</width>
+<height>306</height>
 <sql_create_table>CREATE TABLE `products` (
   `productID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
@@ -150,14 +150,14 @@
   `quantity` int(255) NOT NULL,
   `dateAdded` datetime NOT NULL,
   `dateEdited` datetime DEFAULT NULL,
-  `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   `dateArchived` datetime DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT 0,
+  `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`productID`,`accountID`),
   KEY `productsCategoryID` (`category`),
   KEY `productsSellerID` (`accountID`),
   CONSTRAINT `productsSellerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="reviews" view="colnames">
 <left>790</left>
@@ -202,7 +202,7 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="addressbooks" view="colnames">
-<left>375</left>
+<left>376</left>
 <top>499</top>
 <width>121</width>
 <height>131</height>
@@ -242,7 +242,7 @@
 <left>797</left>
 <top>532</top>
 <width>112</width>
-<height>116</height>
+<height>131</height>
 <sql_create_table>CREATE TABLE `products_imgs` (
   `productImgId` bigint(20) NOT NULL AUTO_INCREMENT,
   `productID` bigint(20) NOT NULL,

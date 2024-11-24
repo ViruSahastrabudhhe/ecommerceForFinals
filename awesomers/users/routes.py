@@ -13,11 +13,15 @@ from werkzeug.security import *
 
 @users.route('/')
 def welcome():
-    return redirect(url_for('users.login'))
+    return redirect(url_for('users.landing'))
+
+@users.route('/landing')
+def landing():
+    return render_template('users/landing_page.html')
 
 @users.route('/test')
 def test():
-    return render_template('kaiAdmin/forms/forms.html')
+    return render_template('kaiAdmin/organic/index.html')
 
 # users ----------------------------------------------------------------------------------------------
 @users.route('/login', methods=['GET', 'POST'])
@@ -50,17 +54,24 @@ def login():
             flash('Email does not exist! Try again.', category='error')
             return redirect(url_for('users.login'))
 
-        if check_password_hash(record['accountPassword'], password):
-            session['loggedIn'] = True
-            session['accountID'] = record['accountID']
-            session['accountEmail'] = record['accountEmail']
-            session['accountUsername'] = record['accountUsername']
-            session['accountRole'] = record['accountRole']
-            return redirect(url_for('homepage.home'))
-        else:
-            flash('Incorrect password! Try again.', category='error')
+        try:
+            if check_password_hash(record['accountPassword'], password):
+                session['loggedIn'] = True
+                session['accountID'] = record['accountID']
+                session['accountEmail'] = record['accountEmail']
+                session['accountUsername'] = record['accountUsername']
+                session['accountRole'] = record['accountRole']
+                return redirect(url_for('homepage.home'))
+            else:
+                flash('Incorrect password! Try again.', category='error')
+        except Error as e:
+            flash(f"{e}", category='error')
+            return redirect(url_for('users.login'))
+        finally:
+            cursor.close()
+            conn.close()
 
-    return render_template('accounts/login.html', legend="Login")
+    return render_template('users/login.html', legend="Login")
 
 @users.route("/signUp", methods=['GET', 'POST'])
 def signUp():
@@ -109,7 +120,7 @@ def signUp():
                 
         return redirect(url_for('users.login'))
         
-    return render_template('accounts/sign_up.html', legend="Sign up")
+    return render_template('users/sign_up.html', legend="Sign up")
 
 @users.route('/resetPassword/<token>', methods=['GET', 'POST'])
 def resetPassword(token):
@@ -156,7 +167,7 @@ def resetPassword(token):
 
         return redirect(url_for('users.login'))
 
-    return render_template('accounts/reset_password.html', legend='Reset password', userToken=token, userEmail=email)
+    return render_template('users/reset_password.html', legend='Reset password', userToken=token, userEmail=email)
         
 @users.route("/requestPasswordReset", methods=['GET', 'POST'])
 def requestPasswordReset():
@@ -181,26 +192,26 @@ def requestPasswordReset():
         if record is None:
             flash("Email does not existo!", category='error')
             return redirect(url_for('users.requestPasswordReset'))
-        else:
-            try:
-                sendForgotPasswordMail(email)
-                flash("Password reset request sent!", category='success')
-            except Error as e:
-                conn.rollback()
-                flash(f"{e}", category='error')
-                return redirect(url_for('users.requestPasswordReset'))
-            finally:
-                cursor.close()
-                conn.close()
+        
+        try:
+            sendForgotPasswordMail(email)
+            flash("Password reset request sent!", category='success')
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}", category='error')
+            return redirect(url_for('users.requestPasswordReset'))
+        finally:
+            cursor.close()
+            conn.close()
 
-        return redirect(url_for('users.login'))
+        return redirect(url_for('users.landing'))
     
-    return render_template('accounts/forgot_password.html',  legend="Forgot password")
+    return render_template('users/forgot_password.html',  legend="Forgot password")
 
 @users.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('users.login'))
+    return redirect(url_for('users.landing'))
 
 # admin ----------------------------------------------------------------------------------------------
 @users.route('/loginAdmin', methods=['GET', 'POST'])

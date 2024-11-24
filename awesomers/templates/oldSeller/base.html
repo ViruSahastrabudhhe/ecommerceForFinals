@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugin/datatables/datatables.min.js') }}"></script>
 
     {% block head %}{% endblock %}
 </head>
@@ -143,5 +145,8 @@
             </div>
         </div>
     </section>
+
+    {% block script %}
+    {% endblock %}
 </body>
 </html>

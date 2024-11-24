@@ -90,7 +90,7 @@
 {% block mainPanel %}
 <div class="container">
   <div class="page-inner">
-    <div class="page-header">
+    <div class="page-header"> 
       <h3 class="fw-bold mb-3">{{legend}}</h3>
       <ul class="breadcrumbs mb-3">
         <li class="nav-home">
@@ -118,6 +118,34 @@
           <div class="card-header">
             <div class="d-flex align-items-center">
               <h4 class="card-title">Products in store</h4>
+              <h4 class="card-title" hidden="">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+              <ul class="nav nav-pills nav-primary" hidden="">
+                <li class="nav-item">
+                  <a 
+                  class="btn nav-link" 
+                  onclick=""
+                  id="all-products"
+                  >
+                  <strong>All</strong>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a 
+                  class="btn nav-link" 
+                  id="active-products"
+                  >
+                  <strong>Active</strong>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a 
+                  class="btn nav-link" 
+                  id="inactive-products"
+                  >
+                  <strong>Inactive</strong>
+                  </a>
+                </li>
+              </ul>
               <a href=" {{ url_for('seller.renderAddProducts') }} " class="ms-auto">
                 <button
                   class="btn btn-primary btn-round ms-auto"
@@ -229,7 +257,8 @@
                     <th style="width: 70px;">Price</th>
                     <th style="width: 70px;">Quantity</th>
                     <th style="width: 50px;">Date Added</th> 
-                    <th style="width: 5%;">Action</th>
+                    <th style="width: 2%;">Action</th>
+                    <th hidden="">Is Active? header</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -240,75 +269,122 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Date Added</th>
-                    <th style="width: 5%;">Action</th>
+                    <th style="width: 2%;">Action</th>
+                    <th hidden="">Is active? footer</th>
                   </tr>
                 </tfoot>
-                  <tbody>
-                    {% for product in products %}
-                    <tr>
-                      <td>
-                        <p 
-                        style="margin-bottom: 0px;">
-                          {{product.3}}
-                        </p>
-                        <p 
-                        style="font-size: 12px; margin-bottom: 0px;">
-                          ID: {{product.0}}
-                        </p>
-                        <p 
-                        style="font-size: 12px; margin-bottom: 0px;">
-                          Brand: {{product.4}}
-                        </p>
-                      </td>
-                      <td>
-                        {{product.6}}
-                      </td>
-                      <td>
-                          {{product.8}}
-                      </td>
-                      <td>{{product.9}}</td>
-                      <td>{{product.10}}</td>
-                      <td>
-                        <p 
-                        style="font-size: 12px; margin-bottom: 0px;">
-                          Date added: {{product.11}}
-                        </p>
-                        {% if product.12 != None  %}
-                        <p 
-                        style="font-size: 12px;   margin-bottom: 5px;">
-                          Date edited: {{product.12}}
-                        </p>
-                        {% endif %}
-                      </td>
-                      <td>
-                        <div class="form-button-action">
-                          <a href="{{ url_for('seller.renderEditProducts', productID=product[0]) }}">
-                            <button
-                              style="padding: 15px;"
-                              title=""
-                              class="btn btn-link btn-primary"
-                            >
-                              <i class="fa fa-edit"></i>
-                            </button>
-                          </a>
-                          <form action="{{ url_for('seller.deleteProduct', productID=product[0]) }}", method="POST">
-                            <button
-                            type="submit"
-                            name="deleteProduct"
-                            value="delete"
+                <tbody id="tableBody">
+                {% for product in products %}
+                  <tr>
+                    <td>
+                      <p 
+                      style="margin-bottom: 0px;">
+                        {{product.3}}
+                      </p>
+                      <p 
+                      style="font-size: 12px; margin-bottom: 0px;">
+                        ID: {{product.0}}
+                      </p>
+                      <p 
+                      style="font-size: 12px; margin-bottom: 0px;">
+                        Brand: {{product.4}}
+                      </p>
+                    </td>
+                    <td>
+                      {{product.6}}
+                    </td>
+                    <td>
+                        {{product.8}}
+                    </td>
+                    <td>{{product.9}}</td>
+                    <td>{{product.10}}</td>
+                    <td>
+                      <p 
+                      style="font-size: 12px; margin-bottom: 0px;">
+                        Date added: {{product.11}}
+                      </p>
+                      {% if product.12 != None  %}
+                      <p 
+                      style="font-size: 12px;   margin-bottom: 5px;">
+                        Date edited: {{product.12}}
+                      </p>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="form-button-action">
+                        <a href="{{ url_for('seller.renderEditProducts', productID=product[0]) }}">
+                          <button
                             style="padding: 15px;"
                             title=""
-                            class="btn btn-link btn-danger"
-                            id=""
+                            class="btn btn-link btn-primary"
                           >
-                            <i class="fa fa-times"></i>
+                            <i class="fa fa-edit"></i>
                           </button>
-                          </form>
+                        </a>
+                        <div class="btn-group dropdown">
+                          <button
+                          type="button"
+                          style="padding: 15px;"
+                          title=""
+                          class="btn btn-link btn-black"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="true"
+                          id=""
+                        >
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                          <ul class="dropdown-menu" role="menu" >
+                            <li>
+                              <form 
+                              action="{{ url_for('seller.productActivation', productID=product[0]) }}" 
+                              method="POST"
+                              >
+                                <button 
+                                  class="dropdown-item"
+                                  type="submit"
+                                  name="activationButton"
+                                  value="activate"
+                                  >
+                                Activate
+                                </button>
+                              </form>
+                              <form 
+                              action="{{ url_for('seller.productActivation', productID=product[0]) }}"
+                              method="POST"
+                              >
+                                <button 
+                                class="dropdown-item"
+                                type="submit"
+                                name="activationButton"
+                                value="deactivate"
+                                >
+                                Deactivate
+                                </button>
+                              </form> 
+                              <form 
+                              action="{{ url_for('seller.deleteProduct', productID=product[0] ) }}" 
+                              method="POST"
+                              >
+                                <button 
+                                  class="dropdown-item" 
+                                  type="submit" 
+                                  name="deleteProduct" 
+                                  value="delete"
+                                >
+                                Delete
+                                </button>
+                              </form>
+                            </li>
+                          </ul>
                         </div>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
+                      </div>
+                    </td>
+                    <td hidden="">
+                      {{product.14}}
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
               </table>
             </div>
           </div>
@@ -356,9 +432,60 @@
       },
     });
 
+    $('all-products').click(function() {
+      $(this).toggleClass('btn nav-link active');
+    });
+
+    function updateFilter(value) {
+      // As you use jQuery, use it to its ful potential:
+      if (value==2){
+        return;
+      }
+      $('#products-in-store > tbody > tr > td:nth-child(8)').each(function() {
+          // Don't retrieve HTML but text; convert to number with `+`
+          var scoreCheck = $(this).text();
+          // Toggle instead of hide, so it works both ways:
+          // Don't select providing HTML, but use a TR selector.
+          $(this).closest('tr').toggle(value == scoreCheck);
+      });
+    }
+
     // Add Row
     $("#products-in-store").DataTable({
       pageLength: 5,
+    });
+
+    // var tableBody = document.getElementById('tableBody');
+    // var tableData = tableBody.innerHTML;
+
+    // function activationFilter(value) {
+    //   tableBody.innerHTML = tableData;
+    //   let rows = tableBody.children;
+
+    //   if (value == 2) {
+    //     return;
+    //   }
+
+    //   let filteredRows = '';
+
+    //   for (let i = 0; i<rows.length; i++) {
+    //     var currentRow = rows[i].children[7].innerText;
+
+    //     if (currentRow==value) {
+    //       filteredRows += rows[i].outerHTML;
+    //     }
+    //   }
+    //   tableBody.innerHTML = filteredRows;
+    // }
+
+    $('#active-products').on('click', function () {
+      var value = 0;
+      updateFilter(value);
+    });
+
+    $('#inactive-products').on('click', function () {
+      var value = 1;
+      updateFilter(value);
     });
 
     var action =

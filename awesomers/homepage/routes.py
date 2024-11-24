@@ -4,21 +4,48 @@ from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
+from datetime import datetime
+from werkzeug.utils import secure_filename
+import uuid as uuid
+import pathlib
+import os
 
 @homepage.route('/home')
 def home():
     if session['accountRole']=='seller':
-        return render_template('dashboard/dashboard_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('homepage/seller/homepage_seller.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
-        return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('homepage/buyer/homepage_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 # buyer ----------------------------------------------------------------------------------------------
-@homepage.route('/renderBuyerBecomeSeller')
-def renderBuyerBecomeSeller():
-    return render_template('dashboard/dashboard_buyer.html', purpose="renderBuyerBecomeSeller", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+@homepage.route('/sellerRegistration')
+def sellerRegistration():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
 
-@homepage.route('/requestToBecomeSeller', methods=['GET', 'POST'])
-def requestToBecomeSeller():
+    try:
+        cursor.execute(f"SELECT * FROM accounts WHERE accountID={session['accountID']}")
+        rows=cursor.fetchall()
+        print(rows)
+        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", accountInfo=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    except Error as e:
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@homepage.route('/profile')
+def profile():
+    if session['accountRole'] == 'buyer':
+        return redirect(url_for('profiles.buyerProfile'))
+
+@homepage.route('/sendSellerRegistrationRequest', methods=['GET', 'POST'])
+def sendSellerRegistrationRequest():
     if request.method=="POST":
         id = session['accountID']
         email = session['accountEmail']
@@ -38,15 +65,14 @@ def requestToBecomeSeller():
         except mysql.connector.IntegrityError:  
             conn.rollback()
             flash("REQUEST ALREADY EXISTO", category='error')
-            return redirect(url_for('homepage.renderBuyerBecomeSeller'))
+            return redirect(url_for('homepage.sellerRegistration'))
         finally:
             cursor.close()
             conn.close()
 
         return redirect(url_for('homepage.home'))
     
-    return render_template('dashboard/dashboard_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
-
+    return render_template('homepage/buyer/homepage_buyer.html', id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
 
 # seller ----------------------------------------------------------------------------------------------
 @homepage.route("/redirectToSellerCenter")
@@ -70,12 +96,13 @@ def homeAdmin():
     try:
         cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
         rows=cursor.fetchall()
-        cursor.close()
-        conn.close()
         return render_template('admin/home_admin.html', email=session['accountEmail'], dbhtml=rows)
     except Error as e:
         flash(f'{e}', category='error')
         logout()
+    finally:
+        cursor.close()
+        conn.close()
 
 @homepage.route('/adminRequestInteraction/<email>', methods=['GET', 'POST'])
 def adminRequestInteraction(email):

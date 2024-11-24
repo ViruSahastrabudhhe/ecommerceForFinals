@@ -123,20 +123,22 @@
             <div class="card-header">
               <div class="d-flex align-items-center">
                 <div class="card-title">Add products to store</div>
-                <div 
-                  class="ms-auto"
-                >
-                  <button 
-                    class="btn btn-success"
+                <div class="d-flex justify-content-end ms-auto">
+                  <button
+                    class="btn btn-success btn-round"
                     type="submit"
                     name="submitButton"
                     value="addProduct"
-                  >Add product</button>
-
+                    style="width: 100px; text-wrap: wrap;"
+                  >
+                    Add product
+                  </button>
+                  <p>&nbsp;&nbsp;&nbsp;</p>
                   <input 
                     type="reset"
-                    class="btn btn-danger"
+                    class="btn btn-danger btn-round"
                     value="Delete Fields"
+                    style="width: 100px; text-wrap: wrap;"
                   >
                 </div>
               </div>
@@ -174,6 +176,7 @@
                       class="form-control"
                       id="nameInput"
                       placeholder="Enter product name"
+                      maxlength="200"
                       required
                     />
                   </div>
@@ -226,7 +229,13 @@
                 <div class="col-md-6 col-lg-4">
                   <div class="form-group">
                     <label for="comment">Product description</label>
-                    <textarea class="form-control" name="productDescription" id="comment" rows="13"></textarea>
+                    <textarea 
+                    class="form-control" 
+                    name="productDescription" 
+                    id="productDescription"
+                    placeholder="Enter product description" 
+                    rows="13" 
+                    maxlength="900"></textarea>
                   </div>
                 </div>
                 <div class="col-md-6 col-lg-4">
@@ -1094,4 +1103,5 @@
 {% endblock %}
 
 {% block script %}
+
 {% endblock %}

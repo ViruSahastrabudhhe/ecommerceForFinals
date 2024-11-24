@@ -1,0 +1,4 @@
+.btn.active, .btn:active {
+    background: #cecece;
+    text-decoration: none;
+}
