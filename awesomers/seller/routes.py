@@ -13,7 +13,7 @@ import os
 # renders ----------------------------------------------------------------------------------------------
 @seller.route('/sellerCenter')
 def sellerCenter():
-    return render_template('seller/seller_center.html', legend="Dashboard", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('seller/seller_center.html', legend="Dashboard", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/testTemplate')
 def testTemplate():
@@ -32,7 +32,7 @@ def renderProductManagement():
     try:
         cursor.execute(f'SELECT * FROM products WHERE accountID={accountID} AND isArchived=0')
         rows=cursor.fetchall()
-        return render_template('seller/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('seller/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f'{e}', category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -46,7 +46,7 @@ def renderActiveProducts():
 
 @seller.route('/renderAddProducts')
 def renderAddProducts():
-    return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/renderEditProducts/<productID>')
 def renderEditProducts(productID):
@@ -63,7 +63,7 @@ def renderEditProducts(productID):
     try:
         cursor.execute("SELECT * FROM products WHERE productID=%s AND accountID=%s", (productID, accountID))
         rows=cursor.fetchall()
-        return render_template('seller/edit_products.html', legend="Edit products", productToBeEdited=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('seller/edit_products.html', legend="Edit products", productToBeEdited=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -84,7 +84,7 @@ def renderArchivedProducts():
     try:
         cursor.execute("SELECT * FROM products WHERE isArchived=1")
         rows=cursor.fetchall()
-        return render_template('seller/archived_products.html', legend="Archived products", archivedProducts=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('seller/archived_products.html', legend="Archived products", archivedProducts=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except:
         flash('Could not fetch products from database!', category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -94,23 +94,23 @@ def renderArchivedProducts():
 
 @seller.route('/renderOrders')
 def renderOrders():
-    return render_template('seller/orders.html', legend="Orders", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('seller/orders.html', legend="Orders", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/renderReturns')
 def renderReturns():
-    return render_template('seller/returns.html', legend="Returns", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('seller/returns.html', legend="Returns", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/renderReviews')
 def renderReviews():
-    return render_template('seller/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('seller/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/sellerBase')
 def sellerBase():
-    return render_template('oldSeller/base.html', legend="Base", id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('oldSeller/base.html', legend="Base", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/products')
 def products():
-    return render_template('oldSeller/products.html', legend="Add product", purpose="renderProducts" , id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+    return render_template('oldSeller/products.html', legend="Add product", purpose="renderProducts" , id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/inventory')
 def inventory():
@@ -125,7 +125,7 @@ def inventory():
     try:
         cursor.execute(f'SELECT * FROM products WHERE accountID={accountID}')
         rows=cursor.fetchall()
-        return render_template('oldSeller/inventory.html', legend="Inventory", purpose="renderInventory", products=rows, id=session['accountID'], email=session['accountEmail'], username=session['accountUsername'], role=session['accountRole'])
+        return render_template('oldSeller/inventory.html', legend="Inventory", purpose="renderInventory", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except:
         flash('Could not fetch products from database!', category='error')
         return redirect(url_for('seller.inventory'))

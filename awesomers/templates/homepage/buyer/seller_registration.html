@@ -7,7 +7,7 @@
 
     <div class="container-fluid">
 
-      <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
+      <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/awesomers/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-md-5 p-3">
@@ -36,64 +36,500 @@
 <section>
     <div class = "container-lg">
         <div class="row">
-            <div class="col-lg-3">
-                <ul>
-                    <li>
-                        <a href="#">Dashboard</a>
+            <div class="col-lg-3"style="margin-bottom: 10%;">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="#">
+                            <button
+                            type="button" 
+                            name="logout"
+                            value="logoutValue"
+                            >
+                            Dashboard
+                            </button>
+                        </a>
                     </li>
-                    <li>
-                        <a href="{{ url_for('homepage.profile')}}">Profile</a>
+                    <li class="list-group-item">
+                        <a href="{{ url_for('homepage.profile')}}">
+                            <button
+                            type="button" 
+                            name="logout"
+                            value="logoutValue"
+                            >
+                            Profile
+                            </button>
+                        </a>
                     </li>
-                    <li>
-                        <a href="{{ url_for('homepage.sellerRegistration')}}">Seller registration</a>
+                    <li class="list-group-item">
+                        <a href="{{ url_for('homepage.addressBook')}}">
+                            <button
+                            type="button" 
+                            name="logout"
+                            value="logoutValue"
+                            >
+                            Address book
+                            </button>
+                        </a>
                     </li>
-                    <li>
-                        <a href="#">Logout</a>
+                    <li class="list-group-item">
+                        <a href="{{ url_for('homepage.sellerRegistration')}}">
+                            <button
+                            type="button" 
+                            name="logout"
+                            value="logoutValue"
+                            >
+                            Seller Registration
+                            </button>
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <form action="{{ url_for('users.logout') }}" id="panel-logout-form">
+                            <button
+                            type="button" 
+                            name="logout"
+                            id="btn-panel-logout"
+                            value="logoutValue"
+                            >
+                            Logout
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
-            <div class="col-lg-8">
-                <!--img id="loginImg" src="http://127.0.0.1:5000/static/clearlyudonthaveadad.png"-->
-                {% for info in accountInfo %}
-                <form action="{{ url_for('homepage.sendSellerRegistrationRequest') }}" method="POST">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">@</span>
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGroup1" name="usernameSR" placeholder="Username" 
-                            value="{{info.3}}"
-                            required>
-                            <label for="floatingInputGroup1">Username</label>
+
+
+            <div class="col-lg-9">
+                {% if isRequest=='false' %}
+                <section>
+                    <div style="text-align: center;">
+                        <button 
+                        class="btn btn-primary btn" 
+                        id="btn-add-request"
+                        style="width: 150px; text-wrap: nowrap;"
+                        type="button" 
+                        >
+                        <i class="fa fa-plus"></i>
+                        Create request
+                        </button>
+                    </div>
+                    <div id="form-add-request" style="display: none;">
+                        <form action="{{ url_for('homepage.sendSellerRegistrationRequest') }}" method="POST" enctype="multipart/form-data">
+        
+        
+                            <div class="mt-6" style="margin-top: 5%;"><h4>Awesomers account</h4></div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="input-group mb-3 me-2">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control w-100" id="floatingInputGroup1" name="fNameAddSR" placeholder="First name" 
+                                        value="{{accountInfo.3}}"
+                                        required>
+                                        <label for="floatingInputGroup1">First name
+                                            <span style="color: red !important; display: inline; float: none;">*</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3 ms-2">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control w-100" id="floatingInputGroup1" name="lNameAddSR" placeholder="Last name" 
+                                        value="{{accountInfo.4}}"
+                                        required>
+                                        <label for="floatingInputGroup1">Last name
+                                            <span style="color: red !important; display: inline; float: none;">*</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group mb-3 me-2">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control w-100" id="floatingInputGroup1" name="emailAddSR" placeholder="Email" 
+                                    value="{{accountInfo.1}}"
+                                    required>
+                                    <label for="floatingInputGroup1">Email
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+        
+        
+                            <div class="mt-6"><h4>Valid ID</h4></div>
+                            <div class="input-group mb-3">
+                                <div class="form-group w-100">
+                                    <label for="validIDTypeAddSR">Valid ID type
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>      
+                                    <select id="validIDTypeAddSR" name="validIDTypeAddSR" class="form-select" aria-placeholder="Valid ID" required>
+                                        <option selected value="">Choose your valid ID</option>
+                                        <option value="Driver's License">Driver's License</option>
+                                        <option value="Passport">Passport</option>
+                                        <option value="Postal ID">Postal ID</option>
+                                        <option value="SSS">SSS</option>
+                                        <option value="NBI">NBI</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="exampleFormControlFile1"
+                                    >Valid ID picture 
+                                    <span style="color: red !important; display: inline; float: none;">*</span>
+                                </label>
+                                <input
+                                    type="file"
+                                    class="form-control-file w-100"
+                                    name="validIDPictureAddSR"
+                                    id="exampleFormControlFile1"
+                                    accept="image/jpeg, image/jpg, image/png"
+                                    onchange="validIDPreview()"
+                                    required
+                                />
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-4">
+                                <label for="exampleFormControlFile1">
+                                    <img src="/static/imgs/{{profilePicture}}" id="validIDPictureAddSRPreview" alt="add valid id" width="150" height="150">
+                                </label>
+                            </div>
+                            <div class="input-group mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control w-100" id="floatingInputGroup1" name="validIDFullNameAddSR" placeholder="Email" 
+                                    required>
+                                    <label for="floatingInputGroup1">Valid ID full name
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-group mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control w-100" id="floatingInputGroup1" name="validIDNumAddSR" placeholder="Email" 
+                                    required>
+                                    <label for="floatingInputGroup1">Valid ID number
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+        
+        
+                            <div class="mt-6"><h4>Bank document</h4></div>
+                            <div class="input-group mb-3 me-2">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankNameAddSR" placeholder="Email" 
+                                    required>
+                                    <label for="floatingInputGroup1">Bank name
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="exampleFormControlFile1"
+                                    >Bank document picture 
+                                    <span style="color: red !important; display: inline; float: none;">*</span>
+                                </label>
+                                <input
+                                    type="file"
+                                    class="form-control-file w-100"
+                                    name="bankDocumentPictureAddSR"
+                                    id="exampleFormControlFile1"
+                                    accept="image/jpeg, image/jpg, image/png"
+                                    onchange="bankDocPreview()"
+                                    required
+                                />
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-4">
+                                <label for="exampleFormControlFile1">
+                                    <img src="/static/imgs/{{profilePicture}}" id="bankDocumentPictureAddSRPreview" alt="back document picture" width="150" height="150">
+                                </label>
+                            </div>
+                            <div class="input-group mb-3 me-2">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankAccNameAddSR" placeholder="Email" 
+                                    required>
+                                    <label for="floatingInputGroup1">Bank account name
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-group mb-4 me-2">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankAccNumAddSR" placeholder="Email" 
+                                    required>
+                                    <label for="floatingInputGroup1">Bank account number
+                                        <span style="color: red !important; display: inline; float: none;">*</span>
+                                    </label>
+                                </div>
+                            </div>
+        
+        
+                            <div class="d-flex align-items-center justify-content-center">
+                                <button 
+                                class="btn btn-primary me-2" 
+                                type="submit" 
+                                >
+                                Submit documents
+                                </button>
+                                <button 
+                                class="btn btn-warning ms-2" 
+                                type="reset" 
+                                onclick="closeRequestForm()"
+                                >
+                                Cancel
+                                </button>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </section>
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <h4 style="text-align: center;">Request already sent, awaiting verdict...</h4>
+                </div>
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <h6 style="text-align: center;">Request sent at: {{requestInfo.14}}</h6>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center">
+                    <button 
+                    class="btn btn-primary me-2" 
+                    type="button"
+                    id="btn-show-request"
+                    style="width: 150px;"
+                    >
+                    Show request
+                    </button>
+                    <form action="{{ url_for('homepage.deleteSellerRegistrationRequest') }}" id="form-delete-request" method="POST">
+                        <button 
+                        class="btn btn-danger ms-2" 
+                        type="button" 
+                        style="width: 150px;"
+                        id="btn-delete-request"
+                        >
+                        Delete
+                        </button>
+                    </form>
+                </div>
+
+                <div id="form-show-request" style="display: none; margin-top: 5%;">
+                    <div class="mt-6"><h4>Awesomers account</h4></div>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="input-group mb-3 me-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control w-100" id="floatingInputGroup1" name="fNameAddSR" placeholder="First name" 
+                                value="{{requestInfo.3}}"
+                                disabled
+                                required>
+                                <label for="floatingInputGroup1">First name
+                                </label>
+                            </div>
+                        </div>
+                        <div class="input-group mb-3 ms-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control w-100" id="floatingInputGroup1" name="lNameAddSR" placeholder="Last name" 
+                                value="{{requestInfo.4}}"
+                                disabled
+                                required>
+                                <label for="floatingInputGroup1">Last name
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">@</span>
+                    <div class="input-group mb-3 me-2">
                         <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGroup1" name="usernameSR" placeholder="Username" 
-                            value="{{info.3}}"
+                            <input type="email" class="form-control w-100" id="floatingInputGroup1" name="emailAddSR" placeholder="Email" 
+                            value="{{requestInfo.2}}"
+                            disabled
                             required>
-                            <label for="floatingInputGroup1">Username</label>
+                            <label for="floatingInputGroup1">Email
+                            </label>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 5%;">
-                        <button class="w-100 btn btn-primary btn-lg" type="submit" >Send form</button>
+
+                    <div class="mt-6"><h4>Valid ID</h4></div>
+                    <div class="input-group mb-3">
+                        <div class="form-group w-100">
+                            <label for="validIDTypeAddSR">Valid ID type
+                            </label>      
+                            <select disabled id="validIDTypeAddSR" name="validIDTypeAddSR" class="form-select" aria-placeholder="Valid ID" required>
+                                <option selected value="{{requestInfo.5}}">{{requestInfo.5}}</option>
+                                <option value="">Choose your valid ID</option>
+                                <option value="Driver's License">Driver's License</option>
+                                <option value="Passport">Passport</option>
+                                <option value="Postal ID">Postal ID</option>
+                                <option value="SSS">SSS</option>
+                                <option value="NBI">NBI</option>
+                            </select>
+                        </div>
                     </div>
-                </form>
-                {% endfor %}
-                <!--LINK TO APP.ROUTE, NOT HTML FILE-->
+                    <div class="form-group mb-3">
+                        <label for="exampleFormControlFile1"
+                            >Valid ID picture 
+                        </label>
+                        <input
+                            type="file"
+                            class="form-control-file w-100"
+                            name="validIDPictureAddSR"
+                            id="exampleFormControlFile1"
+                            accept="image/jpeg, image/jpg, image/png"
+                            onchange="validIDPreview()"
+                            disabled
+                            required
+                        />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <label for="exampleFormControlFile1">
+                            <img src="/static/imgs/{{validIDPicture}}" id="validIDPictureAddSRPreview" alt="add valid id" width="150" height="150">
+                        </label>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control w-100" id="floatingInputGroup1" name="validIDFullNameAddSR" placeholder="Valid ID full name" 
+                            value="{{requestInfo.7}}"
+                            disabled
+                            required>
+                            <label for="floatingInputGroup1">Valid ID full name
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control w-100" id="floatingInputGroup1" name="validIDNumAddSR" placeholder="Valid ID num" 
+                            value="{{requestInfo.8}}"
+                            disabled
+                            required>
+                            <label for="floatingInputGroup1">Valid ID number
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="mt-6"><h4>Bank document</h4></div>
+                    <div class="input-group mb-3 me-2">
+                        <div class="form-floating">
+                            <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankNameAddSR" placeholder="Bank name" 
+                            value="{{requestInfo.9}}"
+                            disabled
+                            required>
+                            <label for="floatingInputGroup1">Bank name
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="exampleFormControlFile1"
+                            >Bank document picture 
+                        </label>
+                        <input
+                            type="file"
+                            class="form-control-file w-100"
+                            name="bankDocumentPictureAddSR"
+                            id="exampleFormControlFile1"
+                            accept="image/jpeg, image/jpg, image/png"
+                            onchange="bankDocPreview()"
+                            disabled
+                            required
+                        />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <label for="exampleFormControlFile1">
+                            <img src="/static/imgs/{{bankDocumentPicture}}" id="bankDocumentPictureAddSRPreview" alt="back document picture" width="150" height="150">
+                        </label>
+                    </div>
+                    <div class="input-group mb-3 me-2">
+                        <div class="form-floating">
+                            <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankAccNameAddSR" placeholder="Bank account name" 
+                            value="{{requestInfo.11}}"
+                            disabled
+                            required>
+                            <label for="floatingInputGroup1">Bank account name
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3 me-2">
+                        <div class="form-floating">
+                            <input type="text" class="form-control w-100" id="floatingInputGroup1" name="bankAccNumAddSR" placeholder="Bank account num" 
+                            value="{{requestInfo.12}}"
+                            disabled
+                            required>
+                            <label for="floatingInputGroup1">Bank account number
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
             </div>
+
+            
         </div>
     </div>
 </section>
+{% endblock %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-12">&nbsp;</div>
-        <div class="col-lg-12">&nbsp;</div>
-        <div class="col-lg-12">&nbsp;</div>
-        <div class="col-lg-12">&nbsp;</div>
-        <div class="col-lg-12">&nbsp;</div>
-        <div class="col-lg-12">&nbsp;</div>
-    </div>
-</div>
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $('#btn-show-request').click(function () {
+            $('#form-show-request').toggle('fast');
+        });
+        $('#btn-add-request').click(function () {
+            $('#form-add-request').toggle('fast');
+        });
+    });
+
+    function closeRequestForm () {
+        $('#form-add-request').toggle('fast');
+    };
+
+
+    $("#btn-panel-logout").click(function (e) {
+        swal({
+        icon: "warning",
+        title: "Log out",
+        text: "Do you wish to log out?",
+        type: "warning",
+        buttons: {
+            confirm: {
+            text: "Yes, log out",
+            className: "btn btn-success",
+            },
+            cancel: {
+            visible: true,
+            className: "btn btn-danger",
+            },
+        },
+        }).then((logoutValue) => {
+        if (logoutValue) {
+            $('#panel-logout-form').submit()
+        }
+        });
+    });
+
+    $("#btn-delete-request").click(function (e) {
+        swal({
+            icon: "warning",
+            title: "Delete request",
+            text: "Do you wish to delete this request?",
+            type: "warning",
+            buttons: {
+                confirm: {
+                    text: "Delete",
+                    className: "btn btn-success"
+                },
+                cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                },
+            },
+        }).then((deleteValue) => {
+            if (deleteValue) {
+                $("#form-delete-request").submit();
+            };
+        });
+    });
+
+    function validIDPreview() {
+        validIDPictureAddSRPreview.src=URL.createObjectURL(event.target.files[0]);
+    };
+    function bankDocPreview() {
+        bankDocumentPictureAddSRPreview.src=URL.createObjectURL(event.target.files[0]);
+    };
+
+</script>
 {% endblock %}

@@ -38,6 +38,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}" type="text/css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins.min.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/kaiadmin.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/organic_style.css') }}" type="text/css">
+
 
   {% block head %}{% endblock %}
 </head>
@@ -419,7 +421,7 @@
                   </div>
                   <span class="profile-username">
                     <span class="op-7">Hi,</span>
-                    <span class="fw-bold">{{ username }}</span>
+                    <span class="fw-bold">{{ fname }} {{ lname }}</span>
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -434,7 +436,7 @@
                           />
                         </div>
                         <div class="u-text">
-                          <h4>{{ username }}</h4>
+                          <h4>{{ fname }} {{ lname }}</h4>
                           <p class="text-muted">{{ email }}</p>
                           <a
                             href="profile.html"

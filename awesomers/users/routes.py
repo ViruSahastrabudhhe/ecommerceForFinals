@@ -59,7 +59,8 @@ def login():
                 session['loggedIn'] = True
                 session['accountID'] = record['accountID']
                 session['accountEmail'] = record['accountEmail']
-                session['accountUsername'] = record['accountUsername']
+                session['accountFirstName'] = record['accountFirstName']
+                session['accountLastName'] = record['accountLastName']
                 session['accountRole'] = record['accountRole']
                 return redirect(url_for('homepage.home'))
             else:
@@ -76,12 +77,13 @@ def login():
 @users.route("/signUp", methods=['GET', 'POST'])
 def signUp():
     if request.method == 'POST':
-        username = request.form['fName'] + ' ' + request.form['lName']
+        fname = request.form['fName']
+        lname = request.form['lName']
         email = request.form['emailSignUp']
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
-        if isSignUpFormEmpty(email, password, confirmPassword, username):
+        if isSignUpFormEmpty(email, password, confirmPassword, fname, lname):
             flash("Please input in the fields!", category='error')
             return redirect(url_for('users.signUp'))
         elif not isEmailFormatValid(email): 
@@ -107,7 +109,7 @@ def signUp():
         hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
         
         try:
-            cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountUsername) VALUES (%s, %s, %s)', (email, hashedPassword, username))
+            cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountFirstName, accountLastName) VALUES (%s, %s, %s, %s)', (email, hashedPassword, fname, lname))
             conn.commit()
             flash("Successfully signed up!", category='success')
         except mysql.connector.IntegrityError:
@@ -252,8 +254,8 @@ def loginAdmin():
     return render_template('admin/login_admin.html', legend='Admin Login')
 
 # methods ----------------------------------------------------------------------------------------------
-def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, username: str):
-    if email==" " or password==" " or confirmPassword==" " or username==" ":
+def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, fname: str, lname: str):
+    if email==" " or password==" " or confirmPassword==" " or fname==" " or lname==" ":
         return True
 
 def isLoginFormEmpty(email: str, password: str):
