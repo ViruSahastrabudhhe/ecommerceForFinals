@@ -27,7 +27,7 @@ body {
   --bs-body-font-family: var(--bs-font-sans-serif);
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
-  --bs-body-line-height: 2;
+  /* --bs-body-line-height: 2; */
   --bs-body-color: #747474;
 
   --bs-primary: #6BB252;
@@ -149,7 +149,16 @@ body {
   --bs-breadcrumb-divider-color: white;
 }
 
+.swal-modal .swal-text {
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
+}
+
 /*  */
+
 body {
   letter-spacing: 0.03em;
 }

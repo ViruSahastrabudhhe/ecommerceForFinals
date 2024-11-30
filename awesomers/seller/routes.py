@@ -10,17 +10,49 @@ import uuid as uuid
 import pathlib
 import os
 
-# renders ----------------------------------------------------------------------------------------------
-@seller.route('/sellerCenter')
+@seller.route('/seller-center')
 def sellerCenter():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
     return render_template('seller/seller_center.html', legend="Dashboard", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/testTemplate')
 def testTemplate():
     return render_template('kaiAdmin/index.html')
 
-@seller.route('/renderProductManagement')
+
+# store ----------------------------------------------------------------------------------------------
+@seller.route('/store-profile')
+def renderStoreProfile():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+
+    return redirect(url_for('profiles.sellerProfile'))
+
+@seller.route('/store-address')
+def renderStoreAddress():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+
+    return render_template('seller/store/store_address_book.html', legend="Store address", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+
+# products ----------------------------------------------------------------------------------------------
+@seller.route('/product-management')
 def renderProductManagement():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+
     accountID = session['accountID']
     conn = get_db_connection()
     if conn is None:
@@ -32,7 +64,7 @@ def renderProductManagement():
     try:
         cursor.execute(f'SELECT * FROM products WHERE accountID={accountID} AND isArchived=0')
         rows=cursor.fetchall()
-        return render_template('seller/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/products/product_management.html', legend="Product management", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f'{e}', category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -40,16 +72,28 @@ def renderProductManagement():
         cursor.close()
         conn.close()
 
-@seller.route('/renderActiveProducts')
+@seller.route('/active-products')
 def renderActiveProducts():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
     return render_template('kaiAdmin/forms/forms.html')
 
-@seller.route('/renderAddProducts')
+@seller.route('/add-products')
 def renderAddProducts():
-    return render_template('seller/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
 
-@seller.route('/renderEditProducts/<productID>')
+    return render_template('seller/products/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/product-management/edit/<productID>')
 def renderEditProducts(productID):
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+
     # FIXME: WONT RENDER CSS
     # FIXED: TURN EVERY NON-URL_FOR LINK IN THE INDEX.HTML INTO A URL_FOR
     accountID = session['accountID']
@@ -63,7 +107,7 @@ def renderEditProducts(productID):
     try:
         cursor.execute("SELECT * FROM products WHERE productID=%s AND accountID=%s", (productID, accountID))
         rows=cursor.fetchall()
-        return render_template('seller/edit_products.html', legend="Edit products", productToBeEdited=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/products/edit_products.html', legend="Edit products", productToBeEdited=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -71,8 +115,12 @@ def renderEditProducts(productID):
         cursor.close()
         conn.close()
 
-@seller.route('/renderArchivedProducts')
+@seller.route('/archived-products')
 def renderArchivedProducts():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+
     conn = get_db_connection()
 
     if conn is None:
@@ -84,7 +132,7 @@ def renderArchivedProducts():
     try:
         cursor.execute("SELECT * FROM products WHERE isArchived=1")
         rows=cursor.fetchall()
-        return render_template('seller/archived_products.html', legend="Archived products", archivedProducts=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/products/archived_products.html', legend="Archived products", archivedProducts=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except:
         flash('Could not fetch products from database!', category='error')
         return redirect(url_for('seller.sellerCenter'))
@@ -92,46 +140,32 @@ def renderArchivedProducts():
         cursor.close()
         conn.close()
 
-@seller.route('/renderOrders')
+
+# orders ----------------------------------------------------------------------------------------------
+@seller.route('/orders')
 def renderOrders():
-    return render_template('seller/orders.html', legend="Orders", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/renderReturns')
-def renderReturns():
-    return render_template('seller/returns.html', legend="Returns", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/renderReviews')
-def renderReviews():
-    return render_template('seller/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/sellerBase')
-def sellerBase():
-    return render_template('oldSeller/base.html', legend="Base", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/products')
-def products():
-    return render_template('oldSeller/products.html', legend="Add product", purpose="renderProducts" , id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/inventory')
-def inventory():
-    accountID = session['accountID']
-    conn = get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION LOL", category='error')
-        return redirect(url_for('seller.sellerCenter'))
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
     
-    cursor = conn.cursor()
+    return render_template('seller/orders/orders.html', legend="Orders", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
-    try:
-        cursor.execute(f'SELECT * FROM products WHERE accountID={accountID}')
-        rows=cursor.fetchall()
-        return render_template('oldSeller/inventory.html', legend="Inventory", purpose="renderInventory", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-    except:
-        flash('Could not fetch products from database!', category='error')
-        return redirect(url_for('seller.inventory'))
-    finally:
-        cursor.close()
-        conn.close()
+@seller.route('/returns')
+def renderReturns():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    return render_template('seller/orders/returns.html', legend="Returns", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/reviews')
+def renderReviews():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    return render_template('seller/orders/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
 
 # functions ----------------------------------------------------------------------------------------------
 @seller.route('/addProduct', methods=['GET', 'POST'])
@@ -336,7 +370,44 @@ def productActivation(productID):
 
     return redirect(url_for('seller.renderProductManagement'))
 
-def convertToBinaryData(filename):
-    with open(filename, 'rb') as file:
-        binaryData = file.read()
-    return binaryData
+# old seller ----------------------------------------------------------------------------------------------
+@seller.route('/sellerBase')
+def sellerBase():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    return render_template('oldSeller/base.html', legend="Base", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/products')
+def products():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    return render_template('oldSeller/products.html', legend="Add product", purpose="renderProducts" , id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/inventory')
+def inventory():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    accountID = session['accountID']
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION LOL", category='error')
+        return redirect(url_for('seller.sellerCenter'))
+    
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(f'SELECT * FROM products WHERE accountID={accountID}')
+        rows=cursor.fetchall()
+        return render_template('oldSeller/inventory.html', legend="Inventory", purpose="renderInventory", products=rows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except:
+        flash('Could not fetch products from database!', category='error')
+        return redirect(url_for('seller.inventory'))
+    finally:
+        cursor.close()
+        conn.close()

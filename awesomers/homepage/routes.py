@@ -9,11 +9,12 @@ from werkzeug.utils import secure_filename
 import uuid as uuid
 import pathlib
 import os
+from datetime import datetime
 
 @homepage.route('/home')
 def home():
     if session['accountRole']=='seller':
-        return render_template('homepage/seller/homepage_seller.html', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/homepage/homepage_seller.html', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
         return render_template('homepage/buyer/homepage_buyer.html', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
@@ -23,10 +24,10 @@ def profile():
     if session['accountRole'] == 'buyer':
         return redirect(url_for('profiles.buyerProfile'))
     if session['accountRole'] == 'seller':
-        return redirect(url_for('profiles.sellerProfile'))
+        return redirect(url_for('profiles.buyerProfile'))
 
 # buyer seller registration ----------------------------------------------------------------------------------------------
-@homepage.route('/sellerRegistration')
+@homepage.route('/seller-registration')
 def sellerRegistration():
     conn = get_db_connection()
     if conn is None:
@@ -137,30 +138,208 @@ def deleteSellerRegistrationRequest():
             conn.close()
 
 # address book ----------------------------------------------------------------------------------------------
-@homepage.route('/addressBook')
+@homepage.route('/address-book')
 def addressBook():
-    if session['accountRole'] == 'buyer':
-        if isProfileAndSellerEstablished()=="both":
-            return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-        elif isProfileAndSellerEstablished()=="one":
-            return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-        else:
-            return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    if isProfileAndAddressEstablished()=="both":
+        profileRows=getBuyerProfileRow()
+        addressBookRows=getAddressBookRows()
+        addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    elif isProfileAndAddressEstablished()=="profile":
+        profileRows=getBuyerProfileRow()
+        addressBookRows=getAddressBookRows()
+        addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     else:
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        profileRows=getBuyerProfileRow()   
+        addressBookRows=getAddressBookRows()
+        addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@homepage.route('/addressBook/edit/<addressBookID>')
+def editAddress(addressBookID):
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM address_book WHERE accountID=%s and addressBookID=%s", (session['accountID'], addressBookID))
+    row = cursor.fetchone()
+
+    profileRows=getBuyerProfileRow()
+    addressBookRows=getAddressBookRows()
+    addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
+
+    if row is None:
+        flash("Address does not exist!", category='error')
+        return redirect(url_for('homepage.addressBook'))
+
+    try:
+        return render_template('homepage/buyer/edit_address_buyer.html', legend="Edit address", isAddress='true', isProfile='true', isDefaultCount=addressBookIsDefaultCount, profileInfo=profileRows, addressInfo=row, addressBookInfo=addressBookRows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except Error as e:
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.addressBook'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@homepage.route('/addBuyerAddress', methods=['GET', 'POST'])
+def addBuyerAddress():
+    dateNow = datetime.now()
+    if request.method=='POST':
+        recipientName=request.form['fullNameAddAB']
+        country=request.form['countryAddAB']
+        province=request.form['provinceAddAB']
+        city=request.form['cityAddAB']
+        district=request.form['districtAddAB']
+        streetName=request.form['streetNameAddAB']
+        unitName=request.form['unitAddAB']
+        postal=request.form['postalAddAB']
+        phoneNum=request.form['phoneNumAddAB']
+        category=request.form['categoryAddAB']
+        isDefault=request.form.get('isdefaultAddAB')
+        dateCreated = dateNow
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('homepage.home'))
+        
+        profileRow=getBuyerProfileRow()
+        cursor=conn.cursor()
+        cursor.execute(f"SELECT COUNT(*) FROM address_book WHERE isDefault=1 AND accountID={session['accountID']} AND profileID={profileRow[0]}")
+        count = cursor.fetchone()
+
+        if isDefault is None:
+            isDefault=0
+
+        if count==0:
+            isDefault=1
+        else:
+            cursor.execute(f"UPDATE address_book SET isDefault=0 WHERE accountID={session['accountID']} AND profileID={profileRow[0]}")
+            conn.commit()
+
+        if isDefault==1:
+            cursor.execute(f"UPDATE address_book SET isDefault=0 WHERE accountID={session['accountID']} AND profileID={profileRow[0]}")
+            conn.commit()
+
+        try:
+            sql = "INSERT INTO address_book (accountID, profileID, recipientName, addressCountry, addressProvince, addressCity, addressDistrict, addressStreetName, addressUnitName, addressPostal, addressPhoneNum, addressCategory, addressDateCreated, isDefault) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            val = session['accountID'], getBuyerProfileRow()[0], recipientName, country, province, city, district, streetName, unitName, postal, phoneNum, category, dateCreated, isDefault
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Added new address!', category='success')
+            return redirect(url_for('homepage.addressBook'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}!", category='error')
+            return redirect(url_for('homepage.addressBook'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@homepage.route('/addressBook/edit/<addressBookID>', methods=['GET', 'POST'])
+def editBuyerAddress(addressBookID):
+    dateNow = datetime.now()
+    if request.method=='POST':
+        recipientName=request.form['fullNameEditAB']
+        country=request.form['countryEditAB']
+        province=request.form['provinceEditAB']
+        city=request.form['cityEditAB']
+        district=request.form['districtEditAB']
+        streetName=request.form['streetNameEditAB']
+        unitName=request.form['unitEditAB']
+        postal=request.form['postalEditAB']
+        phoneNum=request.form['phoneNumEditAB']
+        category=request.form['categoryEditAB']
+        isDefault=request.form.get('isdefaultEditAB')
+        dateEdited = dateNow
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('homepage.home'))
+        
+        profileRow=getBuyerProfileRow()
+        cursor=conn.cursor()
+        cursor.execute(f"SELECT COUNT(*) FROM address_book WHERE isDefault=1 AND accountID={session['accountID']} AND profileID={profileRow[0]}")
+        count = cursor.fetchone()
+
+        if isDefault is None:
+            isDefault=0
+
+        if count==0:
+            isDefault=1
+
+        if isDefault==1:
+            cursor.execute(f"UPDATE address_book SET isDefault=0 WHERE accountID={session['accountID']} AND profileID={profileRow[0]}")
+            conn.commit()
+
+        # FIXME: DEFAULT ADDRESSES ARE ALL SET TO NOT DEFAULT IF U EDIT IT AND DONT TICK THE SET AS DEFAULT ADDRESS BOX, PREVENT THIS
+
+        try:
+            sql = "UPDATE address_book SET recipientName=%s, addressCountry=%s, addressProvince=%s, addressCity=%s, addressDistrict=%s, addressStreetName=%s, addressUnitName=%s, addressPostal=%s, addressPhoneNum=%s, addressCategory=%s, addressDateEdited=%s, isDefault=%s WHERE accountID=%s AND addressBookID=%s"
+            val = recipientName, country, province, city, district, streetName, unitName, postal, phoneNum, category, dateEdited, isDefault, session['accountID'], addressBookID
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Successfully added new address!', category='success')
+            return redirect(url_for('homepage.addressBook'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}!", category='error')
+            return redirect(url_for('homepage.addressBook'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@homepage.route('/deleteBuyerAddress/<addressBookID>', methods=['GET', 'POST'])
+def deleteBuyerAddress(addressBookID):
+    if request.method=='POST':
+        conn = get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+        
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("DELETE FROM address_book WHERE accountID=%s and addressBookID=%s", (session['accountID'], addressBookID))
+            conn.commit()
+            flash("Successfully deleted address!", category='success')
+            return redirect(url_for('homepage.addressBook'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}", category='errpr')
+            return redirect(url_for('homepage.addressBook'))
+        finally:
+            cursor.close()
+            conn.close()
 
 # seller ----------------------------------------------------------------------------------------------
 @homepage.route("/redirectToSellerCenter")
 def redirectToSellerCenter():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
     return redirect(url_for('seller.sellerCenter'))
 
 @homepage.route("/redirectToSellerBase")
 def redirectToSellerBase():
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
     return redirect(url_for('seller.sellerBase'))
 
 # admin ----------------------------------------------------------------------------------------------
-@homepage.route('/homeAdmin')
+@homepage.route('/home-admin')
 def homeAdmin():
+    if session['accountRole'] != 'admin':
+        flash("Unknown request!", category='error')
+        return redirect(url_for('homepage.home'))
+    
     conn = get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
@@ -227,31 +406,68 @@ def rejectBuyerToSeller(email: str):
     conn.commit()
     cursor.close()
 
-def isProfileAndSellerEstablished():
+def isProfileAndAddressEstablished():
     conn = get_db_connection()
     if conn is None:
         flash('NO DB CONNECTION', category='error')
         return redirect(url_for('homepage.home'))
-    print(session['accountID'])
     
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
     profileRow = cursor.fetchone()
-    print(profileRow)
 
-    if profileRow:
-        try:
-            cursor.execute("SELECT * FROM address_book WHERE accountID=%s AND profileID=%s", (session['accountID'], profileRow[0]))
-            addressBookRow = cursor.fetchone()
-            if addressBookRow:
-                return "both"
-            else:
-                return "one"
-        except Error as e:
-            flash(f'{e}', category='error')
-            return redirect(url_for('homepage.home'))
-        finally:
-            cursor.close()
-            conn.close()
+    if profileRow is None:
+        return "none"
+    
+    cursor.execute("SELECT * FROM address_book WHERE accountID=%s AND profileID=%s", (session['accountID'], profileRow[0]))
+    addressBookRow = cursor.fetchone()
+    if addressBookRow is None:
+        return "profile"
+        
+    return "both"
 
-    return "none" 
+def getBuyerProfileRow():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
+    profileRow = cursor.fetchone()
+
+    if profileRow is None:
+        return "none"
+
+    return profileRow
+
+def getAddressBookRows():
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM address_book WHERE accountID=%s AND profileID=%s ORDER BY isDefault DESC", (session['accountID'], getBuyerProfileRow()[0]))
+    addressBookRow = cursor.fetchall()
+
+    if addressBookRow is None:
+        return "none"
+
+    return addressBookRow
+
+def getIsDefaultCountFromAddressBookRows():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    profileRow=getBuyerProfileRow()
+    cursor=conn.cursor()
+    cursor.execute(f"SELECT COUNT(*) FROM address_book WHERE isDefault=1 AND accountID={session['accountID']} AND profileID={profileRow[0]}")
+    count = cursor.fetchone()
+
+    if count is None:
+        return 0
+    
+    return count

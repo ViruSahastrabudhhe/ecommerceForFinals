@@ -74,7 +74,7 @@ def login():
 
     return render_template('users/login.html', legend="Login")
 
-@users.route("/signUp", methods=['GET', 'POST'])
+@users.route("/register", methods=['GET', 'POST'])
 def signUp():
     if request.method == 'POST':
         fname = request.form['fName']
@@ -124,7 +124,7 @@ def signUp():
         
     return render_template('users/sign_up.html', legend="Sign up")
 
-@users.route('/resetPassword/<token>', methods=['GET', 'POST'])
+@users.route('/reset-password/<token>', methods=['GET', 'POST'])
 def resetPassword(token):
     email = verifyToken(token, expiration=3600)
     # '''
@@ -171,7 +171,7 @@ def resetPassword(token):
 
     return render_template('users/reset_password.html', legend='Reset password', userToken=token, userEmail=email)
         
-@users.route("/requestPasswordReset", methods=['GET', 'POST'])
+@users.route("/forgot-password", methods=['GET', 'POST'])
 def requestPasswordReset():
     if request.method=='POST':
         email=request.form['emailForgotPassword']
@@ -216,7 +216,7 @@ def logout():
     return redirect(url_for('users.landing'))
 
 # admin ----------------------------------------------------------------------------------------------
-@users.route('/loginAdmin', methods=['GET', 'POST'])
+@users.route('/login-admin', methods=['GET', 'POST'])
 def loginAdmin():
     if request.method == 'POST':
         email = request.form['emailAdmin']

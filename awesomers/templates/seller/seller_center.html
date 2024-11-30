@@ -5,6 +5,27 @@
 {% block sidebar %}
 <ul class="nav nav-secondary">
   <li class="nav-item">
+    <a data-bs-toggle="collapse" href="#store">
+      <i class="fas fa-th-list"></i>
+      <p>Store</p>
+      <span class="caret"></span>
+    </a>
+    <div class="collapse" id="store">
+      <ul class="nav nav-collapse">
+        <li>
+          <a href="{{ url_for('seller.renderStoreProfile') }}">
+            <span class="sub-item">Profile</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('seller.renderStoreAddress') }}">
+            <span class="sub-item">Address</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="nav-item">
     <a data-bs-toggle="collapse" href="#base">
       <i class="fas fa-layer-group"></i>
       <p>Products</p>

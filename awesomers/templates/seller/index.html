@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}" type="text/css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins.min.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/kaiadmin.min.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/organic_style.css') }}" type="text/css">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/organic_style.css') }}" type="text/css"> -->
 
 
   {% block head %}{% endblock %}
@@ -438,22 +438,25 @@
                         <div class="u-text">
                           <h4>{{ fname }} {{ lname }}</h4>
                           <p class="text-muted">{{ email }}</p>
-                          <a
+                          <!-- <a
                             href="profile.html"
                             class="btn btn-xs btn-secondary btn-sm"
                             >View Profile</a
-                          >
+                          > -->
                         </div>
                       </div>
                     </li>
                     <li>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">My Profile</a>
+                      <a class="dropdown-item" href="{{ url_for('homepage.profile')}}">My Profile</a>
+                      <a class="dropdown-item" href="{{ url_for('seller.renderStoreProfile')}}">My Store Profile</a>
                       <a class="dropdown-item" href="#">Inbox</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="#">Account Setting</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="{{ url_for('users.logout') }}">Logout</a>
+                      <form action="{{ url_for('users.logout') }}" id="form-logout" method="POST">
+                        <button class="dropdown-item" id="btn-logout" type="button">Logout</button>
+                      </form>
                     </li>
                   </div>
                 </ul>
@@ -756,6 +759,29 @@
       lineWidth: "2",
       lineColor: "#ffa534",
       fillColor: "rgba(255, 165, 52, .14)",
+    });
+
+    $("#btn-logout").click(function (e) {
+      swal({
+        icon: "warning",
+        title: "Log out",
+        text: "Do you wish to log out?",
+        type: "warning",
+        buttons: {
+          confirm: {
+            text: "Yes, log out",
+            className: "btn btn-success",
+          },
+          cancel: {
+            visible: true,
+            className: "btn btn-danger",
+          },
+        },
+      }).then((logoutValue) => {
+        if (logoutValue) {
+          $('#form-logout').submit()
+        }
+      });
     });
   </script>
 

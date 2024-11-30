@@ -14,10 +14,10 @@
                 <div class="section-header">
                     <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }}</h2>
                 </div>
-                <div class="d-flex justify-content-center">
+                <div class="d-flex align-items-center justify-content-center">
                     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                         <ol class="breadcrumb" style="color: white;">
-                          <li class="breadcrumb-item"><a href="#" style="color: white;">Home</a></li>
+                          <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
                           <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ legend }}</li>
                         </ol>
                       </nav>
@@ -71,6 +71,7 @@
                             </button>
                         </a>
                     </li>
+                    {% if role=='buyer' %}
                     <li class="list-group-item">
                         <a href="{{ url_for('homepage.sellerRegistration')}}">
                             <button
@@ -82,6 +83,7 @@
                             </button>
                         </a>
                     </li>
+                    {% endif %}
                     <li class="list-group-item">
                         <form action="{{ url_for('users.logout') }}" id="panel-logout-form">
                             <button
@@ -105,7 +107,7 @@
                         <button 
                         class="btn btn-primary btn" 
                         id="btn-add-request"
-                        style="width: 150px; text-wrap: nowrap;"
+                        style="width: 150px; text-wrap: nowrap; margin-bottom: 25px;"
                         type="button" 
                         >
                         <i class="fa fa-plus"></i>
@@ -116,7 +118,7 @@
                         <form action="{{ url_for('homepage.sendSellerRegistrationRequest') }}" method="POST" enctype="multipart/form-data">
         
         
-                            <div class="mt-6" style="margin-top: 5%;"><h4>Awesomers account</h4></div>
+                            <div class="mt-6" style="margin-top: 25px;"><h4>Awesomers account</h4></div>
                             <div class="d-flex align-items-center justify-content-center">
                                 <div class="input-group mb-3 me-2">
                                     <div class="form-floating">
@@ -261,12 +263,14 @@
                                 <button 
                                 class="btn btn-primary me-2" 
                                 type="submit" 
+                                style="margin-top: 25px;"
                                 >
                                 Submit documents
                                 </button>
                                 <button 
                                 class="btn btn-warning ms-2" 
                                 type="reset" 
+                                style="margin-top: 25px;"
                                 onclick="closeRequestForm()"
                                 >
                                 Cancel
@@ -276,6 +280,8 @@
                         </form>
                     </div>
                 </section>
+                {% elif role=='seller' %}
+                <h4>Welcome, seller!</h4>
                 {% else %}
                 <div class="d-flex align-items-center justify-content-center mb-3">
                     <h4 style="text-align: center;">Request already sent, awaiting verdict...</h4>
@@ -289,7 +295,7 @@
                     class="btn btn-primary me-2" 
                     type="button"
                     id="btn-show-request"
-                    style="width: 150px;"
+                    style="width: 150px; margin-top: 25px; margin-bottom: 25px;"
                     >
                     Show request
                     </button>
@@ -297,7 +303,7 @@
                         <button 
                         class="btn btn-danger ms-2" 
                         type="button" 
-                        style="width: 150px;"
+                        style="width: 150px; margin-top: 25px; margin-bottom: 25px;"
                         id="btn-delete-request"
                         >
                         Delete
@@ -452,7 +458,6 @@
                         </div>
                     </div>
                 </div>
-
                 {% endif %}
             </div>
 
@@ -476,30 +481,6 @@
     function closeRequestForm () {
         $('#form-add-request').toggle('fast');
     };
-
-
-    $("#btn-panel-logout").click(function (e) {
-        swal({
-        icon: "warning",
-        title: "Log out",
-        text: "Do you wish to log out?",
-        type: "warning",
-        buttons: {
-            confirm: {
-            text: "Yes, log out",
-            className: "btn btn-success",
-            },
-            cancel: {
-            visible: true,
-            className: "btn btn-danger",
-            },
-        },
-        }).then((logoutValue) => {
-        if (logoutValue) {
-            $('#panel-logout-form').submit()
-        }
-        });
-    });
 
     $("#btn-delete-request").click(function (e) {
         swal({

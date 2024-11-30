@@ -1,0 +1,326 @@
+{% extends 'seller/index.html' %}
+
+{% block title %}Add Products | Seller Center | Awesomers{% endblock %}
+
+{% block sidebar %}
+<ul class="nav nav-secondary">
+  <li class="nav-item">
+    <a data-bs-toggle="collapse" href="#store">
+      <i class="fas fa-th-list"></i>
+      <p>Store</p>
+      <span class="caret"></span>
+    </a>
+    <div class="collapse" id="store">
+      <ul class="nav nav-collapse">
+        <li>
+          <a href="{{ url_for('seller.renderStoreProfile') }}">
+            <span class="sub-item">Profile</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('seller.renderStoreAddress') }}">
+            <span class="sub-item">Address</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="nav-item active submenu">
+    <a data-bs-toggle="collapse" href="#base">
+      <i class="fas fa-layer-group"></i>
+      <p>Products</p>
+      <span class="caret"></span>
+    </a>
+    <div class="collapse show" id="base">
+      <ul class="nav nav-collapse">
+        <li>
+          <a href="{{ url_for('seller.renderProductManagement') }}">
+            <span class="sub-item">Manage products</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="{{ url_for('seller.renderAddProducts') }}">
+            <span class="sub-item">Add products</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('seller.renderArchivedProducts') }}">
+            <span class="sub-item">Archived products</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a data-bs-toggle="collapse" href="#sidebarLayouts">
+      <i class="fas fa-th-list"></i>
+      <p>Orders</p>
+      <span class="caret"></span>
+    </a>
+    <div class="collapse" id="sidebarLayouts">
+      <ul class="nav nav-collapse">
+        <li>
+          <a href="{{ url_for('seller.renderOrders') }}">
+            <span class="sub-item">Orders</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('seller.renderReturns') }}">
+            <span class="sub-item">Return Orders</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('seller.renderReviews') }}">
+            <span class="sub-item">Reviews</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a data-bs-toggle="collapse" href="#forms">
+      <i class="fas fa-pen-square"></i>
+      <p>Sales</p>
+      <span class="caret"></span>
+    </a>
+    <div class="collapse" id="forms">
+      <ul class="nav nav-collapse">
+        <li>
+          <a href="forms/forms.html">
+            <span class="sub-item">Basic Form</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="nav-section">
+    <span class="sidebar-mini-icon">
+      <i class="fa fa-ellipsis-h"></i>
+    </span>
+    <h4 class="text-section">Awesomers</h4>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('homepage.home') }}">
+      <i class="fas fa-chevron-left"></i>
+      <p>Back to Awesomers</p>
+    </a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block mainPanel %}
+<div class="container">
+  <div class="page-inner">
+    <div class="page-header">
+      <h3 class="fw-bold mb-3">{{legend}}</h3>
+      <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+          <a href="{{ url_for('seller.sellerCenter') }}">
+            <i class="icon-home"></i>
+          </a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="">Products</a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="">{{legend}}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <form 
+          action="{{ url_for('seller.addProduct') }}" 
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center">
+                <div class="card-title">Add products to store</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- IMAGE -->
+              <div class="row">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label for="exampleFormControlFile1"
+                      >Product image</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control-file"
+                      name="productImg"
+                      id="exampleFormControlFile1"
+                      accept="image/jpeg, image/jpg, image/png"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- END IMAGE -->
+               <!-- NAME -->
+              <div class="row">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group me-auto">
+                    <label
+                      for="nameInput"
+                      >Product name</label
+                    >
+                    <input
+                      type="text"
+                      name="productName"
+                      class="form-control"
+                      id="nameInput"
+                      placeholder="Enter product name"
+                      maxlength="200"
+                      required
+                    />
+                  </div>
+                  <div class="form-group me-auto">
+                    <label
+                      for="nameInput"
+                      >Product brand</label
+                    >
+                    <input
+                      type="text"
+                      name="productBrand"
+                      class="form-control"
+                      id="nameInput"
+                      placeholder="Enter product brand"
+                      value="No brand"
+                    />
+                  </div>
+                  <div class="form-group me-auto">
+                    <label 
+                      for="priceInput" 
+                      >Product price</label
+                    >
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">PHP</span>
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="productPrice"
+                        placeholder="100"
+                        aria-label="Amount (to the nearest dollar)"
+                        id="priceInput"
+                        required
+                      />
+                      <span class="input-group-text">.00</span>
+                    </div>
+                    <label  
+                      for="quantityInput"
+                      >Product quantity</label
+                    >
+                    <input
+                      type="number"
+                      name="productQuantity"
+                      class="form-control"
+                      id="quantityInput"
+                      placeholder="24 items"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label for="comment">Product description</label>
+                    <textarea 
+                    class="form-control" 
+                    name="productDescription" 
+                    id="productDescription"
+                    placeholder="Enter product description" 
+                    rows="13" 
+                    maxlength="900"></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1"
+                      >Product category</label
+                    >
+                    <select
+                      class="form-select"
+                      id="exampleFormControlSelect1"
+                      name="productCategory"
+                    >
+                      <option>Desktops</option>
+                      <option>Laptops</option>
+                      <option>Peripherals</option>
+                      <option>Components</option>
+                      <option>Electronics</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect2"
+                      >Product subcategory</label
+                    >
+                    <select
+                      class="form-select"
+                      id="exampleFormControlSelect2"
+                      name="productSubcategory"
+                      disabled=""
+                    >
+                      <option>Desktops</option>
+                      <option>Laptops</option>
+                      <option>Peripherals</option>
+                      <option>Components</option>
+                      <option>Electronics</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect3"
+                      >Product variation</label
+                    >
+                    <select
+                      class="form-select"
+                      id="exampleFormControlSelect3"
+                      name="productVariation"
+                    >
+                      <option>Desktops</option>
+                      <option>Laptops</option>
+                      <option>Peripherals</option>
+                      <option>Components</option>
+                      <option>Electronics</option>
+                    </select>
+                  </div>
+                  
+                </div>
+              </div>
+              <!-- END NAME -->
+            </div>
+            <div class="card-action">
+              <button 
+              class="btn btn-success btn-round"
+              type="submit"
+              name="submitButton"
+              value="addProduct"
+              >
+              Add product
+              </button>
+              <button 
+              type="reset"
+              class="btn btn-danger btn-round"
+              value="Delete Fields"
+              >
+              Reset fields
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
