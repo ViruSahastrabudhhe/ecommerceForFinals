@@ -34,3 +34,65 @@
     </div>
   </div>
 {% endblock %}
+
+{% block mainPanel %}
+<section class="pb-5 mt-5">
+  <div class="container-lg">
+
+    <div class="row">
+      <div class="col-md-12">
+
+        <div class="section-header d-flex flex-wrap justify-content-center mb-5 ms-md-auto">
+          <h2 class="section-title">
+            <span>Available products</span>
+          </h2>
+          <div class="d-flex align-items-center justify-content-center ms-md-auto">
+            <br>
+            <!-- <a href="#" class="btn btn-primary me-2" style="width: 150px;">View All</a> -->
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+
+        <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
+              
+          {% for info in productInfo %}
+          <div class="col">
+            <div class="product-item">
+              <figure>
+                <a href="{{ url_for('products.viewProductPage', productID=info[0]) }}" title="Product Title">
+                  <img src="/static/imgs/{{productPictureInfo[loop.index-1]}}" alt="Product Thumbnail" class="tab-image" width="150" height="150">
+                </a>
+              </figure>
+              <div class="d-flex flex-column text-center">
+                <h3 class="fs-6 fw-normal" style="text-overflow: ellipsis; white-space: nowrap;">{{info.3}}</h3>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <span class="text-dark fw-semibold">PHP {{info.9}}</span>
+                </div>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <span class="text-dark fw-semibold" style="font-size: 12px;">{{info.10}} left in stock</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+        </div>
+        <!-- / product-grid -->
+
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+
+</script>
+{% endblock %}

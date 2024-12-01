@@ -31,12 +31,11 @@
   `cartID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
   `productID` bigint(20) NOT NULL,
-  `cartItemName` varchar(255) NOT NULL,
-  `cartItemQty` int(255) NOT NULL,
+  `cartQuantity` int(255) NOT NULL,
   PRIMARY KEY (`cartID`,`accountID`,`productID`),
   KEY `cartBuyerID` (`accountID`),
   CONSTRAINT `cartBuyerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="orders" view="colnames">
 <left>580</left>
@@ -165,15 +164,16 @@
   `dateArchived` datetime DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT 0,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
+  `sales` int(255) DEFAULT NULL,
   PRIMARY KEY (`productID`,`accountID`),
   KEY `productsCategoryID` (`category`),
   KEY `productsSellerID` (`accountID`),
   CONSTRAINT `productsSellerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="reviews" view="colnames">
-<left>827</left>
-<top>239</top>
+<left>878</left>
+<top>231</top>
 <width>133</width>
 <height>223</height>
 <sql_create_table>CREATE TABLE `reviews` (
@@ -195,8 +195,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="profiles_buyer" view="colnames">
-<left>369</left>
-<top>441</top>
+<left>362</left>
+<top>436</top>
 <width>137</width>
 <height>227</height>
 <sql_create_table>CREATE TABLE `profiles_buyer` (
@@ -213,11 +213,11 @@
   PRIMARY KEY (`buyerProfileID`,`accountID`),
   KEY `buyerProfileAccountID` (`accountID`),
   CONSTRAINT `buyerProfileAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="profiles_seller" view="colnames">
-<left>106</left>
-<top>511</top>
+<left>105</left>
+<top>485</top>
 <width>133</width>
 <height>202</height>
 <sql_create_table>CREATE TABLE `profiles_seller` (
@@ -233,7 +233,7 @@
   PRIMARY KEY (`sellerProfileID`,`accountID`),
   KEY `sellerProfileAccountID` (`accountID`),
   CONSTRAINT `sellerProfileAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="products_imgs" view="colnames">
 <left>915</left>
@@ -264,7 +264,7 @@
   `profileID` bigint(20) NOT NULL,
   `recipientName` varchar(255) NOT NULL,
   `addressCountry` varchar(255) NOT NULL,
-  `addressProvince` varchar(255) NOT NULL,
+  `addressProvince` varchar(255) DEFAULT NULL,
   `addressCity` varchar(255) NOT NULL,
   `addressDistrict` varchar(255) NOT NULL,
   `addressStreetName` varchar(255) NOT NULL,
@@ -280,7 +280,32 @@
   KEY `buyerProfileID` (`profileID`),
   CONSTRAINT `addressAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `buyerProfileID` FOREIGN KEY (`profileID`) REFERENCES `profiles_buyer` (`buyerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+</table>
+<table name="address_store" view="colnames">
+<left>278</left>
+<top>675</top>
+<width>133</width>
+<height>280</height>
+<sql_create_table>CREATE TABLE `address_store` (
+  `addressStoreID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountID` bigint(20) NOT NULL,
+  `profileID` bigint(20) NOT NULL,
+  `storeName` varchar(255) NOT NULL,
+  `storeCountry` varchar(255) NOT NULL,
+  `storeProvince` varchar(255) DEFAULT NULL,
+  `storeCity` varchar(255) NOT NULL,
+  `storeDistrict` varchar(255) NOT NULL,
+  `storeStreetName` varchar(255) NOT NULL,
+  `storeUnitName` varchar(255) DEFAULT NULL,
+  `storePostal` varchar(255) NOT NULL,
+  `storePhoneNum` varchar(255) NOT NULL,
+  `storeDateCreated` varchar(255) NOT NULL,
+  `storeDateEdited` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`addressStoreID`,`accountID`,`profileID`),
+  KEY `storeProfileID` (`profileID`),
+  CONSTRAINT `storeProfileID` FOREIGN KEY (`profileID`) REFERENCES `profiles_seller` (`sellerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

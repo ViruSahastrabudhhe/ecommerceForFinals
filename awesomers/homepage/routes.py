@@ -1,4 +1,5 @@
 from . import homepage
+from awesomers.products.routes import getProducts, getProductPictures, viewCart, getCartCount, getCartSum
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -14,9 +15,20 @@ from datetime import datetime
 @homepage.route('/home')
 def home():
     if session['accountRole']=='seller':
-        return render_template('seller/homepage/homepage_seller.html', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        availableProductsRows=getProducts()
+        availableProductsPicturesRows=getProductPictures()
+        cartRows = viewCart()
+        cartCount = getCartCount()
+        cartSum = getCartSum()
+        return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
-        return render_template('homepage/buyer/homepage_buyer.html', id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        availableProductsRows=getProducts()
+        availableProductsPicturesRows=getProductPictures()
+        cartRows=viewCart()
+        cartCount=getCartCount()
+        cartSum=getCartSum()
+        return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
 
 # profile ----------------------------------------------------------------------------------------------
 @homepage.route('/profile')
@@ -25,6 +37,7 @@ def profile():
         return redirect(url_for('profiles.buyerProfile'))
     if session['accountRole'] == 'seller':
         return redirect(url_for('profiles.buyerProfile'))
+
 
 # buyer seller registration ----------------------------------------------------------------------------------------------
 @homepage.route('/seller-registration')
@@ -39,16 +52,18 @@ def sellerRegistration():
     val = session['accountID'], session['accountEmail']
     cursor.execute(sql, val)
     requestRow = cursor.fetchone()
+    cartRows=viewCart()
+    cartCount = getCartCount()
 
     if requestRow:
         validIDPictureFile = requestRow[6].decode(encoding="utf-8")
         bankDocumentPictureFile = requestRow[10].decode(encoding="utf-8")
-        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='true', requestInfo=requestRow, validIDPicture=validIDPictureFile, bankDocumentPicture=bankDocumentPictureFile, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='true', requestInfo=requestRow, validIDPicture=validIDPictureFile, bankDocumentPicture=bankDocumentPictureFile, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
     try:
         cursor.execute(f"SELECT * FROM accounts WHERE accountID={session['accountID']}")
         row=cursor.fetchone()
-        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='false', accountInfo=row, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='false', accountInfo=row, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
@@ -137,6 +152,7 @@ def deleteSellerRegistrationRequest():
             cursor.close()
             conn.close()
 
+
 # address book ----------------------------------------------------------------------------------------------
 @homepage.route('/address-book')
 def addressBook():
@@ -144,17 +160,23 @@ def addressBook():
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartRows=viewCart()
+        cartCount = getCartCount()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif isProfileAndAddressEstablished()=="profile":
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartRows=viewCart()
+        cartCount = getCartCount()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     else:
         profileRows=getBuyerProfileRow()   
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartRows=viewCart()
+        cartCount = getCartCount()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @homepage.route('/addressBook/edit/<addressBookID>')
 def editAddress(addressBookID):
@@ -170,13 +192,15 @@ def editAddress(addressBookID):
     profileRows=getBuyerProfileRow()
     addressBookRows=getAddressBookRows()
     addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
+    cartRows=viewCart()
+    cartCount = getCartCount()
 
     if row is None:
         flash("Address does not exist!", category='error')
         return redirect(url_for('homepage.addressBook'))
 
     try:
-        return render_template('homepage/buyer/edit_address_buyer.html', legend="Edit address", isAddress='true', isProfile='true', isDefaultCount=addressBookIsDefaultCount, profileInfo=profileRows, addressInfo=row, addressBookInfo=addressBookRows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/edit_address_buyer.html', legend="Edit address", isAddress='true', isProfile='true', isDefaultCount=addressBookIsDefaultCount, profileInfo=profileRows, addressInfo=row, addressBookInfo=addressBookRows, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.addressBook'))
@@ -316,6 +340,7 @@ def deleteBuyerAddress(addressBookID):
             cursor.close()
             conn.close()
 
+
 # seller ----------------------------------------------------------------------------------------------
 @homepage.route("/redirectToSellerCenter")
 def redirectToSellerCenter():
@@ -332,6 +357,7 @@ def redirectToSellerBase():
         return redirect(url_for('homepage.home'))
     
     return redirect(url_for('seller.sellerBase'))
+
 
 # admin ----------------------------------------------------------------------------------------------
 @homepage.route('/home-admin')
@@ -373,6 +399,7 @@ def adminRequestInteraction(email):
             return redirect(url_for('homepage.homeAdmin'))
         
     return render_template('admin/home_admin.html', accountEmail=email)
+
 
 # methods ----------------------------------------------------------------------------------------------
 def updateBuyerToSeller(email: str):

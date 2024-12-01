@@ -101,7 +101,9 @@
 
 
             <div class="col-lg-9">
-                <!-- ADD AND EDIT -->
+
+
+                <!-- IF YES PROFILE AND ADDRESS, ADD AND EDIT -->
                 {% if isProfile=='true' and isAddress=='true' %}
                 <div>
                     <div style="text-align: center;">
@@ -575,6 +577,7 @@
                     </div>
                 </div>
 
+
                 <!-- EDIT ADDRESS -->
                 <div class="table-responsive my-5">
                     <table id="table-address-book" class="display table table-striped table-hover">
@@ -643,9 +646,9 @@
                     </table>
                 </div>
 
-                <!-- ADD -->
+                
+                <!-- IF YES PROFILE, ADD ADDRESS -->
                 {% elif isProfile=='true' and isAddress=='false' %}
-                <section>
                     <div style="text-align: center;">
                         <button 
                         class="btn btn-primary" 
@@ -1115,9 +1118,9 @@
                             </div>
                         </form>
                     </div>
-                </section>
 
-                <!-- CREATE PROFILE -->
+                    
+                <!-- IF NO PROFILE, CREATE PROFILE -->
                 {% else %}
                 <div class="d-flex align-items-center justify-content-center">
                     <h4 style="text-align: center;">Create a profile first before adding an address!</h4>

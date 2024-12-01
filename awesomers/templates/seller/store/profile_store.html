@@ -142,26 +142,22 @@
             </div>
           </div>
           
+          <!-- IF NO PROFILE, ADD -->
           {% if isProfile=='false' %}
           <form action="{{ url_for('profiles.addSellerProfile') }}" method="POST" enctype="multipart/form-data">
             <div class="card-body">
-              <!-- IMAGE -->
-              <!-- END IMAGE -->
-              <!-- NAME -->
               <div class="row">
                 <div class="col-md-6 col-lg-5">
-                  <div class="d-flex align-items-center justify-content-center">
-                    <div class="input-group mb-3">
-                        <div class="form-floating form-floating-custom">
-                            <input type="text" class="form-control w-100" id="floatingInput" name="nameAddPr" placeholder="Store name" 
-                            required>
-                            <label for="floatingInput">Store name
-                                <span style="color: red !important; display: inline; float: none;">*</span>
-                            </label>
-                        </div>
-                    </div>
+                  <div class="form-group">
+                      <div class="form-floating form-floating-custom">
+                          <input type="text" class="form-control w-100" id="floatingInput" name="nameAddPr" placeholder="Store name" 
+                          required>
+                          <label for="floatingInput">Store name
+                              <span style="color: red !important; display: inline; float: none;">*</span>
+                          </label>
+                      </div>
                   </div>
-                  <div class="input-group mb-3">
+                  <div class="form-group">
                       <div class="form-floating form-floating-custom">
                           <input type="text" class="form-control" id="floatingInput2" name="phoneNumAddPr" placeholder="Phone num" 
                           required>
@@ -170,11 +166,8 @@
                           </label>
                       </div>
                   </div>
-                  <div class="input-group mb-3">
-                      <div class="form-group form-floating-custom w-100">
-                          <label for="countryAddPr">Country
-                              <span style="color: red !important; display: inline; float: none;">*</span>
-                          </label>      
+                  <div class="form-group">
+                      <div class="form-floating form-floating-custom"> 
                           <select id="countryAddPr" name="countryAddPr" class="form-select" aria-placeholder=" " required>
                               <option selected value="">Choose your country</option>
                               <option value="Afghanistan">Afghanistan</option>
@@ -422,6 +415,9 @@
                               <option value="Zambia">Zambia</option>
                               <option value="Zimbabwe">Zimbabwe</option>
                           </select>
+                          <label for="countryAddPr">Country
+                            <span style="color: red !important; display: inline; float: none;">*</span>
+                        </label>     
                       </div>
                   </div>
                 </div>
@@ -445,7 +441,7 @@
                 <div class="col-md-6 col-lg-2"> 
                   <div class="d-flex align-items-center justify-content-center mb-4">
                     <label for="exampleFormControlFile1">
-                        <img src="/static/imgs/{{profilePicture}}" id="picturePreviewAddPr" alt="add profile pictah" width="250" height="200">
+                        <img src="/static/imgs/{{profilePicture}}" id="picturePreviewAddPr" alt="add profile pictah" width="200" height="200" style="object-fit: contain;">
                     </label>
                   </div>
                 </div>
@@ -463,34 +459,57 @@
           </form>
 
 
+          <!-- IF YES PROFILE, EDIT -->
           {% else %}
           <div class="card-body">
-            <!-- IMAGE -->
-            <!-- END IMAGE -->
-            <!-- NAME -->
             <div class="row">
               <div class="col-md-6 col-lg-4">
-                <h1>profile exists</h1>
+                <div class="d-flex flex-wrap align-items-center justify-content-evenly mb-4">
+                  <img class="mx-1" src="/static/imgs/{{profilePicture}}" alt="profile pictah" width="200" height="200" style="object-fit: contain;">
+              </div>
               </div>
               <div class="col-md-6 col-lg-4">
+                <h5 class="mx-1">{{profileInfo.2}}</h5>
+                <h5 class="mx-1">{{profileInfo.4}}</h5>
+                <h5 class="mx-1">{{profileInfo.5}}</h5>
               </div>
               <div class="col-md-6 col-lg-4">
+                {% if profileInfo.7 != None %}
+                <h4 class="mx-1" style="width: 20%; font-size: 15px; text-wrap: pretty;">{{profileInfo.6}} / {{profileInfo.7}}</h4>
+                {% else %}
+                <h4 class="mx-1" style="width: 20%; font-size: 15px;">{{profileInfo.6}}</h4>
+                {% endif %}
               </div>
             </div>
-            <!-- END NAME -->
           </div>
-          <div class="card-action">
+          <div class="card-action d-flex align-items-center justify-content-left">
             <button 
-            class="btn btn-success"
+            class="btn btn-success me-3"
             id="btn-edit-seller-profile"
             >
             Edit
             </button>
-            <button 
-            class="btn btn-danger"
-            >
-            Delete
-            </button>
+            {% if isAddress=='false' %}
+            <form action="{{ url_for('profiles.deleteSellerProfile')}}" id="form-delete-profile" method="POST">
+              <button 
+              class="btn btn-danger"
+              type="button"
+              id="btn-delete-profile"
+              >
+              Delete
+              </button>
+            </form>
+            {% else %}
+            <form action="{{ url_for('profiles.deleteSellerProfile')}}" id="form-delete-profile-address" method="POST">
+              <button 
+              class="btn btn-danger"
+              type="button"
+              id="btn-delete-profile-address"
+              >
+              Delete
+              </button>
+            </form>
+            {% endif %}
           </div>
           {% endif %}
         </div>
@@ -502,47 +521,43 @@
     <div class="row" id="form-edit-seller-profile" style="display: none;">
       <div class="col-md-12">
         <form 
-        action="#" 
+        action="{{ url_for('profiles.editSellerProfile') }}" 
         method="POST"
         enctype="multipart/form-data"
         >
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center">
-                <div class="card-title">Store profile</div>
+                <div class="card-title">Edit store profile</div>
               </div>
             </div>
             <div class="card-body">
-              <form action="{{ url_for('profiles.addSellerProfile') }}" method="POST" enctype="multipart/form-data" id="form-edit-seller-profile" style="display: none;">
                 <div class="card-body">
                   <div class="row">
                     <div class="col-md-6 col-lg-5">
-                      <div class="d-flex align-items-center justify-content-center">
-                        <div class="input-group mb-3">
-                            <div class="form-floating form-floating-custom">
-                                <input type="text" class="form-control w-100" id="floatingInput" name="nameAddPr" placeholder="Store name" 
-                                required>
-                                <label for="floatingInput">Store name
-                                    <span style="color: red !important; display: inline; float: none;">*</span>
-                                </label>
-                            </div>
-                        </div>
-                      </div>
-                      <div class="input-group mb-3">
+                      <div class="form-group">
                           <div class="form-floating form-floating-custom">
-                              <input type="text" class="form-control" id="floatingInput2" name="phoneNumAddPr" placeholder="Phone num" 
+                              <input type="text" class="form-control w-100" id="floatingInput" name="nameEditPr" placeholder="Store name" 
+                              value="{{profileInfo[2]}}"
+                              required>
+                              <label for="floatingInput">Store name
+                                  <span style="color: red !important; display: inline; float: none;">*</span>
+                              </label>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <div class="form-floating form-floating-custom">
+                              <input type="text" class="form-control" id="floatingInput2" name="phoneNumEditPr" placeholder="Phone num" 
+                              value="{{profileInfo[4]}}"
                               required>
                               <label for="floatingInput2">Phone number
                                   <span style="color: red !important; display: inline; float: none;">*</span>
                               </label>
                           </div>
                       </div>
-                      <div class="input-group mb-3">
-                          <div class="form-group form-floating-custom w-100">
-                              <label for="countryAddPr">Country
-                                  <span style="color: red !important; display: inline; float: none;">*</span>
-                              </label>      
-                              <select id="countryAddPr" name="countryAddPr" class="form-select" aria-placeholder=" " required>
+                      <div class="form-group">
+                          <div class="form-floating form-floating-custom">
+                              <select id="countryEditPr" name="countryEditPr" class="form-select" required>
                                   <option selected value="">Choose your country</option>
                                   <option value="Afghanistan">Afghanistan</option>
                                   <option value="Åland Islands">Åland Islands</option>
@@ -789,6 +804,9 @@
                                   <option value="Zambia">Zambia</option>
                                   <option value="Zimbabwe">Zimbabwe</option>
                               </select>
+                              <label for="countryEditPr">Country
+                                <span style="color: red !important; display: inline; float: none;">*</span>
+                            </label>      
                           </div>
                       </div>
                     </div>
@@ -800,8 +818,8 @@
                         </label>
                         <input
                             type="file"
-                            class="form-control-file w-100"
-                            name="pictureAddPr"
+                            class="form-control-file"
+                            name="pictureEditPr"
                             id="exampleFormControlFile1"
                             accept="image/jpeg, image/jpg, image/png"
                             onchange="preview()"
@@ -810,7 +828,7 @@
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-2"> 
-                      <div class="d-flex align-items-center justify-content-center mb-4">
+                      <div class="d-flex align-items-center justify-content-center">
                         <label for="exampleFormControlFile1">
                             <img src="/static/imgs/{{profilePicture}}" id="picturePreviewAddPr" alt="add profile pictah" width="250" height="200">
                         </label>
@@ -819,11 +837,10 @@
                   </div>
                   <!-- END NAME -->
                 </div>
-              </form>
             </div>
             <div class="card-action">
-              <button class="btn btn-success">Save changes</button>
-              <button type="reset" class="btn btn-danger" onclick="closeEditProfileForm()">Cancel</button>
+              <button type="submit" class="btn btn-success">Save changes</button>
+              <button type="button" class="btn btn-danger" onclick="closeEditProfileForm()">Cancel</button>
             </div>
           </div>
         </form>
@@ -848,5 +865,56 @@
     function preview() {
         picturePreviewAddPr.src=URL.createObjectURL(event.target.files[0]);
     };
+
+    $("#btn-delete-profile").click(function (e) {
+        swal({
+            icon: "warning",
+            title: "Delete profile",
+            text: "Do you wish to delete this profile?",
+            type: "warning",
+            buttons: {
+                confirm: {
+                    text: "Delete",
+                    className: "btn btn-success"
+                },
+                cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                },
+            },
+        }).then((deleteValue) => {
+            if (deleteValue) {
+                $("#form-delete-profile").submit();
+            };
+        });
+    });
+
+    $("#btn-delete-profile-address").click(function (e) {
+        swal({
+            icon: "warning",
+            title: "Delete profile",
+            text: "Do you wish to delete this profile? This will also delete your address book!",
+            type: "warning",
+            buttons: {
+                confirm: {
+                    text: "Delete",
+                    className: "btn btn-success"
+                },
+                cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                },
+            },
+        }).then((deleteValue) => {
+            if (deleteValue) {
+                $("#form-delete-profile-address").submit();
+            };
+        });
+    });
+
+    $(function() {
+        var temp="{{profileInfo[5]}}"; 
+        $("#countryEditPr").val(temp);
+    });
 </script>
 {% endblock %}

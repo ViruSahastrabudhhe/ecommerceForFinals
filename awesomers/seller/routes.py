@@ -24,7 +24,7 @@ def testTemplate():
 
 
 # store ----------------------------------------------------------------------------------------------
-@seller.route('/store-profile')
+@seller.route('/store/store-seller')
 def renderStoreProfile():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -32,22 +32,28 @@ def renderStoreProfile():
 
     return redirect(url_for('profiles.sellerProfile'))
 
-@seller.route('/store-address')
+@seller.route('/store/store-address')
 def renderStoreAddress():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
     
-    conn=get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homepage.home'))
-
-    return render_template('seller/store/store_address_book.html', legend="Store address", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    if isProfileAndAddressEstablished()=="both":
+        profileRow=getStoreProfileRow()
+        addressBookRows=getAddressStoreRows()
+        return render_template('seller/store/address_store.html', legend="Store address", isAddress='true', isProfile='true', profileInfo=profileRow, addressInfo=addressBookRows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    elif isProfileAndAddressEstablished()=="profile":
+        profileRow=getStoreProfileRow()
+        addressBookRows=getAddressStoreRows()
+        return render_template('seller/store/address_store.html', legend="Store address", isAddress='false', isProfile='true', profileInfo=profileRow, addressInfo=addressBookRows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    else:
+        profileRow=getStoreProfileRow()
+        addressBookRows=getAddressStoreRows()
+        return render_template('seller/store/address_store.html', legend="Store address", isAddress='false', isProfile='false', profileInfo=profileRow, addressInfo=addressBookRows, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # products ----------------------------------------------------------------------------------------------
-@seller.route('/product-management')
+@seller.route('/products/product-management')
 def renderProductManagement():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -72,7 +78,7 @@ def renderProductManagement():
         cursor.close()
         conn.close()
 
-@seller.route('/active-products')
+@seller.route('/products/active-products')
 def renderActiveProducts():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -80,7 +86,7 @@ def renderActiveProducts():
     
     return render_template('kaiAdmin/forms/forms.html')
 
-@seller.route('/add-products')
+@seller.route('/products/add-products')
 def renderAddProducts():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -88,7 +94,7 @@ def renderAddProducts():
 
     return render_template('seller/products/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
-@seller.route('/product-management/edit/<productID>')
+@seller.route('/products/product-management/edit/<productID>')
 def renderEditProducts(productID):
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -115,7 +121,7 @@ def renderEditProducts(productID):
         cursor.close()
         conn.close()
 
-@seller.route('/archived-products')
+@seller.route('/products/archived-products')
 def renderArchivedProducts():
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
@@ -167,7 +173,7 @@ def renderReviews():
     return render_template('seller/orders/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
-# functions ----------------------------------------------------------------------------------------------
+# product functions ----------------------------------------------------------------------------------------------
 @seller.route('/addProduct', methods=['GET', 'POST'])
 def addProduct():
     dateNow = datetime.now()
@@ -198,7 +204,7 @@ def addProduct():
 
         # for productImg in productImgs:
         picFilename = secure_filename(productImg.filename)
-        picName = str(uuid.uuid1()) + "_" + picFilename
+        picName = str(session['accountID']) + "_" + picFilename
         productImg.save(os.path.join("awesomers/static/imgs", picName))
         productImg = picName
             # listOfProductImages.append(productImg)
@@ -256,7 +262,7 @@ def editProduct(productID):
         cursor=conn.cursor()
 
         picFilename = secure_filename(productImg.filename)
-        picName = str(uuid.uuid1()) + "_" + picFilename
+        picName = str(session['accountID']) + "_" + picFilename
         productImg.save(os.path.join("awesomers/static/imgs", picName))
         productImg = picName
 
@@ -369,6 +375,161 @@ def productActivation(productID):
                 conn.close()
 
     return redirect(url_for('seller.renderProductManagement'))
+
+
+# address functions ----------------------------------------------------------------------------------------------
+@seller.route('/store/store-address/add-address', methods=['GET', 'POST'])
+def addStoreAddress():
+    dateNow = datetime.now()
+    if request.method=='POST':
+        storeName=request.form['nameAddAS']
+        country=request.form['countryAddAS']
+        province=request.form['provinceAddAS']
+        city=request.form['cityAddAS']
+        district=request.form['districtAddAS']
+        streetName=request.form['streetNameAddAS']
+        unitName=request.form['unitNameAddAS']
+        postal=request.form['postalAddAS']
+        phoneNum=request.form['phoneNumAddAS']
+        dateCreated = dateNow
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('homepage.home'))
+        
+        cursor=conn.cursor()
+
+        try:
+            sql = "INSERT INTO address_store (accountID, profileID, storeName, storeCountry, storeProvince, storeCity, storeDistrict, storeStreetName, storeUnitName, storePostal, storePhoneNum, storeDateCreated) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            val = session['accountID'], getStoreProfileRow()[0], storeName, country, province, city, district, streetName, unitName, postal, phoneNum, dateCreated
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Successfully added new address!', category='success')
+            return redirect(url_for('seller.renderStoreAddress'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}!", category='error')
+            return redirect(url_for('seller.renderStoreAddress'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@seller.route('/store/store-address/edit-address', methods=['GET', 'POST'])
+def editStoreAddress():
+    dateNow = datetime.now()
+    if request.method=='POST':
+        storeName=request.form['nameEditAS']
+        country=request.form['countryEditAS']
+        province=request.form['provinceEditAS']
+        city=request.form['cityEditAS']
+        district=request.form['districtEditAS']
+        streetName=request.form['streetNameEditAS']
+        unitName=request.form['unitNameEditAS']
+        postal=request.form['postalEditAS']
+        phoneNum=request.form['phoneNumEditAS']
+        dateEdited = dateNow
+
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('homepage.home'))
+        
+        cursor=conn.cursor()
+
+        try:
+            sql = "UPDATE address_store SET storeName=%s, storeCountry=%s, storeProvince=%s, storeCity=%s, storeDistrict=%s, storeStreetName=%s, storeUnitName=%s, storePostal=%s, storePhoneNum=%s, storeDateEdited=%s WHERE accountID=%s AND profileID=%s"
+            val = storeName, country, province, city, district, streetName, unitName, postal, phoneNum, dateEdited, session['accountID'], getStoreProfileRow()[0]
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Successfully edited address!', category='success')
+            return redirect(url_for('seller.renderStoreAddress'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}!", category='error')
+            return redirect(url_for('seller.renderStoreAddress'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@seller.route('/store/store-address/delete-address', methods=['GET', 'POST'])
+def deleteStoreAddress():
+    dateNow = datetime.now()
+    if request.method=='POST':
+        conn = get_db_connection()
+        if conn is None:
+            flash('NO DB CONNECTION', category='error')
+            return redirect(url_for('homepage.home'))
+        
+        cursor=conn.cursor()
+
+        try:
+            sql = "DELETE FROM address_store WHERE accountID=%s AND profileID=%s"
+            val = session['accountID'], getStoreProfileRow()[0]
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Successfully deleted address!', category='success')
+            return redirect(url_for('seller.renderStoreAddress'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}!", category='error')
+            return redirect(url_for('seller.renderStoreAddress'))
+        finally:
+            cursor.close()
+            conn.close()
+
+
+# misc functions ----------------------------------------------------------------------------------------------
+def isProfileAndAddressEstablished():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM profiles_seller WHERE accountID={session['accountID']}")
+    profileRow = cursor.fetchone()
+
+    if profileRow is None:
+        return "none"
+    
+    cursor.execute("SELECT * FROM address_store WHERE accountID=%s AND profileID=%s", (session['accountID'], profileRow[0]))
+    addressBookRow = cursor.fetchone()
+    if addressBookRow is None:
+        return "profile"
+        
+    return "both"
+
+def getStoreProfileRow():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM profiles_seller WHERE accountID={session['accountID']}")
+    profileRow = cursor.fetchone()
+
+    if profileRow is None:
+        return "none"
+
+    return profileRow
+
+def getAddressStoreRows():
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM address_store WHERE accountID=%s AND profileID=%s", (session['accountID'], getStoreProfileRow()[0]))
+    addressBookRow = cursor.fetchone()
+
+    if addressBookRow is None:
+        return "none"
+
+    return addressBookRow
+
 
 # old seller ----------------------------------------------------------------------------------------------
 @seller.route('/sellerBase')

@@ -1,4 +1,5 @@
 from . import profiles
+from awesomers.products.routes import viewCart, getCartCount
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -21,24 +22,17 @@ def buyerProfile():
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
     profileRow = cursor.fetchone()
+    cartRows=viewCart()
+    cartCount = getCartCount()
 
     if profileRow is None:
-        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="false", isAddress="false", profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="false", isAddress="false", profileInfo=profileRow, cartInfo=cartRows, cartCountInfo = cartCount,  id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
     try:
-        # path=("awesomers/static/imgs/")
-        # filePath = os.path.dirname(path)
-        # print(filePath)
         pictureFile = profileRow[4].decode(encoding="utf-8")
         if getAddressBookRow(profileRow[0])!="none":
-            return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="true", profilePicture=pictureFile, profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="false", profilePicture=pictureFile, profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-        # relativePath = pictureFile
-        # print(relativePath)
-        # absoluteFilePath = os.path.join(filePath, relativePath)
-        # print(absoluteFilePath)
-        # with open(absoluteFilePath, "rb") as f:
-        #     text = f.read()
+            return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="true", profilePicture=pictureFile, profileInfo=profileRow, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="false", profilePicture=pictureFile, profileInfo=profileRow, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
@@ -46,7 +40,7 @@ def buyerProfile():
         cursor.close()
         conn.close()
 
-@profiles.route('/profile/seller')
+@profiles.route('/store/store-profile')
 def sellerProfile():
     conn = get_db_connection()
     if conn is None:
@@ -58,11 +52,13 @@ def sellerProfile():
     profileRow = cursor.fetchone()
 
     if profileRow is None:
-        return render_template('seller/store/store_profile.html', legend="Store profile", isProfile='false', profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/store/profile_store.html', legend="Store profile", isProfile='false', isAddress='false', profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
     try:
         pictureFile = profileRow[3].decode(encoding="utf-8")
-        return render_template('seller/store/store_profile.html', legend="Store profile", isProfile='true', profilePicture=pictureFile, profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        if getAddressStoreRow(profileRow[0]) is None:
+            return render_template('seller/store/profile_store.html', legend="Store profile", isProfile='true', isAddress='false', profilePicture=pictureFile, profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/store/profile_store.html', legend="Store profile", isProfile="true", isAddress="true", profilePicture=pictureFile, profileInfo=profileRow, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
@@ -323,6 +319,21 @@ def getAddressBookRow(profileID):
     addressBookRow = cursor.fetchone()
 
     if addressBookRow is None:
-        return "none"
+        return None
+
+    return addressBookRow
+
+def getAddressStoreRow(profileID):
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM address_store WHERE accountID=%s AND profileID=%s", (session['accountID'], profileID))
+    addressBookRow = cursor.fetchone()
+
+    if addressBookRow is None:
+        return None
 
     return addressBookRow
