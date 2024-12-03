@@ -1,33 +1,47 @@
 from . import homepage
-from awesomers.products.routes import getProducts, getProductPictures, viewCart, getCartCount, getCartSum
+from awesomers.products.routes import getProducts, getProductPictures, getCart, getCartCount, getCartSum, getLatestProducts, getLatestProductPictures
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
-from datetime import datetime
+from datetime import datetime, date
 from werkzeug.utils import secure_filename
 import uuid as uuid
 import pathlib
 import os
-from datetime import datetime
 
 @homepage.route('/home')
 def home():
     if session['accountRole']=='seller':
         availableProductsRows=getProducts()
         availableProductsPicturesRows=getProductPictures()
-        cartRows = viewCart()
+        latestProductsRows=getLatestProducts()
+        latestProductsPicturesRows=getLatestProductPictures()
+        cartRows = getCart()
         cartCount = getCartCount()
         cartSum = getCartSum()
-        return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
         availableProductsRows=getProducts()
         availableProductsPicturesRows=getProductPictures()
-        cartRows=viewCart()
+        latestProductsRows=getLatestProducts()
+        latestProductsPicturesRows=getLatestProductPictures()
+        cartRows=getCart()
         cartCount=getCartCount()
         cartSum=getCartSum()
-        return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@homepage.route('/dashboard')
+def viewDashboard():
+    if session['loggedIn']==False:
+        flash("Please login first!", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cartRows=getCart()
+    cartCount=getCartCount()
+    cartSum=getCartSum()
+    return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # profile ----------------------------------------------------------------------------------------------
@@ -52,7 +66,7 @@ def sellerRegistration():
     val = session['accountID'], session['accountEmail']
     cursor.execute(sql, val)
     requestRow = cursor.fetchone()
-    cartRows=viewCart()
+    cartRows=getCart()
     cartCount = getCartCount()
 
     if requestRow:
@@ -160,25 +174,25 @@ def addressBook():
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        cartRows=viewCart()
+        cartRows=getCart()
         cartCount = getCartCount()
         return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif isProfileAndAddressEstablished()=="profile":
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        cartRows=viewCart()
+        cartRows=getCart()
         cartCount = getCartCount()
         return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     else:
         profileRows=getBuyerProfileRow()   
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-        cartRows=viewCart()
+        cartRows=getCart()
         cartCount = getCartCount()
         return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
-@homepage.route('/addressBook/edit/<addressBookID>')
+@homepage.route('/address-book/edit/<addressBookID>')
 def editAddress(addressBookID):
     conn = get_db_connection()
     if conn is None:
@@ -192,7 +206,7 @@ def editAddress(addressBookID):
     profileRows=getBuyerProfileRow()
     addressBookRows=getAddressBookRows()
     addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
-    cartRows=viewCart()
+    cartRows=getCart()
     cartCount = getCartCount()
 
     if row is None:
@@ -240,13 +254,6 @@ def addBuyerAddress():
 
         if count==0:
             isDefault=1
-        else:
-            cursor.execute(f"UPDATE address_book SET isDefault=0 WHERE accountID={session['accountID']} AND profileID={profileRow[0]}")
-            conn.commit()
-
-        if isDefault==1:
-            cursor.execute(f"UPDATE address_book SET isDefault=0 WHERE accountID={session['accountID']} AND profileID={profileRow[0]}")
-            conn.commit()
 
         try:
             sql = "INSERT INTO address_book (accountID, profileID, recipientName, addressCountry, addressProvince, addressCity, addressDistrict, addressStreetName, addressUnitName, addressPostal, addressPhoneNum, addressCategory, addressDateCreated, isDefault) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -491,7 +498,7 @@ def getIsDefaultCountFromAddressBookRows():
     
     profileRow=getBuyerProfileRow()
     cursor=conn.cursor()
-    cursor.execute(f"SELECT COUNT(*) FROM address_book WHERE isDefault=1 AND accountID={session['accountID']} AND profileID={profileRow[0]}")
+    cursor.execute(f"SELECT COUNT(*) FROM address_book WHERE isDefault=1 AND accountID={session['accountID']}")
     count = cursor.fetchone()
 
     if count is None:

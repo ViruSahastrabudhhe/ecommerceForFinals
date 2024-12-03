@@ -1,6 +1,6 @@
 {% extends 'homepage/index.html' %}
 
-{% block title %} Product Information | Awesomers {% endblock %}
+{% block title %} {{legend}} | Awesomers {% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='/css/lugx/templatemo-lugx-gaming.css') }}">
@@ -12,100 +12,264 @@
 {% block slideshow %}
 <section>
 
-    <div class="container-fluid">
+  <div class="container-fluid">
 
-      <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/awesomers/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-md-5 p-3">
-                <div class="section-header">
-                    <h2 class="section-title display-5 text-light" style="text-align: center;">{{ productIDInfo[3] }}</h2>
-                </div>
-                <div class="d-flex align-items-center justify-content-center">
-                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                        <ol class="breadcrumb" style="color: white;">
-                          <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
-                          <li class="breadcrumb-item" aria-current="page" style="color: white;">{{ legend }}</li>
-                          <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ productIDInfo[3] }}</li>
-                        </ol>
-                      </nav>
-                </div>
-            </div>
+    <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/awesomers/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-5 p-3">
+              <div class="section-header">
+                  {% if cartCountInfo.0 > 1 %}
+                  <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }} ({{cartCountInfo.0}} items)</h2>
+                  {% else %}
+                  <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }} ({{cartCountInfo.0}} item)</h2>
+                  {% endif %}
+              </div>
+              <div class="d-flex align-items-center justify-content-center">
+                  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                      <ol class="breadcrumb" style="color: white;">
+                        <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ legend }}</li>
+                      </ol>
+                    </nav>
+              </div>
           </div>
         </div>
       </div>
-      
     </div>
+    
+  </div>
 
 </section>
 {% endblock %}
 
 {% block mainPanel %}
-<div class="container">
+<section>
+  <div class = "container-lg">
     <div class="row">
-      <div class="col-lg-6">
-        <div class="left-image">
-            <img src="/static/imgs/{{productIDPicture}}" alt="Product image" width="500" height="500" style="object-fit: contain;">
+      <div class="col-lg-9">
+        <form action="">
+  
+  
+          <section>
+            <div class="table-responsive mb-4">
+              <h2 class="mb-4">Ship to</h2>
+              <table id="table-address-book" class="display table table-striped table-hover">
+                <tbody>
+                {% if isAddress=='true' %}
+                  {% for address in addressBookInfo %}
+                  <tr style="text-align: center; vertical-align: middle;">
+                    <td style="width: 200px;">
+                      <input type="radio" class="btn-check" name="buyerAddressOrder" value="{{address.0}}" id="btn-check-{{loop.index}}" autocomplete="off" >
+                      <label class="btn" for="btn-check-{{loop.index}}" style="max-width: 125px;">
+                        <i class="far fa-check-circle"></i>&nbsp;&nbsp;Choose address</label>
+                    </td>
+                      {% if address.15==1 %}
+                      <td style="text-align: center; width: 200px;">Default<br>Delivery Address</td>
+                      {% else %}
+                      <td style="text-align: center; width: 200px;">Delivery Address</td>
+                      {% endif %}
+                    <td style="max-width: 15ch; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                      {{address.3}}
+                      <br>
+                      {{address.4}}
+                      <br>
+                      {{address.8}}, {{address.7}}, {{address.6}}, 
+                      {{address.5}}
+                      <br>
+                      {{address.11}}
+                    </td>
+                    <td>
+                      <a href="{{ url_for('homepage.addressBook')}}">
+                        <button type="button" class="btn">Edit</button>
+                      </a>
+                    </td>
+                  </tr>
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-start">
+                    <a href="{{ url_for('homepage.addressBook')}}">
+                      <button type="button" class="btn btn-secondary">You don't have a saved address. Add an address now!</button>
+                    </a>
+                  </div>
+                  {% endfor %}
+                {% endif %}
+                </tbody>
+              </table>
+            </div>
+  
+            <div class="d-flex align-items-center justify-content-start">
+              <h2 class="mb-4">Payment method</h2>
+              <a href="{{ url_for('homepage.addressBook')}}" hidden="">
+                <button type="button" class="btn">Edit</button>
+              </a>
+            </div>
+            <div class="d-flex align-items-center justify-content-start mb-1">
+              <div class="form-check">
+                <input type="radio" class="btn-check" name="paymentMethodOrder" id="btn-check-cod" autocomplete="off" >
+                <label class="btn" for="btn-check-cod" style="max-width: 200px; text-wrap: nowrap;">
+                  <i class="far fa-check-circle"></i>&nbsp;&nbsp;Cash on Delivery</label>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-start mb-4 ms-0">
+              <div class="form-check">
+                <input type="radio" class="btn-check" name="paymentMethodOrder" id="btn-check-card" autocomplete="off" >
+                <label class="btn" for="btn-check-card" style="max-width: 200px;">
+                  <i class="far fa-check-circle"></i>&nbsp;&nbsp; Card</label>
+              </div>
+            </div>
+  
+  
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+              <h2>Review Items</h2>
+              <button
+              class="btn"
+              id="btn-review-items"
+              type="button"
+              >
+                Show items
+              </button>
+            </div>
+          </section>
+  
+          <!-- REVIEW ITEMS -->
+          <div class="table-responsive mb-5">
+            <table id="table-items" class="display table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>
+                    Total: {{cartCountInfo.0}} items
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cinfo in cartInfo %}
+                <div class="d-flex align-items-center justify-content-center">
+                  <tr class="row-address-book" style="text-align: center; vertical-align: middle;">
+                      <td>
+                          <img src="/static/imgs/{{cartPicturesInfo[loop.index-1]}}" alt="Product thumbnail" class="tab-image" width="120px" height="120px" style="object-fit: contain;">
+                          <br>
+                      </td>
+                      <td>
+                          <p class="mx-1" style="margin-bottom: 0px;">
+                            {{cinfo.0}}
+                            <br>
+                            {{cinfo.2}}
+                            <br>
+                            Sold by: {{storeNameInfo.0}}
+                          </p>
+                      </td>
+                      <td>
+                        <button type="button" class="btn-edit-qty" data-bs-toggle="modal" data-bs-target="#quantityModal" >Qty: {{cinfo.1}}</button>
+                      </td>
+                      <td>
+                          <div class="d-flex align-items-center justify-content-center" style="display: inline; vertical-align: baseline;">
+                              <form action="">
+                                  <button
+                                  class="btn-delete-address btn btn-sm mx-1"
+                                  type="submit"
+                                  style="color: red;"
+                                  >
+                                      <i class="fa fa-times"></i>
+                                  </button>
+                              </form>
+                          </div>
+                      </td>
+                  </tr>
+                </div>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+  
+              
         </div>
-      </div>
-      <div class="col-lg-6 align-self-center">
-        <h4>{{productIDInfo.3}}</h4>
-        <span class="price">PHP {{productIDInfo.9}}</span>
-        <div class="button-area align-items-center justify-content-left">
-            <div class="row g-1 mt-2">
-              <div class="col-3">
-              <form action="{{ url_for('products.addToCart', productID=productIDInfo[0] )}}" method="POST">
-                <input type="number" name="cartQuantity" class="form-control border-dark-subtle input-number quantity" value="1" min="1" max="{{productIDInfo.10}}" 
-                maxlength="2" oninput="validity.valid||(value='');"
-                >
-              </div>
-              <div class="col-7">
-                  <button type="submit" class="btn btn-primary rounded-1 p-2 fs-7 btn-cart"><svg width="18" height="18"><use xlink:href="#cart"></use></svg> Add to Cart</a>
-              </form>
-              </div>
-              <div class="col-2"><a href="#" class="btn btn-outline-dark rounded-1 p-2 fs-6"><svg width="18" height="18"><use xlink:href="#heart"></use></svg></a></div>
+  
+        <div class="col-lg-3" style="margin-bottom: 10%; position: sticky; position: -webkit-sticky; top: 0; z-index: 100;">
+          <ul class="list-group">
+              <li class="list-group-item">
+                <div class="d-flex align-items-center justify-content-center mt-2">
+                  <a href="#">
+                    <button
+                    class="btn btn-primary"
+                    type="button" 
+                    value="logoutValue"
+                    style="width: 335px; height: 50px;"
+                    >
+                    Buy now
+                    </button>
+                  </a>
+                </div>  
+                <br>
+                <div class="d-flex align-items-center mb-1">
+                  <p style="text-align: justify;">
+                    By placing your order, you have agreed to Awesomers' Conditions of Use & Sales, where the user's right and title to their soul will be sold to the Devils of Capitalism.</p>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <h4>Order summary</h4>
+                <br>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p>Items: </p>
+                  <p>P {{cartSumInfo}}</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p>Shipping: </p>
+                  <p>P 50</p>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h4>Order Total:</h4>
+                  <h4>P {{cartSumInfo + 50}}</h4>
+                </div>
+              </li>
+          </ul>
+        </form>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="quantityModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit order quantity</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex align-items-center justify-content-center">
+              <label for="modal-quantity-input" class="me-2">Quantity:</label>
+              <input type="number" id="qty" value="">
             </div>
           </div>
-        <ul class="mt-2">
-          <li><span>Product ID:</span> {{productIDInfo.0}}</li>
-          <li><span>Product Stock:</span> {{productIDInfo.10}}</li>
-          <li><span>Category:</span> <a href="#">Action</a>, <a href="#">Team</a>, <a href="#">Single</a></li>
-        </ul>
-      </div>
-      <div class="col-lg-12">
-        <div class="sep"></div>
+          <div class="modal-footer d-flex align-items-center justify-content-center">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-<div class="container mt-5">
-<div class="row">
-    <div class="col-lg-12">
-    <div class="tabs-content">
-        <div class="row">
-        <div class="nav-wrapper ">
-            <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews (3)</button>
-            </li>
-            </ul>
-        </div>              
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
-            <p>{{productIDInfo.5}}</p>
-            <br>
-            <p>Coloring book air plant shabby chic, crucifix normcore raclette cred swag artisan activated charcoal. PBR&B fanny pack pok pok gentrify truffaut kitsch helvetica jean shorts edison bulb poutine next level humblebrag la croix adaptogen. Hashtag poke literally locavore, beard marfa kogi bruh artisan succulents seitan tonx waistcoat chambray taxidermy. Same cred meggings 3 wolf moon lomo irony cray hell of bitters asymmetrical gluten-free art party raw denim chillwave tousled try-hard succulents street art.</p>
-            </div>
-            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
-            <p>Coloring book air plant shabby chic, crucifix normcore raclette cred swag artisan activated charcoal. PBR&B fanny pack pok pok gentrify truffaut kitsch helvetica jean shorts edison bulb poutine next level humblebrag la croix adaptogen. <br><br>Hashtag poke literally locavore, beard marfa kogi bruh artisan succulents seitan tonx waistcoat chambray taxidermy. Same cred meggings 3 wolf moon lomo irony cray hell of bitters asymmetrical gluten-free art party raw denim chillwave tousled try-hard succulents street art.</p>
-            </div>
-        </div>
-        </div>
-    </div>
-    </div>
-</div>
-</div>
+  </div>  
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugin/datatables/datatables.min.js') }}"></script>
+<script>
+  $(document).ready(function () {
+    $('#btn-review-items').click(function () {
+        $('#table-items').toggle('fast');
+    });
+
+  });
+
+  $("#table-items").DataTable({
+    pageLength: 5,
+  });
+
+  $("#table-address-book").DataTable({
+    pageLength: 5,
+  });
+</script>
 {% endblock %}

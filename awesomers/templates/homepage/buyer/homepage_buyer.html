@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block mainPanel %}
-<section class="pb-5 mt-5">
+<section class="pb-5" style="margin-top: 100px;">
   <div class="container-lg">
 
     <div class="row">
@@ -84,6 +84,69 @@
         </div>
         <!-- / product-grid -->
 
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="latest-products" class="products-carousel">
+  <div class="container-lg overflow-hidden pb-5">
+    <div class="row">
+      <div class="col-md-12">
+
+        <div class="section-header d-flex flex-wrap justify-content-center mb-5 ms-md-auto">
+          <h2 class="section-title">
+            <span>New products</span>
+          </h2>
+          <div class="d-flex align-items-center justify-content-center ms-md-auto">
+            <a href="#" class="btn btn-primary me-2" style="width: 150px;">View All</a>
+            <div class="swiper-buttons">
+              <button class="swiper-prev products-carousel-prev btn btn-yellow">❮</button>
+              <button class="swiper-next products-carousel-next btn btn-yellow">❯</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            
+            {% for linfo in latestProductsInfo %}
+            <div class="product-item swiper-slide">
+              <figure>
+                <a href="{{url_for('products.viewProductPage', productID=linfo[0])}}" title="Product Title">
+                  <img src="/static/imgs/{{latestProductsPicturesInfo[loop.index-1]}}" alt="Product Thumbnail" class="tab-image" width="150" height="150">
+                </a>
+              </figure>
+              <div class="d-flex flex-column text-center">
+                <h3 class="fs-6 fw-normal">{{linfo.3}}</h3>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <span class="text-dark fw-semibold">PHP {{linfo.9}}</span>
+                </div>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <span class="text-dark fw-semibold" style="font-size: 12px;">{{linfo.10}} left in stock</span>
+                </div>
+                <div class="button-area p-3 pt-0" hidden="">
+                  <div class="row g-1 mt-2">
+                    <div class="col-3"><input type="number" name="quantity" class="form-control border-dark-subtle input-number quantity" value="1"></div>
+                    <div class="col-7"><a href="#" class="btn btn-primary rounded-1 p-2 fs-7 btn-cart"><svg width="18" height="18"><use xlink:href="#cart"></use></svg> Add to Cart</a></div>
+                    <div class="col-2"><a href="#" class="btn btn-outline-dark rounded-1 p-2 fs-6"><svg width="18" height="18"><use xlink:href="#heart"></use></svg></a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+        <!-- / products-carousel -->
 
       </div>
     </div>

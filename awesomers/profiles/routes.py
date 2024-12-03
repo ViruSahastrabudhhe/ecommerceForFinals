@@ -1,11 +1,11 @@
 from . import profiles
-from awesomers.products.routes import viewCart, getCartCount
+from awesomers.products.routes import getCart, getCartCount
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
-from datetime import datetime
+from datetime import datetime, date
 from werkzeug.utils import secure_filename
 import uuid as uuid
 import pathlib
@@ -22,7 +22,7 @@ def buyerProfile():
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
     profileRow = cursor.fetchone()
-    cartRows=viewCart()
+    cartRows=getCart()
     cartCount = getCartCount()
 
     if profileRow is None:

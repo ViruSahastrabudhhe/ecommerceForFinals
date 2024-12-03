@@ -56,7 +56,7 @@
               <div class="col-3">
               <form action="{{ url_for('products.addToCart', productID=productIDInfo[0] )}}" method="POST">
                 <input type="number" name="cartQuantity" class="form-control border-dark-subtle input-number quantity" value="1" min="1" max="{{productIDInfo.10}}" 
-                maxlength="2" oninput="validity.valid||(value='');"
+                oninput="validity.valid||(value='');"
                 >
               </div>
               <div class="col-7">
@@ -67,6 +67,7 @@
             </div>
           </div>
         <ul class="mt-2">
+          <li><span>Store Name:</span> {{storeNameInfo.0}}</li>
           <li><span>Product ID:</span> {{productIDInfo.0}}</li>
           <li><span>Product Stock:</span> {{productIDInfo.10}}</li>
           <li><span>Category:</span> <a href="#">Action</a>, <a href="#">Team</a>, <a href="#">Single</a></li>

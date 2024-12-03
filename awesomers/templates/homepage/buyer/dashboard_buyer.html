@@ -1,3 +1,159 @@
-{% extends 'homepage/'index.html' %}
+{% extends 'homepage/index.html' %}
 
 {% block title %}Customer Dashboard | Awesomers{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block slideshow %}
+<section>
+
+    <div class="container-fluid">
+
+      <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/awesomers/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-5 p-3">
+                <div class="section-header">
+                    <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }}</h2>
+                </div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                        <ol class="breadcrumb" style="color: white;">
+                          <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
+                          <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ legend }}</li>
+                        </ol>
+                      </nav>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+</section>
+{% endblock %}
+
+{% block mainPanel %}
+<div class="container-lg">
+    <div class="row">
+        <div class="col-lg-3" style="margin-bottom: 10%;">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="{{ url_for('homepage.viewDashboard') }}">
+                        <button
+                        type="button" 
+                        >
+                        Dashboard
+                        </button>
+                    </a>
+                </li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('homepage.profile')}}">
+                        <button
+                        type="button" 
+                        name="logout"
+                        value="logoutValue"
+                        >
+                        Profile
+                        </button>
+                    </a>
+                </li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('homepage.addressBook')}}">
+                        <button
+                        type="button" 
+                        name="logout"
+                        value="logoutValue"
+                        >
+                        Address book
+                        </button>
+                    </a>
+                </li>
+                {% if role=='buyer' %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('homepage.sellerRegistration')}}">
+                        <button
+                        type="button" 
+                        name="logout"
+                        value="logoutValue"
+                        >
+                        Seller Registration
+                        </button>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="list-group-item">
+                    <form action="{{ url_for('users.logout') }}" id="panel-logout-form">
+                        <button
+                        type="button" 
+                        name="logout"
+                        id="btn-panel-logout"
+                        value="logoutValue"
+                        >
+                        Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+
+        <div class="col-lg-9">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3>Hello, {{fname}} {{lname}}!</h3>
+                <button type="button" class="btn btn-primary">
+                    <i class="fa fa-plus"></i>
+                    Add payment method</button>
+            </div>
+
+
+            <div class="table-responsive">
+                <h4 style="margin-bottom: 20px;">Order history</h4>
+                <table id="table-orders" class="display table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price & Quantity</th>
+                            <th>Date Placed</th>
+                            <th>Current Address</th>
+                            <th>Status</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Products</td>
+                            <td>P 100 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Qty: 2</td>
+                            <td>12-12-2012</td>
+                            <td>123 St Laguna</td>
+                            <td>OK &nbsp;
+                                <button>View status</button>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <button>Return</button>
+                                    <button>Delete order</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugin/datatables/datatables.min.js') }}"></script>
+<script>
+
+    $("#table-orders").DataTable({
+      pageLength: 5,
+    });
+</script>
+{% endblock %}

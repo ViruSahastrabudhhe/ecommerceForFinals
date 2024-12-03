@@ -17,11 +17,12 @@ def welcome():
 
 @users.route('/landing')
 def landing():
-    return render_template('users/landing_page.html')
+    return render_template('users/landing_page.html', id='none')
 
 @users.route('/test')
 def test():
     return render_template('kaiAdmin/organic/index.html')
+
 
 # users ----------------------------------------------------------------------------------------------
 @users.route('/login', methods=['GET', 'POST'])
@@ -82,6 +83,7 @@ def signUp():
         email = request.form['emailSignUp']
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
+        isArchived=1
 
         if isSignUpFormEmpty(email, password, confirmPassword, fname, lname):
             flash("Please input in the fields!", category='error')
@@ -109,9 +111,10 @@ def signUp():
         hashedPassword = generate_password_hash(password, method="pbkdf2:sha256")
         
         try:
-            cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountFirstName, accountLastName) VALUES (%s, %s, %s, %s)', (email, hashedPassword, fname, lname))
+            cursor.execute('INSERT INTO accounts (accountEmail, accountPassword, accountFirstName, accountLastName, accountArchived) VALUES (%s, %s, %s, %s,%s)', (email, hashedPassword, fname, lname, isArchived))
             conn.commit()
-            flash("Successfully signed up!", category='success')
+            sendVerificationLink(email)
+            flash("Successfully signed up! Before you can shop at Awesomers, we have sent your email address a verification link!", category='success')
         except mysql.connector.IntegrityError:
             conn.rollback()
             flash("Account is already signed up!", category='error')
@@ -120,7 +123,7 @@ def signUp():
             cursor.close()
             conn.close()
                 
-        return redirect(url_for('users.login'))
+        return redirect(url_for('users.landing'))
         
     return render_template('users/sign_up.html', legend="Sign up")
 
@@ -210,10 +213,39 @@ def requestPasswordReset():
     
     return render_template('users/forgot_password.html',  legend="Forgot password")
 
-@users.route('/logout')
+@users.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
     return redirect(url_for('users.landing'))
+
+@users.route('/verify-email/<token>', methods=['GET', 'POST'])
+def verifyEmail(token):
+    email = verifyToken(token, expiration=3600)
+    if email==False:
+        flash('Invalid token or token has expired. Please try again!', category='error')
+        return redirect(url_for('users.login'))
+    
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.login'))
+    
+    cursor=conn.cursor(dictionary=True)
+
+    try:
+        # FIXED: initialliy, this shit didnt work because it i didnt have '' quotation marks in the WHERE clause for the varchar email, lol
+        cursor.execute(f"UPDATE accounts SET accountArchived=0 WHERE accountEmail='{email}'")
+        conn.commit()
+        flash("Successfully verified your email!", category='success')
+    except Error as e:
+        flash(f"{e}", category='error')
+        return redirect(url_for('users.login'))
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('users.landing'))
+
 
 # admin ----------------------------------------------------------------------------------------------
 @users.route('/login-admin', methods=['GET', 'POST'])
@@ -252,6 +284,7 @@ def loginAdmin():
             flash('Incorrect password! Try again.', category='error')
 
     return render_template('admin/login_admin.html', legend='Admin Login')
+
 
 # methods ----------------------------------------------------------------------------------------------
 def isSignUpFormEmpty(email: str, password: str, confirmPassword: str, fname: str, lname: str):
@@ -302,13 +335,32 @@ def sendForgotPasswordMail(email: str):
         sender='noreply@gmail.com',
         recipients=[f"{email}"]
     )
-    msg.body = f''' To reset your password. Please follow the link below.
+    msg.body = f''' To reset your password, please follow the link below.
 
     {url_for('users.resetPassword', token=token, _external=True)}
 
     ...
 
     If you didn't send a password reset request, please ignore this message.
+
+    '''
+    mail.send(msg)
+    return 'Password reset request sent!'
+
+def sendVerificationLink(email):
+    token=generateToken(email)
+    msg=Message(
+        subject='Email verification sent!',
+        sender='noreply@gmail.com',
+        recipients=[f"{email}"]
+    )
+    msg.body = f''' To verify your email, please follow the link below.
+
+    {url_for('users.verifyEmail', token=token, _external=True)}
+
+    ...
+
+    If you didn't sign up to Awesomers, you may have been hacked : O.
 
     '''
     mail.send(msg)

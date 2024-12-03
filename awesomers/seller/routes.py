@@ -4,7 +4,7 @@ from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
-from datetime import datetime
+from datetime import datetime, date
 from werkzeug.utils import secure_filename
 import uuid as uuid
 import pathlib
@@ -454,7 +454,6 @@ def editStoreAddress():
 
 @seller.route('/store/store-address/delete-address', methods=['GET', 'POST'])
 def deleteStoreAddress():
-    dateNow = datetime.now()
     if request.method=='POST':
         conn = get_db_connection()
         if conn is None:

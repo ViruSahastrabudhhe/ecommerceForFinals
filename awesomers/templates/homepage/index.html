@@ -136,13 +136,13 @@
               </a>
             </div>
             <div style="margin-top: 5%; margin-bottom: 5%;">
-              <a href="{{ url_for('homepage.home') }}">
+              <a href="{{ url_for('homepage.viewDashboard') }}">
                 <button class="w-100 btn btn-primary btn-lg" type="button" >Dashboard</button>
               </a>
             </div>
             {% else %}
             <div style="margin-top: 5%; margin-bottom: 5%;">
-              <a href="{{ url_for('homepage.home') }}">
+              <a href="{{ url_for('homepage.viewDashboard') }}">
                 <button class="w-100 btn btn-primary btn-lg" type="button" >Dashboard</button>
               </a>
             </div>
@@ -203,11 +203,18 @@
           <span class="text-primary">Your cart</span>
           <span class="badge bg-primary rounded-pill">{{cartCountInfo.0}}</span>
         </h4>
+        {% if cartCountInfo.0 == 0 %}
+        <a href="#">
+          <button class="w-100 btn btn-primary btn-lg mt-3" type="button">Go shopping</button>
+        </a>
+        {% else %}
         {% for cinfo in cartInfo %}
         <ul class="list-group mb-3">
           <li class="list-group-item d-flex justify-content-between lh-sm">
             <div>
-              <h6 class="my-0">{{cinfo.0}}</h6>
+              <a href="{{ url_for('products.viewProductPage', productID=cinfo[3])}}">
+                <h6 class="my-0">{{cinfo.0}}</h6>
+              </a>
               <small class="text-body-secondary">Quantity: {{cinfo.1}}</small>
             </div>
             <span class="text-body-secondary">P {{cinfo.2}}</span>
@@ -219,10 +226,13 @@
           </li>
         </ul>
 
-        <button class="w-100 btn btn-primary btn-lg mt-3" type="submit">Continue to checkout</button>
+        <a href="{{ url_for('products.viewCheckout')}}">
+          <button class="w-100 btn btn-primary btn-lg mt-3" type="button">Continue to checkout</button>
+        </a>
         <form action="{{ url_for('products.clearCart')}}" method="POST">
           <button class="w-100 btn btn-danger btn-lg my-3" type="submit">Clear cart</button>
         </form>
+        {% endif %}
       </div>
     </div>
   </div>
