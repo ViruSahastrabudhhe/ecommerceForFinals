@@ -32,6 +32,7 @@ def viewProductPage(productID):
         pictureFile = row[2].decode(encoding='utf-8')
         return render_template('products/product_info.html', legend="Product information", productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
+        conn.rollback()
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
     finally:
@@ -54,7 +55,7 @@ def viewCheckout():
     cartRows=getCart()
     cartPicturesRows=getCartPictures()
     cartCount = getCartCount()
-    cartSum =getCartSum()
+    cartSum =getCartPriceSum()
     storeName=getStoreName()
     addressBookRows=getAddressBookRows()
 
@@ -65,13 +66,15 @@ def viewCheckout():
 
 # cart functions ----------------------------------------------------------------------------------------------
 def getCart():
+    accountID=session['accountID']
     conn =get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID`, products.`quantity` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`={session['accountID']}")
+    sql = 'SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID`, products.`quantity` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s'
+    cursor.execute(sql, (accountID,))
     cartRows=cursor.fetchall()
 
     return cartRows
@@ -83,7 +86,7 @@ def getCartPictures():
         return redirect(url_for('homepage.home'))
 
     cursor = conn.cursor() 
-    cursor.execute(f'SELECT * FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`={session['accountID']}')
+    cursor.execute('SELECT * FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s', (session['accountID'], ))
     rows=cursor.fetchall()
     pictureFiles=[]
 
@@ -103,34 +106,8 @@ def addToCart(productID):
         if conn is None:
             flash("NO DB CONNECTION", category='error')
             return redirect(url_for('homepage.home'))
-        
-        print("CHECK THIS OUT GUS")
-        print(cartQuantity)
 
         cursor=conn.cursor()
-
-        if cartQuantity==0:
-            print("CHECK THIS OUT GUS")
-            cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
-            conn.commit()
-            flash(f"Successfully deleted product from cart! {cartQuantity}, {productID}, {accountID}", category='success')
-            return redirect(url_for('homepage.home'))
-        
-        sql = "SELECT * FROM cart WHERE productID=%s AND accountID=%s"
-        val = productID, accountID
-        cursor.execute(sql, val)
-        isRowInCart = cursor.fetchone()
-        
-        if isRowInCart:
-            cursor.execute("SELECT ")
-
-            sql = "UPDATE cart SET cartQuantity=%s WHERE productID=%s AND accountID=%s"
-            val = cartQuantity,productID, accountID
-            cursor.execute(sql, val)
-            conn.commit()
-            # SELECT * FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=42 AND cart.`productID`=42 AND cart.`cartQuantity`+22= (SELECT quantity FROM products WHERE productId=42)
-            flash(f"Successfully updated quantity! {cartQuantity}, {productID}, {accountID}", category='success')
-            return redirect(url_for('homepage.home'))
         
         try:
             sql = "INSERT INTO cart (accountID, productID, cartQuantity) VALUES (%s, %s, %s)"
@@ -143,7 +120,84 @@ def addToCart(productID):
             flash("Successfully added product to cart!", category='success')
             return redirect(url_for('homepage.home'))
         except Error as e:
+            conn.rollback()
             flash(f"{e}", category='error')
+            return redirect(url_for('homepage.home'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@products.route('/cart/update-cart-item/<productID>', methods=['GET', 'POST'])
+def updateCart(productID):
+    if request.method=='POST':
+        accountID = session['accountID']
+        cartQuantity = request.form.get('cartQuantity')
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+        
+        cursor=conn.cursor()
+
+        if cartQuantity==0:
+            cursor.execute('DELETE FROM cart WHERE accountID=%s AND productID=%s', (accountID, productID))
+            flash(f"Successfully deleted item in cart!", category='error')
+            return redirect(url_for('homepage.home'))
+
+        # sql = "SELECT cart.`cartQuantity`, products.`productName`, products.`quantity` FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=%s AND cart.`productID`=%s AND cart.`cartQuantity`+%s <= (SELECT quantity FROM products WHERE productID=%s)"
+        # # FIXME: db cart has 4, then cartQuantity = 19 ANG NANGYAYARI AY NAIINCREMENT UNG INITIAL VALUE WITH THE NUMBER WE INPUTTED
+        # val = accountID, productID, cartQuantity, productID
+        # cursor.execute(sql, val)
+        # isRowInCart = cursor.fetchone()
+            
+        # if isRowInCart is None:
+        #     flash(f"Not enough stock left in store!", category='error')
+        #     return redirect(url_for('homepage.home'))
+        
+        try:
+            sql = "UPDATE cart SET cartQuantity=%s WHERE productID=%s AND accountID=%s"
+            val = cartQuantity,productID, accountID
+            cursor.execute(sql, val)
+            conn.commit()
+            flash(f"Successfully updated quantity!", category='success')
+            return redirect(url_for('homepage.home'))
+        except Error as e:
+            conn.rollback()
+            flash(f'{e}', category='error')
+            return redirect(url_for('homepage.home'))
+        finally:
+            cursor.close()
+            conn.close()
+    # SELECT * FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=42 AND cart.`productID`=42 AND cart.`cartQuantity`+22= (SELECT quantity FROM products WHERE productId=42)
+    # print("CHECK THIS OUT GUS")
+    # print(cartQuantity)
+    # if cartQuantity==0:
+    # print("CHECK THIS OUT GUS")
+    # cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
+    # conn.commit()
+    # flash(f"Successfully deleted product from cart! {cartQuantity}, {productID}, {accountID}", category='success')
+
+@products.route('/cart/delete-cart-item/<productID>', methods=['GET', 'POST'])
+def deleteCart(productID):
+    if request.method=='POST':
+        accountID=session['accountID']
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+
+        cursor=conn.cursor()
+
+        try:
+            cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
+            conn.commit()
+            flash('Successfully deleted cart item!', category='error')
+            return redirect(url_for('homepage.home'))
+        except Error as e:
+            conn.rollback()
+            flash(f'{e}', category='error')
             return redirect(url_for('homepage.home'))
         finally:
             cursor.close()
@@ -157,10 +211,19 @@ def clearCart():
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"DELETE FROM cart WHERE accountID={session['accountID']}")
-    conn.commit()
-    flash("Cart contents cleared!", category='success')
-    return redirect(url_for('homepage.home'))
+
+    try:
+        cursor.execute("DELETE FROM cart WHERE accountID=%s", (session['accountID'], ))
+        conn.commit()
+        flash("Cart contents cleared!", category='success')
+        return redirect(url_for('homepage.home'))
+    except Error as e:
+        conn.rollback()
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
 
 def getCartCount():
     conn =get_db_connection()
@@ -169,19 +232,19 @@ def getCartCount():
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"SELECT SUM(cartQuantity) FROM cart WHERE accountID={session['accountID']}")
+    cursor.execute("SELECT SUM(cartQuantity) FROM cart WHERE accountID=%s", (session['accountID'], ))
     cartCount=cursor.fetchone()
 
     return cartCount
 
-def getCartSum():
+def getCartPriceSum():
     conn =get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"SELECT SUM(products.`price`*cart.`cartQuantity`) FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`={session['accountID']}")
+    cursor.execute("SELECT SUM(products.`price`*cart.`cartQuantity`) FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=%s", (session['accountID'], ))
     cartSum=cursor.fetchone()
 
     helper=""
@@ -197,9 +260,20 @@ def getCartSum():
 
     return helper
 
+def getCartProductIDs():
+    conn =get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT productID FROM cart WHERE accountID=%s'
+    val = session['accountID']
+    cursor.execute(sql, (val,))
+    rows=cursor.fetchall()
+    results = [i[0] for i in rows]
 
-# checkout functions ----------------------------------------------------------------------------------------------
-
+    return results
 
 
 # misc functions ----------------------------------------------------------------------------------------------
@@ -210,8 +284,11 @@ def getProducts():
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute("SELECT * FROM products WHERE quantity!=0 AND isArchived=0 LIMIT 10")
-    rows = cursor.fetchall()
+    try:
+        cursor.execute("SELECT * FROM products WHERE quantity!=0 AND isArchived=0 LIMIT 10")
+        rows = cursor.fetchall()
+    except:
+        conn.rollback()
 
     return rows
 
@@ -239,7 +316,7 @@ def getStoreName():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT profiles_seller.`storeName`, profiles_seller.`accountID`, products.`accountID` FROM profiles_seller JOIN products ON profiles_seller.`accountID`=products.`accountID`")
+    cursor.execute("SELECT profiles_seller.`storeName`, profiles_seller.`accountID`, products.`accountID` FROM profiles_seller JOIN products ON profiles_seller.`accountID`=products.`accountID`")
     row = cursor.fetchone()
 
     if row is None:
@@ -254,7 +331,7 @@ def getLatestProducts():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM products ORDER BY productID DESC LIMIT 10")
+    cursor.execute("SELECT * FROM products ORDER BY productID DESC LIMIT 10")
     rows = cursor.fetchall()
 
     return rows
@@ -266,7 +343,7 @@ def getLatestProductPictures():
         return redirect(url_for('homepage.home'))
 
     cursor = conn.cursor() 
-    cursor.execute(f"SELECT * FROM products ORDER BY productID DESC LIMIT 10")
+    cursor.execute("SELECT * FROM products ORDER BY productID DESC LIMIT 10")
     rows=cursor.fetchall()
     pictureFiles=[]
 
@@ -285,7 +362,7 @@ def getBuyerProfileRow():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
+    cursor.execute("SELECT * FROM profiles_buyer WHERE accountID=%s", (session['accountID'], ))
     profileRow = cursor.fetchone()
 
     if profileRow is None:

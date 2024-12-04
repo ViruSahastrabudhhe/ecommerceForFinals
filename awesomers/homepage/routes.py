@@ -1,5 +1,6 @@
 from . import homepage
-from awesomers.products.routes import getProducts, getProductPictures, getCart, getCartCount, getCartSum, getLatestProducts, getLatestProductPictures
+from awesomers.products.routes import getProducts, getProductPictures, getCart, getCartCount, getCartPriceSum, getLatestProducts, getLatestProductPictures
+from awesomers.orders.routes import getOrderDetails, getOrderProductIDs, getOrderProductDetails
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -20,7 +21,7 @@ def home():
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows = getCart()
         cartCount = getCartCount()
-        cartSum = getCartSum()
+        cartSum = getCartPriceSum()
         return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
         availableProductsRows=getProducts()
@@ -29,7 +30,7 @@ def home():
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows=getCart()
         cartCount=getCartCount()
-        cartSum=getCartSum()
+        cartSum=getCartPriceSum()
         return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @homepage.route('/dashboard')
@@ -40,8 +41,12 @@ def viewDashboard():
     
     cartRows=getCart()
     cartCount=getCartCount()
-    cartSum=getCartSum()
-    return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    cartSum=getCartPriceSum()
+    orderProductIDs=getOrderProductIDs()
+    orderDetails=getOrderDetails()
+    orderProductDetails=getOrderProductDetails()
+    buyerAddress=getAddressBookRows()
+    return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', orderProductDetailsInfo=orderProductDetails, orderProductIDsInfo=orderProductIDs, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # profile ----------------------------------------------------------------------------------------------
@@ -484,6 +489,23 @@ def getAddressBookRows():
     cursor=conn.cursor()
     cursor.execute("SELECT * FROM address_book WHERE accountID=%s AND profileID=%s ORDER BY isDefault DESC", (session['accountID'], getBuyerProfileRow()[0]))
     addressBookRow = cursor.fetchall()
+
+    if addressBookRow is None:
+        return "none"
+
+    return addressBookRow
+
+def getOrderAddressBookRow():
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT * FROM address_book JOIN order_details ON address_book.`addressBookID`=order_details.`buyerAddressID` WHERE address_book.`accountID`=%s'
+    val = session['accountID']
+    cursor.execute("", (session['accountID'], getBuyerProfileRow()[0]))
+    addressBookRow = cursor.fetchone()
 
     if addressBookRow is None:
         return "none"

@@ -16,6 +16,8 @@ from .profiles import profiles as profiles_blueprint
 app.register_blueprint(profiles_blueprint)
 from .products import products as products_blueprint
 app.register_blueprint(products_blueprint)
+from .orders import orders as orders_blueprint
+app.register_blueprint(orders_blueprint)
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT']=587

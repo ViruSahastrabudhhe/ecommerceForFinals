@@ -104,13 +104,54 @@
         <div class="col-lg-9">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h3>Hello, {{fname}} {{lname}}!</h3>
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary" id="btn-add-payment" hidden="">
                     <i class="fa fa-plus"></i>
                     Add payment method</button>
             </div>
 
-
             <div class="table-responsive">
+                <h4 style="margin-bottom: 20px;">Order history</h4>
+                <table id="table-orders" class="display table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Date Placed</th>
+                            <th></th>
+                            <th>Status</th>
+                            <th style="width: 250px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for opinfo in orderProductDetailsInfo %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('products.viewProductPage', productID=opinfo[0])}}">
+                                    {{opinfo.3}}
+                                </a>
+                            </td>
+                            <td>P {{opinfo.9}}</td>
+                            <td>{{opinfo.10}}</td>
+                            <td>{{orderDetailsInfo[5]}}</td>
+                            <td>123 St Laguna</td>
+                            <td>OK &nbsp;
+                                <button>View status</button>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <button>Buy again</button>
+                                    <button>Return</button>
+                                    <button>Delete order</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive" id="form-add-payment" style="display: none;">
                 <h4 style="margin-bottom: 20px;">Order history</h4>
                 <table id="table-orders" class="display table table-striped table-hover">
                     <thead>
@@ -151,9 +192,14 @@
 {% block script %}
 <script src="{{ url_for('static', filename='js/plugin/datatables/datatables.min.js') }}"></script>
 <script>
+    $(document).ready(function (){
+        $('#btn-add-payment').click(function(){
+            $('#form-add-payment').toggle('fast');  
+        });
+    });
 
     $("#table-orders").DataTable({
-      pageLength: 5,
+      pageLength: 20,
     });
 </script>
 {% endblock %}
