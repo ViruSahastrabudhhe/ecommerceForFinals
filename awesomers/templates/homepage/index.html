@@ -213,9 +213,15 @@
           <li class="list-group-item d-flex justify-content-between lh-sm">
             <div>
               <a href="{{ url_for('products.viewProductPage', productID=cinfo[3])}}">
-                <h6 class="my-0">{{cinfo.0}}</h6>
+                <h6 class="my-0" style="max-width: 25ch; overflow: hidden; text-overflow: ellipsis;">{{cinfo.0}}</h6>
               </a>
-              <small class="text-body-secondary">Quantity: {{cinfo.1}}</small>
+              <small class="text-body-secondary">
+                <form action="{{ url_for('products.addToCart', productID=cinfo[3]) }}" method="POST">
+                  <label for="input-cart-qty">Quantity: </label>
+                  <input type="number" class="input-cart-qty" id="input-cart-qty" name="cartQuantity" value="{{cinfo.1}}" style="width: 50px;" 
+                  onchange="updateQuantity()" oninput="validity.valid||(value='');" min="0" max="{{cinfo.4}}">
+                </form>
+              </small>
             </div>
             <span class="text-body-secondary">P {{cinfo.2}}</span>
           </li>
@@ -572,6 +578,35 @@
         }
         });
     });
+
+    $(".btn-delete-address").click(function() {
+        let delBtn = $(this);
+        event.preventDefault();
+        swal({
+            icon: "warning",
+            title: "Delete address",
+            text: "Do you wish to delete this address? You cannot recover this address once deleted.",
+            type: "warning",
+            buttons: {
+                confirm: {
+                    text: "Delete",
+                    className: "btn btn-success"
+                },
+                cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                },
+            },
+        }).then((deleteValue) => {
+            if (deleteValue) {
+                delBtn.closest("form").submit();
+            };
+        });
+    });
+
+    function updateQuantity() {
+      $('.input-cart-qty').closest('form').submit();
+    };
   </script>
   {% block script %}
   {% endblock %}

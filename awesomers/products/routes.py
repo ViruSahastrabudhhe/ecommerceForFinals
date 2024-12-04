@@ -62,6 +62,7 @@ def viewCheckout():
         return render_template('products/checkout.html', productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='false', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     return render_template('products/checkout.html', productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
+
 # cart functions ----------------------------------------------------------------------------------------------
 def getCart():
     conn =get_db_connection()
@@ -70,7 +71,7 @@ def getCart():
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`={session['accountID']}")
+    cursor.execute(f"SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID`, products.`quantity` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`={session['accountID']}")
     cartRows=cursor.fetchall()
 
     return cartRows
@@ -96,23 +97,39 @@ def getCartPictures():
 def addToCart(productID):
     if request.method=='POST':
         accountID = session['accountID']
-        cartQuantity = request.form['cartQuantity']
+        cartQuantity = request.form.get('cartQuantity')
 
         conn=get_db_connection()
         if conn is None:
             flash("NO DB CONNECTION", category='error')
             return redirect(url_for('homepage.home'))
         
-        cursor=conn.cursor()
-        cursor.execute(f"SELECT productID FROM cart WHERE productID={productID} AND accountID={session['accountID']}")
-        isRowInCart = cursor.fetchone()
+        print("CHECK THIS OUT GUS")
+        print(cartQuantity)
 
+        cursor=conn.cursor()
+
+        if cartQuantity==0:
+            print("CHECK THIS OUT GUS")
+            cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
+            conn.commit()
+            flash(f"Successfully deleted product from cart! {cartQuantity}, {productID}, {accountID}", category='success')
+            return redirect(url_for('homepage.home'))
+        
+        sql = "SELECT * FROM cart WHERE productID=%s AND accountID=%s"
+        val = productID, accountID
+        cursor.execute(sql, val)
+        isRowInCart = cursor.fetchone()
+        
         if isRowInCart:
-            sql = "UPDATE cart SET cartQuantity=cartQuantity+1 WHERE productID=%s AND accountID=%s"
-            val = productID, accountID
+            cursor.execute("SELECT ")
+
+            sql = "UPDATE cart SET cartQuantity=%s WHERE productID=%s AND accountID=%s"
+            val = cartQuantity,productID, accountID
             cursor.execute(sql, val)
             conn.commit()
-            flash("Successfully added product to cart!", category='success')
+            # SELECT * FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=42 AND cart.`productID`=42 AND cart.`cartQuantity`+22= (SELECT quantity FROM products WHERE productId=42)
+            flash(f"Successfully updated quantity! {cartQuantity}, {productID}, {accountID}", category='success')
             return redirect(url_for('homepage.home'))
         
         try:
@@ -164,7 +181,7 @@ def getCartSum():
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    cursor.execute(f"SELECT SUM(products.`price`) FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`={session['accountID']}")
+    cursor.execute(f"SELECT SUM(products.`price`*cart.`cartQuantity`) FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`={session['accountID']}")
     cartSum=cursor.fetchone()
 
     helper=""
