@@ -111,40 +111,28 @@
 
             <div class="table-responsive">
                 <h4 style="margin-bottom: 20px;">Order history</h4>
-                <table id="table-orders" class="display table table-striped table-hover">
+                <table class="table-orders display table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Date Placed</th>
-                            <th></th>
+                            <th>ID #</th>
+                            <th>Products</th>
+                            <th>Address</th>
                             <th>Status</th>
-                            <th style="width: 250px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for opinfo in orderProductDetailsInfo %}
+                        {% for i in orderDetailsInfo %}
                         <tr>
                             <td>
-                                <a href="{{ url_for('products.viewProductPage', productID=opinfo[0])}}">
-                                    {{opinfo.3}}
-                                </a>
-                            </td>
-                            <td>P {{opinfo.9}}</td>
-                            <td>{{opinfo.10}}</td>
-                            <td>{{orderDetailsInfo[5]}}</td>
-                            <td>123 St Laguna</td>
-                            <td>OK &nbsp;
-                                <button>View status</button>
+                                {{i[0]}}
                             </td>
                             <td>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <button>Buy again</button>
-                                    <button>Return</button>
-                                    <button>Delete order</button>
-                                </div>
+                                <button>
+                                    View info
+                                </button>
                             </td>
+                            <td>{{i[3]}}</td>
+                            <td>{{i[4]}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -198,7 +186,7 @@
         });
     });
 
-    $("#table-orders").DataTable({
+    $(".table-orders").DataTable({
       pageLength: 20,
     });
 </script>

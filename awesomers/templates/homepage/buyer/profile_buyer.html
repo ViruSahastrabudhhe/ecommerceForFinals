@@ -471,7 +471,6 @@
                         >
                         Edit
                         </button>
-                        {% if isAddress=='false' %}
                         <form action="{{ url_for('profiles.deleteBuyerProfile')}}" id="form-delete-profile" method="POST">
                             <button 
                             name="btnInteract"
@@ -484,20 +483,6 @@
                             Delete
                             </button>
                         </form>
-                        {% else %}
-                        <form action="{{ url_for('profiles.deleteBuyerProfile')}}" id="form-delete-profile-address" method="POST">
-                            <button 
-                            name="btnInteract"
-                            type="button"
-                            value="delete"
-                            id="btn-delete-profile-address"
-                            class="btn btn-danger ms-2" 
-                            style="width: 100px; margin-bottom: 25px; margin-top: 25px;"
-                            >
-                            Delete
-                            </button>
-                        </form>
-                        {% endif %}
                     </div>
 
                     

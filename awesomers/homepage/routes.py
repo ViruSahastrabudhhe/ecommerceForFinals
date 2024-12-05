@@ -45,13 +45,16 @@ def viewDashboard():
     orderProductIDs=getOrderProductIDs()
     orderDetails=getOrderDetails()
     orderProductDetails=getOrderProductDetails()
-    buyerAddress=getAddressBookRows()
     return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', orderProductDetailsInfo=orderProductDetails, orderProductIDsInfo=orderProductIDs, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # profile ----------------------------------------------------------------------------------------------
 @homepage.route('/profile')
 def profile():
+    if session['loggedIn']==False:
+        flash("Please login first!", category='error')
+        return redirect(url_for('users.landing'))
+    
     if session['accountRole'] == 'buyer':
         return redirect(url_for('profiles.buyerProfile'))
     if session['accountRole'] == 'seller':
@@ -61,6 +64,10 @@ def profile():
 # buyer seller registration ----------------------------------------------------------------------------------------------
 @homepage.route('/seller-registration')
 def sellerRegistration():
+    if session['loggedIn']==False:
+        flash("Please login first!", category='error')
+        return redirect(url_for('users.landing'))
+    
     conn = get_db_connection()
     if conn is None:
         flash('NO DB CONNECTION', category='error')
@@ -175,6 +182,10 @@ def deleteSellerRegistrationRequest():
 # address book ----------------------------------------------------------------------------------------------
 @homepage.route('/address-book')
 def addressBook():
+    if session['loggedIn']==False:
+        flash("Please login first!", category='error')
+        return redirect(url_for('users.landing'))
+
     if isProfileAndAddressEstablished()=="both":
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
@@ -199,6 +210,10 @@ def addressBook():
 
 @homepage.route('/address-book/edit/<addressBookID>')
 def editAddress(addressBookID):
+    if session['loggedIn']==False:
+        flash("Please login first!", category='error')
+        return redirect(url_for('users.landing'))
+    
     conn = get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
@@ -504,11 +519,8 @@ def getOrderAddressBookRow():
     cursor=conn.cursor()
     sql = 'SELECT * FROM address_book JOIN order_details ON address_book.`addressBookID`=order_details.`buyerAddressID` WHERE address_book.`accountID`=%s'
     val = session['accountID']
-    cursor.execute("", (session['accountID'], getBuyerProfileRow()[0]))
+    cursor.execute(sql (val, ))
     addressBookRow = cursor.fetchone()
-
-    if addressBookRow is None:
-        return "none"
 
     return addressBookRow
 
@@ -527,3 +539,34 @@ def getIsDefaultCountFromAddressBookRows():
         return 0
     
     return count
+
+def getBuyerAddressIDs():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect('users.landing')
+    
+    cursor=conn.cursor()
+
+    sql = 'SELECT buyerAddressID FROM order_details WHERE accountID=%s'
+    val = session['accountID']
+    cursor.execute(sql, val)
+    row=cursor.fetchone()
+    results = [i[0] for i in row]
+
+    return results
+
+def getBuyerAddressInfoFromOrderDetails(buyerAddressID):
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect('users.landing')
+    
+    cursor=conn.cursor()
+
+    sql = "SELECT * FROM address_book JOIN order_details ON address_book.`addressBookID`=order_details.`buyerAddressID` WHERE order_details.`accountID`=%s AND order_details.`buyerAddressID`=%s"
+    val = session['accountID'], buyerAddressID
+    cursor.execute(sql, val)
+    row=cursor.fetchone()
+
+    return row

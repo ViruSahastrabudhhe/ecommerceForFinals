@@ -87,7 +87,7 @@
   `dateArchived` datetime DEFAULT NULL,
   `isActive` tinyint(1) NOT NULL DEFAULT 0,
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
-  `sales` int(255) DEFAULT NULL,
+  `quantitySold` int(255) DEFAULT NULL,
   PRIMARY KEY (`productID`,`accountID`),
   KEY `productsCategoryID` (`category`),
   KEY `productsSellerID` (`accountID`),
@@ -118,8 +118,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="profiles_buyer" view="colnames">
-<left>170</left>
-<top>381</top>
+<left>25</left>
+<top>700</top>
 <width>122</width>
 <height>198</height>
 <sql_create_table>CREATE TABLE `profiles_buyer` (
@@ -135,12 +135,12 @@
   `isArchived` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`buyerProfileID`,`accountID`),
   KEY `buyerProfileAccountID` (`accountID`),
-  CONSTRAINT `buyerProfileAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `profileAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="profiles_seller" view="colnames">
-<left>41</left>
-<top>381</top>
+<left>24</left>
+<top>406</top>
 <width>118</width>
 <height>185</height>
 <sql_create_table>CREATE TABLE `profiles_seller` (
@@ -177,8 +177,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="address_book" view="colnames">
-<left>165</left>
-<top>590</top>
+<left>177</left>
+<top>685</top>
 <width>131</width>
 <height>249</height>
 <sql_create_table>CREATE TABLE `address_book` (
@@ -201,13 +201,12 @@
   PRIMARY KEY (`addressBookID`,`accountID`,`profileID`),
   KEY `addressAccountID` (`accountID`),
   KEY `buyerProfileID` (`profileID`),
-  CONSTRAINT `addressAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `buyerProfileID` FOREIGN KEY (`profileID`) REFERENCES `profiles_buyer` (`buyerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `addressAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="address_store" view="colnames">
-<left>34</left>
-<top>586</top>
+<left>174</left>
+<top>392</top>
 <width>118</width>
 <height>249</height>
 <sql_create_table>CREATE TABLE `address_store` (
@@ -230,24 +229,6 @@
   CONSTRAINT `storeProfileID` FOREIGN KEY (`profileID`) REFERENCES `profiles_seller` (`sellerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
-<table name="orders" view="colnames">
-<left>621</left>
-<top>66</top>
-<width>104</width>
-<height>117</height>
-<sql_create_table>CREATE TABLE `orders` (
-  `orderID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `accountID` bigint(20) NOT NULL,
-  `productID` bigint(20) NOT NULL,
-  `orderDetailsID` bigint(20) NOT NULL,
-  PRIMARY KEY (`orderID`,`accountID`,`productID`,`orderDetailsID`),
-  KEY `productID` (`productID`),
-  KEY `accountID` (`accountID`),
-  KEY `detailsID` (`orderDetailsID`),
-  CONSTRAINT `accountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `productID` FOREIGN KEY (`productID`) REFERENCES `products` (`productID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
-</table>
 <table name="product_categories" view="colnames">
 <left>570</left>
 <top>592</top>
@@ -263,13 +244,14 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="order_details" view="colnames">
-<left>486</left>
-<top>41</top>
+<left>498</left>
+<top>52</top>
 <width>111</width>
-<height>198</height>
+<height>212</height>
 <sql_create_table>CREATE TABLE `order_details` (
   `orderDetailsID` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountID` bigint(20) NOT NULL,
+  `sellerProfileID` bigint(20) NOT NULL,
   `buyerAddressID` bigint(20) NOT NULL,
   `orderStatus` varchar(255) NOT NULL,
   `paymentMethod` varchar(255) NOT NULL,
@@ -278,10 +260,33 @@
   `datePaid` datetime DEFAULT NULL,
   `dateDelivered` datetime DEFAULT NULL,
   `dateCompleted` datetime DEFAULT NULL,
-  PRIMARY KEY (`orderDetailsID`,`accountID`),
-  KEY `detailsAccountID` (`accountID`),
-  CONSTRAINT `detailsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+  PRIMARY KEY (`orderDetailsID`,`accountID`,`sellerProfileID`,`buyerAddressID`),
+  KEY `orderDetailsAccountID` (`accountID`),
+  KEY `addressID` (`buyerAddressID`),
+  KEY `storeID` (`sellerProfileID`),
+  CONSTRAINT `addressID` FOREIGN KEY (`buyerAddressID`) REFERENCES `address_book` (`addressBookID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orderDetailsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `storeID` FOREIGN KEY (`sellerProfileID`) REFERENCES `profiles_seller` (`sellerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+</table>
+<table name="orders" view="colnames">
+<left>676</left>
+<top>71</top>
+<width>104</width>
+<height>117</height>
+<sql_create_table>CREATE TABLE `orders` (
+  `orderID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountID` bigint(20) NOT NULL,
+  `productID` bigint(20) NOT NULL,
+  `orderDetailsID` bigint(20) NOT NULL,
+  PRIMARY KEY (`orderID`,`accountID`,`productID`,`orderDetailsID`),
+  KEY `orderAccountID` (`accountID`),
+  KEY `orderProductID` (`productID`),
+  KEY `orderOrderDetailsID` (`orderDetailsID`),
+  CONSTRAINT `orderAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orderOrderDetailsID` FOREIGN KEY (`orderDetailsID`) REFERENCES `order_details` (`orderDetailsID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orderProductID` FOREIGN KEY (`productID`) REFERENCES `products` (`productID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

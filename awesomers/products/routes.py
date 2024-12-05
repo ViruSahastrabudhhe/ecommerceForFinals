@@ -275,6 +275,21 @@ def getCartProductIDs():
 
     return results
 
+def getCartItemQuantity():
+    conn =get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT cartQuantity FROM cart WHERE accountID=%s'
+    val = session['accountID']
+    cursor.execute(sql, (val,))
+    rows=cursor.fetchall()
+    results = [i[0] for i in rows]
+
+    return results
+
 
 # misc functions ----------------------------------------------------------------------------------------------
 def getProducts():
