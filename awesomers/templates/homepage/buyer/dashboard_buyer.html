@@ -113,26 +113,40 @@
                 <h4 style="margin-bottom: 20px;">Order history</h4>
                 <table class="table-orders display table table-striped table-hover">
                     <thead>
-                        <tr>
-                            <th>ID #</th>
-                            <th>Products</th>
-                            <th>Address</th>
-                            <th>Status</th>
+                        <tr class=>
+                            <th>Order ID</th>
+                            <th>Product Information</th>
+                            <th class="d-flex flex-row" style="width: 30%;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in orderDetailsInfo %}
+                        {% for i in orderProductDetailsInfo %}
                         <tr>
                             <td>
                                 {{i[0]}}
+                                <a href="{{ url_for('orders.viewOrderDetails', orderDetailsID=i[0])}}">
+                                    <button type="button">View details</button>
+                                </a>
                             </td>
                             <td>
-                                <button>
-                                    View info
-                                </button>
+                                <a href="{{ url_for('products.viewProductPage', productID=i[6]) }}">
+                                    {{i[3]}}
+                                </a>
+                                <br>
+                                {% if i[5] > 1 %}
+                                P {{i[4]}}, total({{i[5]}} items)
+                                {% else %}
+                                P {{i[4]}}, total({{i[5]}} item)
+                                {% endif %}
+                                <br>
+                                Qty: {{i[5]}}
                             </td>
-                            <td>{{i[3]}}</td>
-                            <td>{{i[4]}}</td>
+                            <td>
+                                <button>Return</button>
+                                <button>Buy again</button>
+                                <button>Delete</button>
+                                <button>Review</button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

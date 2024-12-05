@@ -203,7 +203,7 @@
           <span class="text-primary">Your cart</span>
           <span class="badge bg-primary rounded-pill">{{cartCountInfo.0}}</span>
         </h4>
-        {% if cartCountInfo.0 == 0 %}
+        {% if cartCountInfo.0 is none %}
         <a href="#">
           <button class="w-100 btn btn-primary btn-lg mt-3" type="button">Go shopping</button>
         </a>
@@ -229,7 +229,7 @@
             </div>
             <span class="text-body-secondary">P {{cinfo.2}}</span>
           </li>
-        {% endfor %}
+          {% endfor %}
           <li class="list-group-item d-flex justify-content-between">
             <span>Total (PHP)</span>
             <strong>P {{cartSumInfo}}</strong>

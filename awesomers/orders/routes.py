@@ -1,13 +1,46 @@
 from . import orders
-from awesomers.products.routes import getCart, getCartCount, getCartProductIDs, clearCart, getCartItemQuantity
+from awesomers.products.routes import getCart, getCartCount, getCartPriceSum, getCartProductIDs, clearCart, getCartItemQuantity
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
 from datetime import datetime, date
-import uuid as uuid
 
+# renders ----------------------------------------------------------------------------------------------
+@orders.route('/orders/view-order/<orderDetailsID>')
+def viewOrderDetails(orderDetailsID):
+    if session['loggedIn'] == False:
+        flash('Please log in first!', category='error')
+        return redirect(url_for('users.landing'))
+    
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('users.landing'))
+
+    cartRows=getCart()
+    cartCount = getCartCount()
+    cartSum=getCartPriceSum()
+
+    cursor=conn.cursor()
+    try:
+        sql = 'SELECT * FROM order_details WHERE accountID=%s AND orderDetailsID=%s'
+        val=session['accountID'], orderDetailsID
+        cursor.execute(sql, val)
+        orderDetails=cursor.fetchall()
+        orderProductDetails=getOrderProductDetails()
+        return render_template('products/orders/order_details.html', legend="Order details", orderProductDetailsInfo=orderProductDetails, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except Error as e:
+        conn.rollback()
+        flash(f'{e}', category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# order functions ----------------------------------------------------------------------------------------------
 @orders.route('/place-order', methods=['GET', 'POST'])
 def placeOrder():
     dateNow = datetime.now()
@@ -33,8 +66,8 @@ def placeOrder():
             conn.commit()
             i=0
             while i<len(getCartProductIDs()):
-                sql1 = 'INSERT INTO orders (orderDetailsID, accountID, productID) VALUES ((SELECT orderDetailsID FROM order_details ORDER BY orderDetailsID DESC LIMIT 1), %s, %s)'
-                val1 = accountID, getCartProductIDs()[i]
+                sql1 = 'INSERT INTO orders (orderDetailsID, accountID, productID, orderQuantity) VALUES ((SELECT orderDetailsID FROM order_details ORDER BY orderDetailsID DESC LIMIT 1), %s, %s, %s)'
+                val1 = accountID, getCartProductIDs()[i], getCartItemQuantity()[i]
                 cursor.execute(sql1, val1)
                 conn.commit()
                 i+=1
@@ -81,7 +114,9 @@ def getOrderProductDetails():
         return redirect(url_for('users.landing'))
     
     cursor=conn.cursor()
-    cursor.execute('SELECT orders.`orderDetailsID`, products.`picture`, products.`productName`, products.`price`, products.`quantity`, orders.`productID` FROM products JOIN orders ON products.`productID`=orders.`productID` WHERE orders.`accountID`=%s ORDER BY orders.`orderDetailsID` DESC', (session['accountID'], ))
+    sql = 'SELECT orders.`orderDetailsID`, orders.`orderID`, products.`picture`, products.`productName`, products.`price`, orders.`orderQuantity`, products.`productID` FROM products JOIN orders ON products.`productID`=orders.`productID` WHERE orders.`accountID`=%s ORDER BY orders.`orderDetailsID` DESC'
+    val = session['accountID']
+    cursor.execute(sql, (val, ))
     orders=cursor.fetchall()
     return orders
 
@@ -96,6 +131,8 @@ def getOrderProductIDs():
     orders=cursor.fetchall()
     return orders
 
+
+# misc functions ----------------------------------------------------------------------------------------------
 def getStoreProfileFromCart():
     conn = get_db_connection()
     if conn is None:

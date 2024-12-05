@@ -1,5 +1,5 @@
 from . import homepage
-from awesomers.products.routes import getProducts, getProductPictures, getCart, getCartCount, getCartPriceSum, getLatestProducts, getLatestProductPictures
+from awesomers.products.routes import getAvailableProducts, getAvailableProductPictures, getCart, getCartCount, getCartPriceSum, getLatestProducts, getLatestProductPictures
 from awesomers.orders.routes import getOrderDetails, getOrderProductIDs, getOrderProductDetails
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
@@ -15,8 +15,8 @@ import os
 @homepage.route('/home')
 def home():
     if session['accountRole']=='seller':
-        availableProductsRows=getProducts()
-        availableProductsPicturesRows=getProductPictures()
+        availableProductsRows=getAvailableProducts()
+        availableProductsPicturesRows=getAvailableProductPictures()
         latestProductsRows=getLatestProducts()
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows = getCart()
@@ -24,8 +24,8 @@ def home():
         cartSum = getCartPriceSum()
         return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
-        availableProductsRows=getProducts()
-        availableProductsPicturesRows=getProductPictures()
+        availableProductsRows=getAvailableProducts()
+        availableProductsPicturesRows=getAvailableProductPictures()
         latestProductsRows=getLatestProducts()
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows=getCart()

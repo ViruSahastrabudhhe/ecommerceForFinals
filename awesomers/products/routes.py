@@ -20,17 +20,18 @@ def viewProductPage(productID):
         return redirect(url_for('homepage.home'))
     
     cursor=conn.cursor()
-    productRows=getProducts()
-    productRowPictures=getProductPictures()
+    productRows=getAvailableProducts()
+    productRowPictures=getAvailableProductPictures()
     cartRows=getCart()
     cartCount = getCartCount()
+    cartSum=getCartPriceSum()
     storeName=getStoreName()
 
     try:
         cursor.execute(f'SELECT * FROM products WHERE productID={productID}')
         row=cursor.fetchone()
         pictureFile = row[2].decode(encoding='utf-8')
-        return render_template('products/product_info.html', legend="Product information", productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('products/product_info.html', legend="Product information", productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         conn.rollback()
         flash(f"{e}", category='error')
@@ -50,8 +51,8 @@ def viewCheckout():
         flash('NO DB CONNECTION!', category='error')
         return redirect(url_for('users.landing'))
     
-    productRows=getProducts()
-    productRowPictures=getProductPictures()
+    productRows=getAvailableProducts()
+    productRowPictures=getAvailableProductPictures()
     cartRows=getCart()
     cartPicturesRows=getCartPictures()
     cartCount = getCartCount()
@@ -65,37 +66,6 @@ def viewCheckout():
 
 
 # cart functions ----------------------------------------------------------------------------------------------
-def getCart():
-    accountID=session['accountID']
-    conn =get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homepage.home'))
-    
-    cursor=conn.cursor()
-    sql = 'SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID`, products.`quantity` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s'
-    cursor.execute(sql, (accountID,))
-    cartRows=cursor.fetchall()
-
-    return cartRows
-
-def getCartPictures():
-    conn=get_db_connection()
-    if conn is None:
-        flash("NO DB CONNECTION", category='error')
-        return redirect(url_for('homepage.home'))
-
-    cursor = conn.cursor() 
-    cursor.execute('SELECT * FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s', (session['accountID'], ))
-    rows=cursor.fetchall()
-    pictureFiles=[]
-
-    for row in rows:
-        pictureFile=row[2].decode(encoding='utf-8')
-        pictureFiles.append(pictureFile)
-
-    return pictureFiles
-
 @products.route('/cart/add-to-cart/<productID>', methods=['GET', 'POST'])
 def addToCart(productID):
     if request.method=='POST':
@@ -225,6 +195,37 @@ def clearCart():
         cursor.close()
         conn.close()
 
+def getCart():
+    accountID=session['accountID']
+    conn =get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT products.`productName`, cart.`cartQuantity`, products.`price`, cart.`productID`, products.`quantity` FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s'
+    cursor.execute(sql, (accountID,))
+    cartRows=cursor.fetchall()
+
+    return cartRows
+
+def getCartPictures():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+
+    cursor = conn.cursor() 
+    cursor.execute('SELECT * FROM products JOIN cart ON products.`productID` = cart.`productID` WHERE cart.`accountID`=%s', (session['accountID'], ))
+    rows=cursor.fetchall()
+    pictureFiles=[]
+
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
+    return pictureFiles
+
 def getCartCount():
     conn =get_db_connection()
     if conn is None:
@@ -235,6 +236,7 @@ def getCartCount():
     cursor.execute("SELECT SUM(cartQuantity) FROM cart WHERE accountID=%s", (session['accountID'], ))
     cartCount=cursor.fetchone()
 
+    print(cartCount)
     return cartCount
 
 def getCartPriceSum():
@@ -292,7 +294,7 @@ def getCartItemQuantity():
 
 
 # misc functions ----------------------------------------------------------------------------------------------
-def getProducts():
+def getAvailableProducts():
     conn=get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
@@ -307,7 +309,7 @@ def getProducts():
 
     return rows
 
-def getProductPictures():
+def getAvailableProductPictures():
     conn=get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
