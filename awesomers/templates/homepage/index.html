@@ -193,6 +193,48 @@
     </div>
   </div>
 
+  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWishlist">
+    <div class="offcanvas-header justify-content-center">
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="order-md-last">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-primary">Your wishlist</span>
+        </h4>
+        <ul class="list-group mb-3">
+          {% for winfo in wishlistInfo %}
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <a href="{{ url_for('products.viewProductPage', productID=winfo[2])}}">
+                <h6 class="my-0" style="max-width: 25ch; overflow: hidden; text-overflow: ellipsis;">{{winfo.1}}</h6>
+              </a>
+              <small class="text-body-secondary">
+                <form action="{{ url_for('products.deleteWishlist', productID=winfo[0] )}}" method="POST">
+                  <button type="submit" class="btn-delete-cartitem">Delete</button>
+                </form>
+                <form action="{{ url_for('products.addWishlistToCart', productID=winfo[0] )}}" method="POST">
+                  <button type="submit" class="btn-add-cartitem" onclick="">Add to cart</button>
+                </form>
+              </small>
+            </div>
+            <span class="text-body-secondary">P {{winfo.3}}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if wishlistInfo|length == 0%}
+        <a href="{{ url_for('homepage.home')}}">
+          <button class="w-100 btn btn-primary btn-lg my-3" type="button">Go shopping</button>
+        </a>
+        {% else %}
+        <form action="{{ url_for('products.clearWishlist') }}" method="POST">
+          <button class="w-100 btn btn-danger btn-lg my-3" type="submit">Clear wishlist</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart">
     <div class="offcanvas-header justify-content-center">
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -204,7 +246,7 @@
           <span class="badge bg-primary rounded-pill">{{cartCountInfo.0}}</span>
         </h4>
         {% if cartCountInfo.0 is none %}
-        <a href="#">
+        <a href="{{ url_for('homepage.home')}}">
           <button class="w-100 btn btn-primary btn-lg mt-3" type="button">Go shopping</button>
         </a>
         {% else %}
@@ -276,8 +318,8 @@
               </select>
             </div>
             <div class="col-11 col-md-7">
-              <form id="search-form" class="text-center" action="index.html" method="post">
-                <input type="text" class="form-control border-0 bg-transparent" placeholder="Search for more than 20,000 products">
+              <form id="search-form" class="text-center" action="{{ url_for('products.viewSearch')}}">
+                <input type="text" name="searchQuery" class="form-control border-0 bg-transparent" placeholder="Search for more than 20,000 products">
               </form>
             </div>
             <div class="col-1">
@@ -323,7 +365,7 @@
               </a>
             </li>
             <li>
-              <a href="#" class="p-2 mx-1">
+              <a href="#" class="p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWishlist" aria-controls="offcanvasWishlist">
                 <svg width="24" height="24"><use xlink:href="#wishlist"></use></svg>
               </a>
             </li>

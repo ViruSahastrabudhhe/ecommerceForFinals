@@ -1,5 +1,5 @@
 from . import orders
-from awesomers.products.routes import getCart, getCartCount, getCartTotalPrice, getCartItemPrice, getCartProductIDs, clearCart, getCartItemQuantity, getCartTotalPrice
+from awesomers.products.routes import getWishlist, getCart, getCartCount, getCartTotalPrice, getCartItemPrice, getCartProductIDs, clearCart, getCartItemQuantity, getCartTotalPrice
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -22,6 +22,7 @@ def viewOrderDetails(orderDetailsID):
     cartRows=getCart()
     cartCount = getCartCount()
     cartSum=getCartTotalPrice()
+    wishlist=getWishlist()
 
     cursor=conn.cursor()
     try:
@@ -35,7 +36,7 @@ def viewOrderDetails(orderDetailsID):
         orderStoreDetails=getStoreNameFromOrderDetails(orderDetailsID, orderDetails[2])
         orderProductDetailsPictures=getOrderProductDetailsPictures(orderDetailsID)
 
-        return render_template('products/orders/order_details.html', legend="Order details", orderAddressInfo=orderAddressDetails, orderStoreInfo=orderStoreDetails, orderProductDetailsInfo=orderProductDetails, orderProductPicturesInfo=orderProductDetailsPictures, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('products/orders/order_details.html', legend="Order details", wishlistInfo=wishlist, orderAddressInfo=orderAddressDetails, orderStoreInfo=orderStoreDetails, orderProductDetailsInfo=orderProductDetails, orderProductPicturesInfo=orderProductDetailsPictures, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         conn.rollback()
         flash(f'{e}', category='error')
@@ -54,7 +55,7 @@ def placeOrder():
         storeID = getStoreProfileFromCart()[3]
         buyerAddressID = request.form['buyerAddressOrder']
         paymentMethod = request.form['paymentMethodOrder']
-        orderStatus = 'To Ship'
+        orderStatus = 'Pending'
         datePlaced = dateNow
         orderTotal=getCartTotalPrice()
     
@@ -169,6 +170,7 @@ def deleteOrder(orderDetailsID):
             flash("Successfully deleted order!", category='error')
             return redirect(url_for('homepage.viewDashboard'))
         except Error as e:
+            conn.rollback()
             flash(f'{e}', category='error')
             return redirect(url_for('homepage.viewDashboard'))
         finally:
@@ -177,8 +179,8 @@ def deleteOrder(orderDetailsID):
 
 
 # order-seller functions ----------------------------------------------------------------------------------------------
-@orders.route('/seller/cancel-order/<productID>/<quantity>', methods=['GET', 'POST'])
-def cancelOrder(productID, quantity):
+@orders.route('/seller/cancel-order/<productID>/<quantity>/<orderID>', methods=['GET', 'POST'])
+def cancelOrder(productID, quantity, orderID):
     if request.method=='POST':
         conn=get_db_connection()
         if conn is None:
@@ -188,8 +190,8 @@ def cancelOrder(productID, quantity):
         cursor=conn.cursor()
 
         try:
-            sql='UPDATE orders SET orderStatus=%s WHERE productID=%s'
-            val='Cancelled', productID
+            sql='UPDATE orders SET orderStatus=%s WHERE productID=%s AND orderID=%s'
+            val='Cancelled', productID, orderID
             cursor.execute(sql, val)
             conn.commit()
             sql1='UPDATE products SET quantity=quantity+%s WHERE productID=%s'
@@ -200,16 +202,73 @@ def cancelOrder(productID, quantity):
             val2=quantity, productID
             cursor.execute(sql2, val2)
             conn.commit()
-            flash("Successfully cancelled order!", category='error')
+            flash("Successfully cancelled order!", category='success')
             return redirect(url_for('seller.renderOrders'))
         except Error as e:
+            conn.rollback()
             flash(f'{e}', category='error')
             return redirect(url_for('seller.renderOrders'))
         finally:
             cursor.close()
             conn.close()
 
-# @orders.route('/seller/update-status', methods=['GET', 'POST'])
+@orders.route('/seller/update-orderdetails-status/<orderDetailsID>', methods=['GET', 'POST'])
+def updateOrderDetailsStatus(orderDetailsID):
+    if request.method=='POST':
+        orderStatus=request.form.get('orderDetailsStatus')
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECT", category='error')
+            return redirect(url_for('users.landing'))
+        
+        cursor=conn.cursor()
+
+        try:
+            sql='UPDATE order_details SET orderStatus=%s WHERE orderDetailsID=%s'
+            val=orderStatus, orderDetailsID
+            cursor.execute(sql, val)
+            conn.commit()
+            sql='UPDATE orders SET orderStatus=%s WHERE orderDetailsID=%s AND orderStatus!="Cancelled"'
+            val=orderStatus, orderDetailsID
+            cursor.execute(sql, val)
+            conn.commit()
+            flash("Successfully updated order status!", category='success')
+            return redirect(url_for('seller.renderOrders'))
+        except Error as e:
+            conn.rollback()
+            flash(f'{e}', category='error')
+            return redirect(url_for('seller.renderOrders'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@orders.route('/seller/update-status/<productID>/<orderID>', methods=['GET', 'POST'])
+def updateOrderStatus(productID, orderID):
+    if request.method=='POST':
+        orderStatus=request.form.get('orderStatus')
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECT", category='error')
+            return redirect(url_for('users.landing'))
+        
+        cursor=conn.cursor()
+
+        try:
+            sql='UPDATE orders SET orderStatus=%s WHERE productID=%s AND orderID=%s AND orderStatus!="Cancelled"'
+            val=orderStatus, productID, orderID
+            cursor.execute(sql, val)
+            conn.commit()
+            flash("Successfully updated order status!", category='success')
+            return redirect(url_for('seller.renderOrders'))
+        except Error as e:
+            conn.rollback()
+            flash(f'{e}', category='error')
+            return redirect(url_for('seller.renderOrders'))
+        finally:
+            cursor.close()
+            conn.close()
 
 
 # order getter functions ----------------------------------------------------------------------------------------------
@@ -414,6 +473,20 @@ def getBuyerAddressForSellerOrderDetails(sellerProfileID, orderDetailsID):
     val=sellerProfileID, orderDetailsID
     cursor.execute(sql, val)
     details=cursor.fetchall()
+
+    return details
+
+def getSellerOrderCount(sellerProfileID):
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECT", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT * FROM order_details WHERE sellerProfileID=%s'
+    val = sellerProfileID
+    cursor.execute(sql, (val, ))
+    details = cursor.fetchall()
 
     return details
 

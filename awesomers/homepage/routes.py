@@ -1,5 +1,5 @@
 from . import homepage
-from awesomers.products.routes import getAvailableProducts, getAvailableProductPictures, getCart, getCartCount, getCartTotalPrice, getLatestProducts, getLatestProductPictures
+from awesomers.products.routes import getWishlist, getAvailableProducts, getAvailableProductPictures, getCart, getCartCount, getCartTotalPrice, getLatestProducts, getLatestProductPictures
 from awesomers.orders.routes import getOrderDetails, getOrderProductIDs, getOrderProductDetails, getOrderProductItems
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
@@ -22,7 +22,8 @@ def home():
         cartRows = getCart()
         cartCount = getCartCount()
         cartSum = getCartTotalPrice()
-        return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        wishlist=getWishlist()
+        return render_template('seller/homepage/homepage_seller.html', wishlistInfo=wishlist, availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
         availableProductsRows=getAvailableProducts()
         availableProductsPicturesRows=getAvailableProductPictures()
@@ -31,7 +32,8 @@ def home():
         cartRows=getCart()
         cartCount=getCartCount()
         cartSum=getCartTotalPrice()
-        return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        wishlist=getWishlist()
+        return render_template('homepage/buyer/homepage_buyer.html',  wishlistInfo=wishlist, productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @homepage.route('/dashboard')
 def viewDashboard():
@@ -42,10 +44,11 @@ def viewDashboard():
     cartRows=getCart()
     cartCount=getCartCount()
     cartSum=getCartTotalPrice()
+    wishlist=getWishlist()
     orderDetails=getOrderDetails()
     orderProductIDs=getOrderProductIDs()
     orderProductDetails=getOrderProductItems()
-    return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', orderProductDetailsInfo=orderProductDetails, orderProductIDsInfo=orderProductIDs, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', wishlistInfo=wishlist, orderProductDetailsInfo=orderProductDetails, orderProductIDsInfo=orderProductIDs, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # profile ----------------------------------------------------------------------------------------------
@@ -80,16 +83,18 @@ def sellerRegistration():
     requestRow = cursor.fetchone()
     cartRows=getCart()
     cartCount = getCartCount()
+    cartTotal=getCartTotalPrice()
+    wishlist=getWishlist()
 
     if requestRow:
         validIDPictureFile = requestRow[6].decode(encoding="utf-8")
         bankDocumentPictureFile = requestRow[10].decode(encoding="utf-8")
-        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='true', requestInfo=requestRow, validIDPicture=validIDPictureFile, bankDocumentPicture=bankDocumentPictureFile, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='true', wishlistInfo=wishlist, requestInfo=requestRow, validIDPicture=validIDPictureFile, bankDocumentPicture=bankDocumentPictureFile, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
     try:
         cursor.execute(f"SELECT * FROM accounts WHERE accountID={session['accountID']}")
         row=cursor.fetchone()
-        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='false', accountInfo=row, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/seller_registration.html', legend="Seller registration", isRequest='false', wishlistInfo=wishlist, accountInfo=row, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
@@ -192,21 +197,28 @@ def addressBook():
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
         cartRows=getCart()
         cartCount = getCartCount()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartTotal=getCartTotalPrice()
+        wishlist=getWishlist()
+
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='true', isProfile='true', wishlistInfo=wishlist, profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif isProfileAndAddressEstablished()=="profile":
         profileRows=getBuyerProfileRow()
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
         cartRows=getCart()
         cartCount = getCartCount()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartTotal=getCartTotalPrice()
+        wishlist=getWishlist()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='true', wishlistInfo=wishlist, profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     else:
         profileRows=getBuyerProfileRow()   
         addressBookRows=getAddressBookRows()
         addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
         cartRows=getCart()
         cartCount = getCartCount()
-        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        cartTotal=getCartTotalPrice()
+        wishlist=getWishlist()
+        return render_template('homepage/buyer/address_book_buyer.html', legend="Address book", isAddress='false', isProfile='false', wishlistInfo=wishlist, profileInfo=profileRows, addressInfo=addressBookRows, isDefaultCount=addressBookIsDefaultCount, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @homepage.route('/address-book/edit/<addressBookID>')
 def editAddress(addressBookID):
@@ -228,13 +240,15 @@ def editAddress(addressBookID):
     addressBookIsDefaultCount=getIsDefaultCountFromAddressBookRows()
     cartRows=getCart()
     cartCount = getCartCount()
+    cartTotal=getCartTotalPrice()
+    wishlist=getWishlist()
 
     if row is None:
         flash("Address does not exist!", category='error')
         return redirect(url_for('homepage.addressBook'))
 
     try:
-        return render_template('homepage/buyer/edit_address_buyer.html', legend="Edit address", isAddress='true', isProfile='true', isDefaultCount=addressBookIsDefaultCount, profileInfo=profileRows, addressInfo=row, addressBookInfo=addressBookRows, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/edit_address_buyer.html', legend="Edit address", isAddress='true', isProfile='true', wishlistInfo=wishlist, isDefaultCount=addressBookIsDefaultCount, profileInfo=profileRows, addressInfo=row, addressBookInfo=addressBookRows, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.addressBook'))

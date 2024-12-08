@@ -119,13 +119,22 @@
         </ul>
         <br>
         {% for prod in orderProductDetailsInfo %}
-        <ul class="list-group">
+        <ul class="list-group d-flex align-items-left justify-content-between">
           <li class="list-group-item">
             <img src="/static/imgs/{{orderProductPicturesInfo[loop.index-1]}}" alt="Order product thumbnail" width="150px" height="150px">
             {{prod[3]}}
             {{prod[4]}}
-            Total: P{{prod[7]}}, {{prod[5]}} items
+            Total: P{{prod[7]}}, {{prod[5]}} items, Order Status: {{prod[8]}}
           </li>
+          {% if prod.8 == 'Completed' %}
+          {% elif prod.8 == 'Cancelled' %}
+          {% else %}
+          <li class="list-group-item">
+            <form action="" method="POST">
+              <button type="submit">Cancel order</button>
+            </form>
+          </li>
+          {% endif %}
         </ul>
         {% endfor %}
       </div>

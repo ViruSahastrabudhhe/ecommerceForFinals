@@ -184,7 +184,24 @@
                       <br>
                       Paid by: {{info.6}}
                     </td>
-                    <td>{{info.4}}</td>
+                    <td>
+                      {{info.4}}
+                      <br>
+                      {% if info.4 == 'Completed' %}
+                      {% else %}
+                      <form action="{{ url_for('orders.updateOrderDetailsStatus', orderDetailsID=info[0] )}}" method="POST">
+                        <select class="form-select select-order-status" id="select-order-status-{{loop.index}}" 
+                        name="orderDetailsStatus" aria-label="Default select example">
+                          <option selected value="" disabled>Select order status</option>
+                          <option value="Pending">Pending</option>
+                          <option value="To ship">To ship</option>
+                          <option value="To deliver">To deliver</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                        <button type="submit">Change status</button>
+                      </form>
+                      {% endif %}
+                    </td>
                     <td>
                       <a href="{{ url_for('seller.viewSellerOrderDetails', orderDetailsID=info[0] )}}">
                         <button class="me-1">View items</button>

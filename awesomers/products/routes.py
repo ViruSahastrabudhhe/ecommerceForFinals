@@ -25,12 +25,13 @@ def viewProductPage(productID):
     cartCount = getCartCount()
     cartSum=getCartTotalPrice()
     storeName=getStoreName()
+    wishlist=getWishlist()
 
     try:
-        cursor.execute(f'SELECT * FROM products WHERE productID={productID}')
+        cursor.execute('SELECT * FROM products WHERE productID=%s', (productID, ))
         row=cursor.fetchone()
         pictureFile = row[2].decode(encoding='utf-8')
-        return render_template('products/product_info.html', legend="Product information", productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('products/product_info.html', legend="Product information", wishlistInfo=wishlist, productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         conn.rollback()
         flash(f"{e}", category='error')
@@ -57,9 +58,25 @@ def viewCheckout():
     cartCount = getCartCount()
     cartSum =getCartTotalPrice()
     storeName=getStoreName()
+    wishlist=getWishlist()
     addressBookRows=getAddressBookRows()
 
-    return render_template('products/checkout.html', productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    return render_template('products/checkout.html', wishlistInfo=wishlist, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@products.route('/search')
+def viewSearch():
+    searchQuery=request.form.get('searchQuery')
+    productRows=getAvailableProducts()
+    productRowPictures=getAvailableProductPictures()
+    cartRows=getCart()
+    cartPicturesRows=getCartPictures()
+    cartCount = getCartCount()
+    cartSum =getCartTotalPrice()
+    storeName=getStoreName()
+    wishlist=getWishlist()
+    addressBookRows=getAddressBookRows()
+
+    return render_template('products/product_search.html', wishlistInfo=wishlist, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Search products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # cart functions ----------------------------------------------------------------------------------------------
@@ -317,6 +334,143 @@ def getCartItemQuantity():
     results = [i[0] for i in rows]
 
     return results
+
+
+# wishlist functions ----------------------------------------------------------------------------------------------
+@products.route('/wishlist/add-to-wishlist/<productID>', methods=['GET', 'POST'])
+def addToWishlist(productID):
+    if request.method=='POST':
+        accountID = session['accountID']
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+
+        cursor=conn.cursor()
+        sql1='SELECT * FROM wishlist WHERE productID=%s AND accountID=%s'
+        val1=productID, accountID
+        cursor.execute(sql1, val1)
+        isProductInWishlist=cursor.fetchone()
+        if isProductInWishlist:
+            flash('Product already in wishlist!', category='error')
+            return redirect(url_for('products.viewProductPage', productID=productID))
+
+        try:
+            sql = 'INSERT INTO wishlist (accountID, productID) VALUES (%s, %s)'
+            val = accountID, productID
+            cursor.execute(sql, val)
+            conn.commit()
+            flash('Successfully added to wishlist!', category='success')
+            return redirect(url_for('products.viewProductPage', productID=productID))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}", category='error')
+            return redirect(url_for('products.viewProductPage', productID=productID))
+        finally:
+            cursor.close()
+            conn.close()
+
+@products.route('/wishlist/clear-wishlist', methods=['GET', 'POST'])
+def clearWishlist():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM wishlist WHERE accountID=%s", (session['accountID'], ))
+        conn.commit()
+        flash("Wishlist contents cleared!", category='success')
+        return redirect(url_for('homepage.home'))
+    except Error as e:
+        conn.rollback()
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@products.route('/wishlist/delete-wishlist-item/<productID>', methods=['GET', 'POST'])
+def deleteWishlist(productID):
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM wishlist WHERE accountID=%s AND productID=%s", (session['accountID'], productID))
+        conn.commit()
+        flash("Successfully deleted wishlist item!", category='success')
+        return redirect(url_for('homepage.home'))
+    except Error as e:
+        conn.rollback()
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@products.route('/wishlist/add-wishlist-item-to-cart/<productID>', methods=['GET', 'POST'])
+def addWishlistToCart(productID):
+    if request.method=='POST':
+        accountID = session['accountID']
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+
+        cursor=conn.cursor()
+
+        # prevents duplicate cart items
+        sql1 = "SELECT * FROM cart WHERE productID=%s AND accountID=%s"
+        val1 = productID, accountID
+        cursor.execute(sql1, val1)
+        isProductInCart=cursor.fetchone()
+        if isProductInCart:
+            sql2="UPDATE cart SET cartQuantity=cartQuantity+%s WHERE productID=%s and accountID=%s"
+            val2=1, productID, accountID
+            cursor.execute(sql2, val2)
+            conn.commit()
+            deleteWishlist(productID)
+            flash("Successfully updated cart product quantity!", category='success')
+            return redirect(url_for('homepage.home'))
+
+        try:
+            sql = "INSERT INTO cart (accountID, productID, cartQuantity) VALUES (%s, %s, %s)"
+            val = accountID, productID, 1
+            cursor.execute(sql, val)
+            conn.commit()
+            deleteWishlist(productID)
+            flash("Successfully added product to cart!", category='success')
+            return redirect(url_for('homepage.home'))
+        except Error as e:
+            conn.rollback()
+            flash(f"{e}", category='error')
+            return redirect(url_for('homepage.home'))
+        finally:
+            cursor.close()
+            conn.close()
+
+def getWishlist():
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sql='SELECT products.`productID`, products.`productName`, products.`quantity`, products.`price` FROM products JOIN wishlist ON products.`productID`=wishlist.`productID` WHERE wishlist.`accountID`=%s'
+    val=session['accountID']
+    cursor.execute(sql, (val,))
+    wishlist=cursor.fetchall()
+
+    return wishlist
+
 
 
 # misc getter functions ----------------------------------------------------------------------------------------------

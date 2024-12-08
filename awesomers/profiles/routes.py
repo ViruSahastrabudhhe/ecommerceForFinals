@@ -1,5 +1,5 @@
 from . import profiles
-from awesomers.products.routes import getCart, getCartCount
+from awesomers.products.routes import getWishlist, getCart, getCartCount, getCartTotalPrice
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -20,19 +20,21 @@ def buyerProfile():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM profiles_buyer WHERE accountID={session['accountID']}")
+    cursor.execute("SELECT * FROM profiles_buyer WHERE accountID=%s", (session['accountID'], ))
     profileRow = cursor.fetchone()
     cartRows=getCart()
     cartCount = getCartCount()
+    cartTotal=getCartTotalPrice()
+    wishlist=getWishlist()
 
     if profileRow is None:
-        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="false", isAddress="false", profileInfo=profileRow, cartInfo=cartRows, cartCountInfo = cartCount,  id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="false", isAddress="false", wishlistInfo=wishlist, profileInfo=profileRow, cartSumInfo=cartTotal, cartInfo=cartRows, cartCountInfo = cartCount,  id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
     try:
         pictureFile = profileRow[4].decode(encoding="utf-8")
         if getAddressBookRow(profileRow[0])!="none":
-            return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="true", profilePicture=pictureFile, profileInfo=profileRow, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="false", profilePicture=pictureFile, profileInfo=profileRow, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+            return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="true", wishlistInfo=wishlist, profilePicture=pictureFile, profileInfo=profileRow, cartSumInfo=cartTotal, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+        return render_template('homepage/buyer/profile_buyer.html', legend="Profile", isProfile="true", isAddress="false", wishlistInfo=wishlist, profilePicture=pictureFile, profileInfo=profileRow, cartSumInfo=cartTotal, cartInfo=cartRows,  cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f"{e}", category='error')
         return redirect(url_for('homepage.home'))
@@ -65,6 +67,7 @@ def sellerProfile():
     finally:
         cursor.close()
         conn.close()
+
 
 # buyers ----------------------------------------------------------------------------------------------
 @profiles.route('/addBuyerProfile', methods=['GET', 'POST'])
