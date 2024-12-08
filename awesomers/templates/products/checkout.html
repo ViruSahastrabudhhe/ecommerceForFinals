@@ -51,12 +51,13 @@
         <div class="col-lg-9">
   
   
+          <!-- ORDER DETAILS -->
           <section>
             <div class="table-responsive mb-4">
               <h2 class="mb-4">Ship to</h2>
               <table id="table-address-book" class="display table table-striped table-hover">
                 <tbody>
-                {% if isAddress=='true' %}
+                {% if addressBookInfo is not none %}
                   {% for address in addressBookInfo %}
                   <tr style="text-align: center; vertical-align: middle;">
                     <td style="width: 200px;">
@@ -145,40 +146,52 @@
                 {% for cinfo in cartInfo %}
                 <div class="d-flex align-items-center justify-content-center">
                   <tr class="row-address-book" style="text-align: center; vertical-align: middle;">
-                      <td>
-                          <img src="/static/imgs/{{cartPicturesInfo[loop.index-1]}}" alt="Product thumbnail" class="tab-image" width="120px" height="120px" style="object-fit: contain;">
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                        <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck1">Checkbox 1</label>
+                      
+                        <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck2">Checkbox 2</label>
+                      
+                        <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck3">Checkbox 3</label>
+                      </div>
+                    </td>
+                    <td>
+                        <img src="/static/imgs/{{cartPicturesInfo[loop.index-1]}}" alt="Product thumbnail" class="tab-image" width="120px" height="120px" style="object-fit: contain;">
+                        <br>
+                    </td>
+                    <td>
+                        <p class="mx-1" style="margin-bottom: 0px;">
+                          {{cinfo.0}}
                           <br>
-                      </td>
-                      <td>
-                          <p class="mx-1" style="margin-bottom: 0px;">
-                            {{cinfo.0}}
-                            <br>
-                            {{cinfo.2}}
-                            <br>
-                            Sold by: {{storeNameInfo.0}}
-                          </p>
-                      </td>
-                      <td>
-                        <form action="{{ url_for('products.updateCart', productID=cinfo[3] ) }}" method="POST">
-                          <label for="input-cart-qty">Quantity: </label>
-                          <input type="number" class="input-cart-qty" id="input-cart-qty" name="cartQuantity" value="{{cinfo.1}}" style="width: 50px;" 
-                          oninput="validity.valid||(value='');" min="1" max="{{cinfo.4}}">
-                          <button type="submit" class="btn-update-cartitem">Submit</button>
-                        </form>
-                      </td>
-                      <td>
-                          <div class="d-flex align-items-center justify-content-center" style="display: inline; vertical-align: baseline;">
-                              <form action="{{ url_for('products.deleteCart', productID=cinfo[3] )}}" method="POST">
-                                  <button
-                                  class="btn-delete-address btn btn-sm mx-1"
-                                  type="submit"
-                                  style="color: red;"
-                                  >
-                                      <i class="fa fa-times"></i>
-                                  </button>
-                              </form>
-                          </div>
-                      </td>
+                          {{cinfo.2}}
+                          <br>
+                          Sold by: {{storeNameInfo.0}}
+                        </p>
+                    </td>
+                    <td>
+                      <form action="{{ url_for('products.updateCart', productID=cinfo[3] ) }}" method="POST">
+                        <label for="input-cart-qty">Quantity: </label>
+                        <input type="number" class="input-cart-qty" id="input-cart-qty" name="cartQuantity" value="{{cinfo.1}}" style="width: 50px;" 
+                        oninput="validity.valid||(value='');" min="1" max="{{cinfo.4}}">
+                        <button type="button" class="btn-update-cartitem">Submit</button>
+                      </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-center" style="display: inline; vertical-align: baseline;">
+                            <form action="{{ url_for('products.deleteCart', productID=cinfo[3] )}}" method="POST">
+                                <button
+                                class="btn-delete-address btn btn-sm mx-1"
+                                type="submit"
+                                style="color: red;"
+                                >
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
                   </tr>
                 </div>
                 {% endfor %}
@@ -191,7 +204,8 @@
   
         <div class="col-lg-3" style="margin-bottom: 10%; position: sticky; position: -webkit-sticky; top: 0; z-index: 100;">
           <ul class="list-group">
-              <li class="list-group-item">
+            <li class="list-group-item">
+              {% if addressBookInfo|length!=0 %}
                 <div class="d-flex align-items-center justify-content-center mt-2">
                   <button
                   class="btn btn-primary"
@@ -202,6 +216,19 @@
                   Buy now
                   </button>
                 </div>  
+              {% else %}
+                <div class="d-flex align-items-center justify-content-center mt-2">
+                  <button
+                  class="btn btn-primary"
+                  type="submit" 
+                  value="logoutValue"
+                  style="width: 335px; height: 50px;"
+                  disabled=""
+                  >
+                  Buy now
+                  </button>
+                </div>  
+              {% endif %}
                 <br>
                 <div class="d-flex align-items-center mb-1">
                   <p style="text-align: justify;">
@@ -223,7 +250,7 @@
               <li class="list-group-item">
                 <div class="d-flex align-items-center justify-content-between">
                   <h4>Order Total:</h4>
-                  <h4>P {{cartSumInfo + 50}}</h4>
+                  <h4>P {{cartSumInfo}}</h4>
                 </div>
               </li>
           </ul>

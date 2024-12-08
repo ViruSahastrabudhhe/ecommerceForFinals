@@ -35,7 +35,7 @@
   PRIMARY KEY (`cartID`,`accountID`,`productID`),
   KEY `cartBuyerID` (`accountID`),
   CONSTRAINT `cartBuyerID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="requests" view="colnames">
 <left>226</left>
@@ -202,7 +202,7 @@
   KEY `addressAccountID` (`accountID`),
   KEY `buyerProfileID` (`profileID`),
   CONSTRAINT `addressAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="address_store" view="colnames">
 <left>174</left>
@@ -244,8 +244,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="order_details" view="colnames">
-<left>498</left>
-<top>52</top>
+<left>541</left>
+<top>51</top>
 <width>111</width>
 <height>212</height>
 <sql_create_table>CREATE TABLE `order_details` (
@@ -267,11 +267,11 @@
   CONSTRAINT `addressID` FOREIGN KEY (`buyerAddressID`) REFERENCES `address_book` (`addressBookID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orderDetailsAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `storeID` FOREIGN KEY (`sellerProfileID`) REFERENCES `profiles_seller` (`sellerProfileID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 <table name="orders" view="colnames">
-<left>676</left>
-<top>71</top>
+<left>779</left>
+<top>97</top>
 <width>104</width>
 <height>117</height>
 <sql_create_table>CREATE TABLE `orders` (
@@ -279,6 +279,7 @@
   `accountID` bigint(20) NOT NULL,
   `productID` bigint(20) NOT NULL,
   `orderDetailsID` bigint(20) NOT NULL,
+  `orderQuantity` int(255) NOT NULL,
   PRIMARY KEY (`orderID`,`accountID`,`productID`,`orderDetailsID`),
   KEY `orderAccountID` (`accountID`),
   KEY `orderProductID` (`productID`),
@@ -286,7 +287,7 @@
   CONSTRAINT `orderAccountID` FOREIGN KEY (`accountID`) REFERENCES `accounts` (`accountID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orderOrderDetailsID` FOREIGN KEY (`orderDetailsID`) REFERENCES `order_details` (`orderDetailsID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orderProductID` FOREIGN KEY (`productID`) REFERENCES `products` (`productID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

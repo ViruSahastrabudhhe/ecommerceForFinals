@@ -116,6 +116,7 @@
                         <tr class=>
                             <th>Order ID</th>
                             <th>Product Information</th>
+                            <th>Status</th>
                             <th class="d-flex flex-row" style="width: 30%;">Action</th>
                         </tr>
                     </thead>
@@ -142,9 +143,16 @@
                                 Qty: {{i[5]}}
                             </td>
                             <td>
-                                <button>Return</button>
-                                <button>Buy again</button>
-                                <button>Delete</button>
+                                {{i.7}}
+                            </td>
+                            <td>
+                                <!-- <button>Return</button> -->
+                                <form action="{{ url_for('orders.buyAgain', productID=i[6] )}}" method="POST">
+                                    <button type="submit">Buy again</button>
+                                </form>
+                                <form action="{{ url_for('orders.deleteOrder', orderDetailsID=i[0] )}}" method="POST">
+                                    <button type="submit">Delete</button>
+                                </form>
                                 <button>Review</button>
                             </td>
                         </tr>

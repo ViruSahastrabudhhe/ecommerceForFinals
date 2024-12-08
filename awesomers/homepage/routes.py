@@ -1,6 +1,6 @@
 from . import homepage
-from awesomers.products.routes import getAvailableProducts, getAvailableProductPictures, getCart, getCartCount, getCartPriceSum, getLatestProducts, getLatestProductPictures
-from awesomers.orders.routes import getOrderDetails, getOrderProductIDs, getOrderProductDetails
+from awesomers.products.routes import getAvailableProducts, getAvailableProductPictures, getCart, getCartCount, getCartTotalPrice, getLatestProducts, getLatestProductPictures
+from awesomers.orders.routes import getOrderDetails, getOrderProductIDs, getOrderProductDetails, getOrderProductItems
 from flask import render_template, redirect, url_for, flash, session, request
 from awesomers.users.routes import logout
 import mysql.connector
@@ -21,7 +21,7 @@ def home():
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows = getCart()
         cartCount = getCartCount()
-        cartSum = getCartPriceSum()
+        cartSum = getCartTotalPrice()
         return render_template('seller/homepage/homepage_seller.html', availableProducts=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     elif session['accountRole']=='buyer':
         availableProductsRows=getAvailableProducts()
@@ -30,7 +30,7 @@ def home():
         latestProductsPicturesRows=getLatestProductPictures()
         cartRows=getCart()
         cartCount=getCartCount()
-        cartSum=getCartPriceSum()
+        cartSum=getCartTotalPrice()
         return render_template('homepage/buyer/homepage_buyer.html', productInfo=availableProductsRows, productPictureInfo=availableProductsPicturesRows, latestProductsInfo=latestProductsRows, latestProductsPicturesInfo=latestProductsPicturesRows, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo = cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @homepage.route('/dashboard')
@@ -41,10 +41,10 @@ def viewDashboard():
     
     cartRows=getCart()
     cartCount=getCartCount()
-    cartSum=getCartPriceSum()
-    orderProductIDs=getOrderProductIDs()
+    cartSum=getCartTotalPrice()
     orderDetails=getOrderDetails()
-    orderProductDetails=getOrderProductDetails()
+    orderProductIDs=getOrderProductIDs()
+    orderProductDetails=getOrderProductItems()
     return render_template('homepage/buyer/dashboard_buyer.html', legend='Dashboard', orderProductDetailsInfo=orderProductDetails, orderProductIDsInfo=orderProductIDs, orderDetailsInfo=orderDetails, cartSumInfo=cartSum, cartInfo=cartRows, cartCountInfo=cartCount, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 

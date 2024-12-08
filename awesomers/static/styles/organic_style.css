@@ -367,7 +367,7 @@ h1,h2,h3,h4,h5,h6 {
 
 /* products-carousel */
 .products-carousel .swiper, .products-carousel .swiper-container {
-  overflow: visible;
+  overflow: unset;
 }
 
 /* product-grid */
@@ -607,7 +607,7 @@ a.btn-link.text-light:after {
 /* ============ mobile view ============ */
 @media(max-width: 991px){
 	.navbar.fixed-top .navbar-collapse, .navbar.sticky-top .navbar-collapse{
-		overflow-y: auto;
+		overflow-y: unset;
 	    max-height: 90vh;
 	    margin-top:10px;
 	}

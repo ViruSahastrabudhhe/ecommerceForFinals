@@ -1,0 +1,224 @@
+{% extends 'seller/index.html' %}
+
+{% block title %}Orders | Seller Center | Awesomers{% endblock %}
+
+{% block pageName %} {{legend}} {% endblock %}
+
+{% block sidebar %}
+<ul class="nav nav-secondary">
+    <li class="nav-item">
+      <a data-bs-toggle="collapse" href="#store">
+        <i class="fas fa-th-list"></i>
+        <p>Store</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse" id="store">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="{{ url_for('seller.renderStoreProfile') }}">
+              <span class="sub-item">Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('seller.renderStoreAddress') }}">
+              <span class="sub-item">Address</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a data-bs-toggle="collapse" href="#base">
+        <i class="fas fa-layer-group"></i>
+        <p>Products</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse" id="base">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="{{ url_for('seller.renderProductManagement') }}">
+              <span class="sub-item">Manage products</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('seller.renderAddProducts') }}">
+              <span class="sub-item">Add products</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('seller.renderArchivedProducts') }}">
+              <span class="sub-item">Archived products</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item active submenu">
+      <a data-bs-toggle="collapse" href="#sidebarLayouts">
+        <i class="fas fa-th-list"></i>
+        <p>Orders</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse show" id="sidebarLayouts">
+        <ul class="nav nav-collapse">
+          <li class="active">
+            <a href="{{ url_for('seller.renderOrders') }}">
+              <span class="sub-item">Orders</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('seller.renderReviews') }}">
+              <span class="sub-item">Reviews</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a data-bs-toggle="collapse" href="#forms">
+        <i class="fas fa-pen-square"></i>
+        <p>Sales</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse" id="forms">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="forms/forms.html">
+              <span class="sub-item">Basic Form</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-section">
+      <span class="sidebar-mini-icon">
+        <i class="fa fa-ellipsis-h"></i>
+      </span>
+      <h4 class="text-section">Awesomers</h4>
+    </li>
+    <li class="nav-item">
+      <a href="{{ url_for('homepage.home') }}">
+        <i class="fas fa-chevron-left"></i>
+        <p>Back to Awesomers</p>
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block mainPanel %}
+<div class="container">
+  <div class="page-inner">
+    <div class="page-header"> 
+      <h3 class="fw-bold mb-3">{{legend}}</h3>
+      <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+          <a href="{{ url_for('seller.sellerCenter') }}">
+            <i class="icon-home"></i>
+          </a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="{{ url_for('seller.renderOrders')}}">Orders</a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="{{ url_for('seller.renderOrders')}}">Order history</a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="">{{legend}}</a>
+        </li>
+      </ul>
+    </div>
+
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex align-items-center">
+              <h4 class="card-title">Order details ID: {{orderDetailsID}}</h4>
+            </div>
+          </div>
+          <div class="card-body">
+
+
+            <div class="table-responsive">
+              <table id="table-orders" class="display table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th style="width: 70px;">Order ID</th>
+                    <th style="width: 50px;">Product Information</th>
+                    <th style="width: 70px;">Ship To</th>
+                    <th style="width: 70px;">Total Price</th>
+                    <th style="width: 70px;">Status</th>
+                    <th style="width: 20px;">Action</th>
+                  </tr>
+                </thead>
+                <tfoot>
+                  <tr>
+                    <th>Order Product ID</th>
+                    <th>Product Information</th>
+                    <th>Ship To</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th style="width: 20px;">Action</th>
+                  </tr>
+                </tfoot>
+                <tbody id="tableBody">
+                  {% for info in orderItemsInfo %}
+                  <tr>
+                    <td>{{info.0}}</td>
+                    <td value="{{info.3}}">
+                      {{info.3}}
+                      <br>
+                      P{{info.4}}, {{info.5}} items
+                      <br>
+                    </td>
+                    <td>{{orderBuyerAddressInfo[loop.index-1].3}}
+                      <br>
+                      {{orderBuyerAddressInfo[loop.index-1].4}}
+                      <br>
+                      {{orderBuyerAddressInfo[loop.index-1].8 }} 
+                      {{orderBuyerAddressInfo[loop.index-1].7 }}
+                      {{orderBuyerAddressInfo[loop.index-1].6 }}, 
+                      {{orderBuyerAddressInfo[loop.index-1].5 }}
+                    </td>
+                    <td>P{{info.7}}</td>
+                    <td>{{info.8}}</td>
+                    <td>
+                      <form action="{{ url_for('orders.cancelOrder', productID=info[6], quantity=info[5])}}" method="POST">
+                        <button type="submit">Cancel order</button>
+                      </form>
+                      <button>Change status</button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugin/datatables/datatables.min.js') }}"></script>
+<script>
+    $(document).ready(function (){
+    });
+
+    $("#table-orders").DataTable({
+      pageLength: 20,
+    });
+</script>
+{% endblock %}

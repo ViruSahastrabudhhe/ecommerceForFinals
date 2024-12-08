@@ -17,6 +17,9 @@ def welcome():
 
 @users.route('/landing')
 def landing():
+    session['loggedIn'] = False
+    session['accountID'] = None
+    session['accountRole'] = None
     return render_template('users/landing_page.html', id='none')
 
 @users.route('/test')

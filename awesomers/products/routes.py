@@ -5,7 +5,6 @@ import mysql.connector
 from mysql.connector import Error
 from awesomers.models import get_db_connection
 from datetime import datetime
-from werkzeug.utils import secure_filename
 import uuid as uuid
 import pathlib
 import os
@@ -24,7 +23,7 @@ def viewProductPage(productID):
     productRowPictures=getAvailableProductPictures()
     cartRows=getCart()
     cartCount = getCartCount()
-    cartSum=getCartPriceSum()
+    cartSum=getCartTotalPrice()
     storeName=getStoreName()
 
     try:
@@ -56,12 +55,10 @@ def viewCheckout():
     cartRows=getCart()
     cartPicturesRows=getCartPictures()
     cartCount = getCartCount()
-    cartSum =getCartPriceSum()
+    cartSum =getCartTotalPrice()
     storeName=getStoreName()
     addressBookRows=getAddressBookRows()
 
-    if getAddressBookRows()=='none':
-        return render_template('products/checkout.html', productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='false', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     return render_template('products/checkout.html', productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
@@ -78,7 +75,20 @@ def addToCart(productID):
             return redirect(url_for('homepage.home'))
 
         cursor=conn.cursor()
-        
+
+        # prevents duplicate cart items
+        sql1 = "SELECT * FROM cart WHERE productID=%s AND accountID=%s"
+        val1 = productID, accountID
+        cursor.execute(sql1, val1)
+        isProductInCart=cursor.fetchone()
+        if isProductInCart:
+            sql2="UPDATE cart SET cartQuantity=cartQuantity+%s WHERE productID=%s and accountID=%s"
+            val2=cartQuantity, productID, accountID
+            cursor.execute(sql2, val2)
+            conn.commit()
+            flash("Successfully updated cart product quantity!", category='success')
+            return redirect(url_for('homepage.home'))
+
         try:
             sql = "INSERT INTO cart (accountID, productID, cartQuantity) VALUES (%s, %s, %s)"
             val = accountID, productID, cartQuantity
@@ -195,6 +205,8 @@ def clearCart():
         cursor.close()
         conn.close()
 
+
+# cart getter functions ----------------------------------------------------------------------------------------------
 def getCart():
     accountID=session['accountID']
     conn =get_db_connection()
@@ -236,10 +248,24 @@ def getCartCount():
     cursor.execute("SELECT SUM(cartQuantity) FROM cart WHERE accountID=%s", (session['accountID'], ))
     cartCount=cursor.fetchone()
 
-    print(cartCount)
     return cartCount
 
-def getCartPriceSum():
+def getCartItemPrice():
+    conn =get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    sql = 'SELECT products.`price` FROM products JOIN cart ON products.`productID`=cart.`productID` WHERE cart.`accountID`=%s'
+    val = session['accountID']
+    cursor.execute(sql, (val,))
+    rows=cursor.fetchall()
+    results = [i[0] for i in rows]
+
+    return results
+
+def getCartTotalPrice():
     conn =get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')
@@ -293,7 +319,7 @@ def getCartItemQuantity():
     return results
 
 
-# misc functions ----------------------------------------------------------------------------------------------
+# misc getter functions ----------------------------------------------------------------------------------------------
 def getAvailableProducts():
     conn=get_db_connection()
     if conn is None:
@@ -396,8 +422,5 @@ def getAddressBookRows():
     cursor=conn.cursor()
     cursor.execute("SELECT * FROM address_book WHERE accountID=%s AND profileID=%s ORDER BY isDefault DESC", (session['accountID'], getBuyerProfileRow()[0]))
     addressBookRow = cursor.fetchall()
-
-    if addressBookRow is None:
-        return 'none'
 
     return addressBookRow

@@ -1,0 +1,1 @@
+SELECT productName FROM products WHERE productName LIKE '%a' OR brand OR '%a' OR ;

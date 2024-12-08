@@ -1,5 +1,6 @@
 from . import seller
 from flask import render_template, redirect, url_for, flash, session, request
+from awesomers.orders.routes import getOrderDetailsForSeller, getOrderProductDetailsForSeller, getBuyerNameForSellerOrders, getBuyerAddressForSellerOrders, getBuyerAddressForSellerOrderDetails
 from awesomers.users.routes import logout
 import mysql.connector
 from mysql.connector import Error
@@ -12,6 +13,9 @@ import os
 
 @seller.route('/seller-center')
 def sellerCenter():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -26,6 +30,9 @@ def testTemplate():
 # store ----------------------------------------------------------------------------------------------
 @seller.route('/store/store-seller')
 def renderStoreProfile():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -34,6 +41,9 @@ def renderStoreProfile():
 
 @seller.route('/store/store-address')
 def renderStoreAddress():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -55,6 +65,9 @@ def renderStoreAddress():
 # products ----------------------------------------------------------------------------------------------
 @seller.route('/products/product-management')
 def renderProductManagement():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -80,6 +93,9 @@ def renderProductManagement():
 
 @seller.route('/products/active-products')
 def renderActiveProducts():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -88,6 +104,9 @@ def renderActiveProducts():
 
 @seller.route('/products/add-products')
 def renderAddProducts():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -96,6 +115,10 @@ def renderAddProducts():
 
 @seller.route('/products/product-management/edit/<productID>')
 def renderEditProducts(productID):
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
+
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -123,6 +146,10 @@ def renderEditProducts(productID):
 
 @seller.route('/products/archived-products')
 def renderArchivedProducts():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
+
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
@@ -148,13 +175,52 @@ def renderArchivedProducts():
 
 
 # orders ----------------------------------------------------------------------------------------------
-@seller.route('/orders')
+@seller.route('/seller/orders')
 def renderOrders():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
+
     if session['accountRole'] != 'seller':
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
     
-    return render_template('seller/orders/orders.html', legend="Orders", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    sellerProfileID=getStoreProfileRow()
+    orderDetails=getOrderDetailsForSeller(sellerProfileID[0])
+    orderBuyerDetails=getBuyerNameForSellerOrders(sellerProfileID[0])
+    orderBuyerAddressDetails=getBuyerAddressForSellerOrders(sellerProfileID[0])
+
+    return render_template('seller/orders/seller_orders.html', legend="Order history", orderBuyerInfo=orderBuyerDetails, orderBuyerAddressInfo=orderBuyerAddressDetails, orderDetailsInfo=orderDetails, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/seller/order-details/<orderDetailsID>')
+def viewSellerOrderDetails(orderDetailsID):
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
+
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    sellerProfileID=getStoreProfileRow()
+    orderDetails=getOrderDetailsForSeller(sellerProfileID[0])
+    orderItems=getOrderProductDetailsForSeller(orderDetailsID)
+    orderBuyerDetails=getBuyerNameForSellerOrders(sellerProfileID[0])
+    orderBuyerAddressDetails=getBuyerAddressForSellerOrderDetails(sellerProfileID[0], orderDetailsID)
+
+    return render_template('seller/orders/seller_orders_details.html', legend="Order details", orderItemsInfo=orderItems, orderDetailsID=orderDetailsID, orderBuyerInfo=orderBuyerDetails, orderBuyerAddressInfo=orderBuyerAddressDetails, orderDetailsInfo=orderDetails, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@seller.route('/reviews')
+def renderReviews():
+    if session['loggedIn'] == False:
+        flash('Please login first!', category='error')
+        return redirect(url_for('users.landing'))
+
+    if session['accountRole'] != 'seller':
+        flash("You must be a registered seller in order to access this!", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    return render_template('seller/orders/seller_reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/returns')
 def renderReturns():
@@ -163,14 +229,6 @@ def renderReturns():
         return redirect(url_for('homepage.home'))
     
     return render_template('seller/orders/returns.html', legend="Returns", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
-
-@seller.route('/reviews')
-def renderReviews():
-    if session['accountRole'] != 'seller':
-        flash("You must be a registered seller in order to access this!", category='error')
-        return redirect(url_for('homepage.home'))
-    
-    return render_template('seller/orders/reviews.html', legend="Reviews", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 
 # product functions ----------------------------------------------------------------------------------------------
@@ -486,7 +544,7 @@ def isProfileAndAddressEstablished():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM profiles_seller WHERE accountID={session['accountID']}")
+    cursor.execute("SELECT * FROM profiles_seller WHERE accountID=%s", (session['accountID'], ))
     profileRow = cursor.fetchone()
 
     if profileRow is None:
@@ -506,7 +564,7 @@ def getStoreProfileRow():
         return redirect(url_for('homepage.home'))
     
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM profiles_seller WHERE accountID={session['accountID']}")
+    cursor.execute("SELECT * FROM profiles_seller WHERE accountID=%s", (session['accountID'], ))
     profileRow = cursor.fetchone()
 
     if profileRow is None:

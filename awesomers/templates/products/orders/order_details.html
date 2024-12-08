@@ -19,7 +19,7 @@
                         <ol class="breadcrumb" style="color: white;">
                           <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
                           <li class="breadcrumb-item active" aria-current="page" style="color: white;"><a href="{{ url_for('homepage.viewDashboard')}}" style="color: white;">{{ legend }}</a></li>
-                          <li class="breadcrumb-item active" aria-current="page" style="color: white;">Order Details ID: {{ orderDetailsInfo[0].0 }}</li>
+                          <li class="breadcrumb-item active" aria-current="page" style="color: white;">Order Details ID: {{ orderDetailsInfo.0 }}</li>
                         </ol>
                       </nav>
                 </div>
@@ -99,23 +99,35 @@
 
 
       <div class="col-lg-9">
+        <a href="{{ url_for('homepage.viewDashboard')}}">
+          <button type="button" class="btn btn-primary"  style="margin-bottom: 25px;">
+            <i class="fas fa-arrow-left"></i>
+            &nbsp;&nbsp;Back to dashboard
+          </button>
+        </a>
         <ul class="list-group">
-          {% for detail in orderDetailsInfo %}
-          <li class="list-group-item">{{detail[2]}}</li>
-          <li class="list-group-item">{{detail[3]}}</li>
-          <li class="list-group-item">{{detail[5]}}</li>
-          <li class="list-group-item">{{detail[6]}}</li>
-          {% endfor %}
+          <li class="list-group-item">{{orderStoreInfo.2}}</li>
+          <li class="list-group-item">
+            {{orderAddressInfo.3}} - {{orderAddressInfo.11}} 
+            <br>  
+            {{orderAddressInfo.4}}
+            <br> 
+            {{orderAddressInfo.8}} {{orderAddressInfo.7}} {{orderAddressInfo.6}}, {{orderAddressInfo.5}}
+          </li>
+          <li class="list-group-item">Total: P{{orderDetailsInfo.5}}, Paid by: {{orderDetailsInfo.6}}</li>
+          <li class="list-group-item">Date Placed: {{orderDetailsInfo.7}}</li>
         </ul>
         <br>
+        {% for prod in orderProductDetailsInfo %}
         <ul class="list-group">
-          {% for prod in orderProductDetailsInfo %}
-          <li class="list-group-item">{{prod[2]}}</li>
-          <li class="list-group-item">{{prod[3]}}</li>
-          <li class="list-group-item">{{prod[4]}}</li>
-          <li class="list-group-item">{{prod[5]}}</li>
-          {% endfor %}
+          <li class="list-group-item">
+            <img src="/static/imgs/{{orderProductPicturesInfo[loop.index-1]}}" alt="Order product thumbnail" width="150px" height="150px">
+            {{prod[3]}}
+            {{prod[4]}}
+            Total: P{{prod[7]}}, {{prod[5]}} items
+          </li>
         </ul>
+        {% endfor %}
       </div>
 
   </div>
