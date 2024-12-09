@@ -66,6 +66,7 @@ def viewCheckout():
 @products.route('/search')
 def viewSearch():
     searchQuery=request.form.get('searchQuery')
+    
     productRows=getAvailableProducts()
     productRowPictures=getAvailableProductPictures()
     cartRows=getCart()

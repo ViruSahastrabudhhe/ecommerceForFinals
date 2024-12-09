@@ -111,7 +111,14 @@ def renderAddProducts():
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
 
-    return render_template('seller/products/add_products.html', legend="Add products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    conn=get_db_connection()
+    cursor=conn.cursor()
+    sql='SELECT * FROM profiles_seller WHERE accountID=%s'
+    val=session['accountID']
+    cursor.execute(sql, (val, ))
+    sellerProfile=cursor.fetchone()
+
+    return render_template('seller/products/add_products.html', legend="Add products", sellerProfileInfo=sellerProfile, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/products/product-management/edit/<productID>')
 def renderEditProducts(productID):

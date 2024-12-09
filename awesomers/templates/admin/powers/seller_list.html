@@ -1,0 +1,137 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}{{legend}} | Awesomers{% endblock %}
+
+{% block sidebar %}
+<ul class="nav nav-secondary">
+    <li class="nav-item active submenu">
+      <a data-bs-toggle="collapse" href="#store">
+        <i class="fas fa-th-list"></i>
+        <p>Admin powers</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse show" id="store">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="{{ url_for('homepage.viewAdminSellerRequests')}}">
+              <span class="sub-item">Seller registration</span>
+            </a>
+          </li>
+          <li class="active">
+            <a href="{{ url_for('homepage.viewAdminSellersList')}}">
+              <span class="sub-item">Sellers</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('homepage.viewAdminOrdersList')}}">
+              <span class="sub-item">Orders</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('homepage.viewAdminProductsList')}}">
+              <span class="sub-item">Products</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block mainPanel %}
+<div class="container">
+    <div class="page-inner">
+      <div class="page-header"> 
+        <h3 class="fw-bold mb-3">{{legend}}</h3>
+        <ul class="breadcrumbs mb-3">
+          <li class="nav-home">
+            <a href="{{ url_for('homepage.homeAdmin') }}">
+              <i class="icon-home"></i>
+            </a>
+          </li>
+          <li class="separator">
+            <i class="icon-arrow-right"></i>
+          </li>
+          <li class="nav-item">
+            <a href="">Admin powers</a>
+          </li>
+          <li class="separator">
+            <i class="icon-arrow-right"></i>
+          </li>
+          <li class="nav-item">
+            <a href="">{{legend}}</a>
+          </li>
+        </ul>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center">
+                <h4 class="card-title">Seller list</h4>
+                <h4 class="card-title" hidden="">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Modal -->
+  
+              <div class="table-responsive">
+                <table id="seller-list" class="display table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th style="width: 100px;">Store Information</th>
+                      <th style="width: 70px;">Account Information</th>
+                      <th style="width: 70px;">Date Created</th>
+                      <th style="width: 18px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                      <th style="width: 100px;">Store Information</th>
+                      <th style="width: 70px;">Account Information</th>
+                      <th style="width: 70px;">Date Created</th>
+                      <th style="width: 18px;">Action</th>
+                    </tr>
+                  </tfoot>
+                  <tbody id="tableBody">
+                    {% for info in sellersInfo %}
+                    <tr>
+                      <td>
+                        {{info.2}}
+                        <br>
+                        {{info.4}}
+                        <br>
+                        {{info.3}}
+                        <br>
+                      </td>
+                      <td>
+                        {{info.6}}
+                        <br>
+                        {{info.7}}
+                        <br>
+                        {{info.8}}
+                      </td>
+                      <td>
+                        {{info.5}}
+                      </td>
+                      <td></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $("#seller-list").DataTable({});
+    });
+</script>
+{% endblock %}

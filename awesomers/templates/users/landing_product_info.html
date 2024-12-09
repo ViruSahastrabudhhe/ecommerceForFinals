@@ -1,0 +1,118 @@
+{% extends 'users/index.html' %}
+
+{% block title %} Product Information | Awesomers {% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='/css/lugx/templatemo-lugx-gaming.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='/css/lugx/fontawesome.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='/css/lugx/owl.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='/css/lugx/animate.css') }}">
+{% endblock %}
+
+{% block mainPanel %}
+<section>
+
+    <div class="container-fluid">
+
+      <div class="bg-secondary text-light py-5 mb-5" style="background: url('/img/awesomers/clearlyudonthaveadad.png') no-repeat; background-size: cover;">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-5 p-3">
+                <div class="section-header">
+                    <h2 class="section-title display-5 text-light" style="text-align: center;">{{ productIDInfo[3] }}</h2>
+                </div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                        <ol class="breadcrumb" style="color: white;">
+                          <li class="breadcrumb-item"><a href="{{ url_for('homepage.home')}}" style="color: white;">Home</a></li>
+                          <li class="breadcrumb-item" aria-current="page" style="color: white;">{{ legend }}</li>
+                          <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ productIDInfo[3] }}</li>
+                        </ol>
+                      </nav>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+</section>
+
+<div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="left-image">
+            <img src="/static/imgs/{{productIDPicture}}" alt="Product image" width="500" height="500" style="object-fit: contain;">
+        </div>
+      </div>
+      <div class="col-lg-6 align-self-center">
+        <h4>{{productIDInfo.3}}</h4>
+        <span class="price">PHP {{productIDInfo.9}}</span>
+        <div class="button-area align-items-center justify-content-left">
+            <div class="row g-1 mt-2">
+              <div class="col-3">
+              <form action="{{ url_for('products.addToCart', productID=productIDInfo[0] )}}" method="POST">
+                <input type="number" name="cartQuantity" class="form-control border-dark-subtle input-number quantity" value="1" min="1" max="{{productIDInfo.10}}" 
+                oninput="validity.valid||(value='');"
+                >
+              </div>
+              <div class="col-7">
+                <a href="{{ url_for('users.login')}}">
+                    <button type="submit" class="btn btn-primary rounded-1 p-2 fs-7 btn-cart"><svg width="18" height="18"><use xlink:href="#cart"></use></svg> Add to Cart</a>
+                </a>
+                </div>
+              </form>
+              <div class="col-2">
+                <a href="{{ url_for('users.login')}}">
+                    <button type="button" class="btn btn-outline-dark rounded-1 p-2 fs-6">
+                        <svg width="18" height="18"><use xlink:href="#heart"></use></svg>
+                    </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        <ul class="mt-2">
+          <li><span>Store Name:</span> {{storeNameInfo.0}}</li>
+          <li><span>Product ID:</span> {{productIDInfo.0}}</li>
+          <li><span>Product Stock:</span> {{productIDInfo.10}}</li>
+          <li><span>Category:</span> <a href="#">Action</a>, <a href="#">Team</a>, <a href="#">Single</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-12">
+        <div class="sep"></div>
+      </div>
+    </div>
+  </div>
+
+<div class="container mt-5">
+<div class="row">
+    <div class="col-lg-12">
+    <div class="tabs-content">
+        <div class="row">
+        <div class="nav-wrapper ">
+            <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews (3)</button>
+            </li>
+            </ul>
+        </div>              
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+            <p>{{productIDInfo.5}}</p>
+            <br>
+            <p>Coloring book air plant shabby chic, crucifix normcore raclette cred swag artisan activated charcoal. PBR&B fanny pack pok pok gentrify truffaut kitsch helvetica jean shorts edison bulb poutine next level humblebrag la croix adaptogen. Hashtag poke literally locavore, beard marfa kogi bruh artisan succulents seitan tonx waistcoat chambray taxidermy. Same cred meggings 3 wolf moon lomo irony cray hell of bitters asymmetrical gluten-free art party raw denim chillwave tousled try-hard succulents street art.</p>
+            </div>
+            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+            <p>Coloring book air plant shabby chic, crucifix normcore raclette cred swag artisan activated charcoal. PBR&B fanny pack pok pok gentrify truffaut kitsch helvetica jean shorts edison bulb poutine next level humblebrag la croix adaptogen. <br><br>Hashtag poke literally locavore, beard marfa kogi bruh artisan succulents seitan tonx waistcoat chambray taxidermy. Same cred meggings 3 wolf moon lomo irony cray hell of bitters asymmetrical gluten-free art party raw denim chillwave tousled try-hard succulents street art.</p>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+{% endblock %}

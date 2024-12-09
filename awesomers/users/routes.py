@@ -20,11 +20,40 @@ def landing():
     session['loggedIn'] = False
     session['accountID'] = None
     session['accountRole'] = None
-    return render_template('users/landing_page.html', id='none')
+    availableProducts=getAvailableProducts()
+    availableProductsPictures=getAvailableProductPictures()
+    latestProducts=getLatestProducts()
+    latestProductsPictures=getLatestProductPictures()
+    return render_template('users/landing_page.html', id='none', availableProductsInfo=availableProducts, availableProductsPicturesInfo=availableProductsPictures, latestProductsInfo=latestProducts, latestProductsPicturesInfo=latestProductsPictures)
 
 @users.route('/test')
 def test():
     return render_template('kaiAdmin/organic/index.html')
+
+@users.route('/product-info/<productID>')
+def viewProductPage(productID):
+    conn =get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    productRows=getAvailableProducts()
+    productRowPictures=getAvailableProductPictures()
+    storeName=getStoreName()
+
+    try:
+        cursor.execute('SELECT * FROM products WHERE productID=%s', (productID, ))
+        row=cursor.fetchone()
+        pictureFile = row[2].decode(encoding='utf-8')
+        return render_template('users/landing_product_info.html', legend="Product information", productIDInfo=row, productIDPicture=pictureFile, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, id=session['accountID'], role=session['accountRole'])
+    except Error as e:
+        conn.rollback()
+        flash(f"{e}", category='error')
+        return redirect(url_for('homepage.home'))
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # users ----------------------------------------------------------------------------------------------
@@ -281,6 +310,8 @@ def loginAdmin():
             session['loggedIn'] = True
             session['accountID'] = record['accountID']
             session['accountEmail'] = record['accountEmail']
+            session['accountFirstName'] = record['accountFirstName']
+            session['accountLastName'] = record['accountLastName']
             session['accountRole'] = record['accountRole']
             return redirect(url_for('homepage.homeAdmin'))
         else:
@@ -368,3 +399,78 @@ def sendVerificationLink(email):
     '''
     mail.send(msg)
     return 'Password reset request sent!'
+
+def getAvailableProducts():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM products WHERE quantity!=0 AND isArchived=0 LIMIT 10")
+    rows = cursor.fetchall()
+
+    return rows
+
+def getAvailableProductPictures():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM products WHERE quantity!=0 AND isArchived=0 LIMIT 10")
+    rows = cursor.fetchall()
+    pictureFiles=[]
+
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
+    return pictureFiles
+
+def getStoreName():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT profiles_seller.`storeName`, profiles_seller.`accountID`, products.`accountID` FROM profiles_seller JOIN products ON profiles_seller.`accountID`=products.`accountID`")
+    row = cursor.fetchone()
+
+    if row is None:
+        return "none"
+
+    return row
+
+def getLatestProducts():
+    conn = get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('homepage.home'))
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM products ORDER BY productID DESC LIMIT 10")
+    rows = cursor.fetchall()
+
+    return rows
+
+def getLatestProductPictures():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+
+    cursor = conn.cursor() 
+    cursor.execute("SELECT * FROM products ORDER BY productID DESC LIMIT 10")
+    rows=cursor.fetchall()
+    pictureFiles=[]
+
+    # FIXME: COULDNT SHOW IMAGES
+    # FIXED: DONT EVER USE URL_FOR FOR IMAGES, SHIT DOESNT WORK. JUST GO FOR /static/imgs/SHIT
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
+    return pictureFiles

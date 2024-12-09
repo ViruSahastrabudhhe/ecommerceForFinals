@@ -141,6 +141,28 @@
                 <div class="card-title">Add products to store</div>
               </div>
             </div>
+            {% if sellerProfileInfo is none%}
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 col-lg-12">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <h4 style="text-align: center;">Create a profile first before adding an address!</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 col-lg-12">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <a href="{{ url_for('seller.renderStoreProfile') }}">
+                            Create a profile
+                        </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% else %}
             <div class="card-body">
               <!-- IMAGE -->
               <div class="row">
@@ -308,6 +330,7 @@
               Reset fields
               </button>
             </div>
+            {% endif %}
           </div>
         </form>
       </div>

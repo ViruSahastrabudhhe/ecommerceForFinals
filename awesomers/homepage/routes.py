@@ -405,7 +405,20 @@ def redirectToSellerBase():
 def homeAdmin():
     if session['accountRole'] != 'admin':
         flash("Unknown request!", category='error')
-        return redirect(url_for('homepage.home'))
+        return redirect(url_for('users.landing'))
+    
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.loginAdmin'))   
+
+    return render_template('admin/home_admin.html', legend="Dashboard", email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@homepage.route('/admin/seller-registration')
+def viewAdminSellerRequests():
+    if session['accountRole'] != 'admin':
+        flash("Unknown request!", category='error')
+        return redirect(url_for('users.landing'))
     
     conn = get_db_connection()
     if conn is None:
@@ -417,7 +430,79 @@ def homeAdmin():
     try:
         cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
         rows=cursor.fetchall()
-        return render_template('admin/home_admin.html', email=session['accountEmail'], dbhtml=rows)
+        return render_template('admin/powers/seller_requests.html', legend="Seller requests", requestsInfo=rows, email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except Error as e:
+        flash(f'{e}', category='error')
+        logout()
+    finally:
+        cursor.close()
+        conn.close()
+
+@homepage.route('/admin/sellers-list')
+def viewAdminSellersList():
+    if session['accountRole'] != 'admin':
+        flash("Unknown request!", category='error')
+        return redirect(url_for('users.landing'))
+    
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.loginAdmin'))   
+
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT profiles_seller.`sellerProfileID`, profiles_seller.`accountID`, profiles_seller.`storeName`, profiles_seller.`storePhoneNum`, profiles_seller.`storeCountry`, profiles_seller.`storeDateCreated`, accounts.`accountEmail`, accounts.`accountFirstName`, accounts.`accountLastName` FROM profiles_seller JOIN accounts ON profiles_seller.`accountID`=accounts.`accountID`")
+        rows=cursor.fetchall()
+        return render_template('admin/powers/seller_list.html', legend="Sellers", sellersInfo=rows, email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except Error as e:
+        flash(f'{e}', category='error')
+        logout()
+    finally:
+        cursor.close()
+        conn.close()
+
+@homepage.route('/admin/orders-list')
+def viewAdminOrdersList():
+    if session['accountRole'] != 'admin':
+        flash("Unknown request!", category='error')
+        return redirect(url_for('users.landing'))
+    
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.loginAdmin'))   
+
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
+        rows=cursor.fetchall()
+        return render_template('admin/powers/orders_list.html', legend="Orders",  dbhtml=rows, email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    except Error as e:
+        flash(f'{e}', category='error')
+        logout()
+    finally:
+        cursor.close()
+        conn.close()
+
+@homepage.route('/admin/products-list')
+def viewAdminProductsList():
+    if session['accountRole'] != 'admin':
+        flash("Unknown request!", category='error')
+        return redirect(url_for('users.landing'))
+    
+    conn = get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.loginAdmin'))   
+
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM requests WHERE requestArchived=0")
+        rows=cursor.fetchall()
+        return render_template('admin/powers/products_list.html', legend="Products",  dbhtml=rows, email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
     except Error as e:
         flash(f'{e}', category='error')
         logout()

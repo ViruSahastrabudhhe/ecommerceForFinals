@@ -1,0 +1,39 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}{{legend}} | Awesomers{% endblock %}
+
+{% block sidebar %}
+<ul class="nav nav-secondary">
+    <li class="nav-item active submenu">
+      <a data-bs-toggle="collapse" href="#store">
+        <i class="fas fa-th-list"></i>
+        <p>Admin powers</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse show" id="store">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="{{ url_for('homepage.viewAdminSellerRequests')}}">
+              <span class="sub-item">Seller registration</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('homepage.viewAdminSellersList')}}">
+              <span class="sub-item">Sellers</span>
+            </a>
+          </li>
+          <li class="active">
+            <a href="{{ url_for('homepage.viewAdminOrdersList')}}">
+              <span class="sub-item">Orders</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('homepage.viewAdminProductsList')}}">
+              <span class="sub-item">Products</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+{% endblock %}
