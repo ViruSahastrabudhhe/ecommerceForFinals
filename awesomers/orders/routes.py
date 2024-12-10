@@ -215,6 +215,7 @@ def cancelOrder(productID, quantity, orderID):
 @orders.route('/seller/update-orderdetails-status/<orderDetailsID>', methods=['GET', 'POST'])
 def updateOrderDetailsStatus(orderDetailsID):
     if request.method=='POST':
+        dateNow=datetime.now()
         orderStatus=request.form.get('orderDetailsStatus')
 
         conn=get_db_connection()
@@ -224,15 +225,34 @@ def updateOrderDetailsStatus(orderDetailsID):
         
         cursor=conn.cursor()
 
-        try:
-            sql='UPDATE order_details SET orderStatus=%s WHERE orderDetailsID=%s'
-            val=orderStatus, orderDetailsID
-            cursor.execute(sql, val)
-            conn.commit()
-            sql='UPDATE orders SET orderStatus=%s WHERE orderDetailsID=%s AND orderStatus!="Cancelled"'
-            val=orderStatus, orderDetailsID
-            cursor.execute(sql, val)
-            conn.commit()
+        try:    
+            if orderStatus=='To ship':
+                sql='UPDATE order_details SET orderStatus=%s, dateShipped=%s WHERE orderDetailsID=%s'
+                val=orderStatus, dateNow, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
+                sql='UPDATE orders SET orderStatus=%s WHERE orderDetailsID=%s AND orderStatus!="Cancelled"'
+                val=orderStatus, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
+            elif orderStatus=='To deliver':
+                sql='UPDATE order_details SET orderStatus=%s, dateDelivered=%s WHERE orderDetailsID=%s'
+                val=orderStatus, dateNow, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
+                sql='UPDATE orders SET orderStatus=%s WHERE orderDetailsID=%s AND orderStatus!="Cancelled"'
+                val=orderStatus, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
+            elif orderStatus=='Completed':
+                sql='UPDATE order_details SET orderStatus=%s, dateCompleted=%s WHERE orderDetailsID=%s'
+                val=orderStatus, dateNow, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
+                sql='UPDATE orders SET orderStatus=%s WHERE orderDetailsID=%s AND orderStatus!="Cancelled"'
+                val=orderStatus, orderDetailsID
+                cursor.execute(sql, val)
+                conn.commit()
             flash("Successfully updated order status!", category='success')
             return redirect(url_for('seller.renderOrders'))
         except Error as e:
@@ -489,6 +509,7 @@ def getSellerOrderCount(sellerProfileID):
     details = cursor.fetchall()
 
     return details
+
 
 # INSERT INTO orders_details (accountID, storeAddressID, buyerAddressID, orderStatus) VALUES (42, 1, 1, 1);
 # INSERT INTO orders (orderID, accountID, productID) VALUES (LAST_INSERT_ID(), 1, 1);

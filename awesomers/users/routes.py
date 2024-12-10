@@ -30,8 +30,8 @@ def landing():
 def test():
     return render_template('kaiAdmin/organic/index.html')
 
-@users.route('/product-info/<productID>')
-def viewProductPage(productID):
+@users.route('/landing/product-info/<productID>')
+def viewLandingProductPage(productID):
     conn =get_db_connection()
     if conn is None:
         flash("NO DB CONNECTION", category='error')

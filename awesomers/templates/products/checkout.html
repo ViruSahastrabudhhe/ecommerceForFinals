@@ -19,7 +19,7 @@
         <div class="row justify-content-center">
           <div class="col-md-5 p-3">
               <div class="section-header">
-                  {% if cartCountInfo.0 > 1 %}
+                  {% if cartCountInfo.0 is not none %}
                   <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }} ({{cartCountInfo.0}} items)</h2>
                   {% else %}
                   <h2 class="section-title display-5 text-light" style="text-align: center;">{{ legend }} ({{cartCountInfo.0}} item)</h2>
@@ -161,7 +161,7 @@
                     </td>
                     <td>
                       <form action="{{ url_for('products.updateCart', productID=cinfo[3] ) }}" method="POST">
-                        <label for="input-cart-qty">Quantity: </label>
+                        <label for="input-cart-qty">Quantity: <br></label>
                         <input type="number" class="input-cart-qty" id="input-cart-qty" name="cartQuantity" value="{{cinfo.1}}" style="width: 50px;" 
                         oninput="validity.valid||(value='');" min="1" max="{{cinfo.4}}">
                         <button type="button" class="btn-update-cartitem">Submit</button>
@@ -169,9 +169,9 @@
                     </td>
                     <td>
                         <div class="d-flex align-items-center justify-content-center" style="display: inline; vertical-align: baseline;">
-                            <form action="{{ url_for('products.deleteCart', productID=cinfo[3] )}}" method="POST">
+                            <form action="{{ url_for('products.deleteCartInCheckout', productID=cinfo[3] )}}" method="POST">
                                 <button
-                                class="btn-delete-address btn btn-sm mx-1"
+                                class="btn-delete-cartitem btn btn-sm mx-1"
                                 type="submit"
                                 style="color: red;"
                                 >
@@ -193,7 +193,7 @@
         <div class="col-lg-3" style="margin-bottom: 10%; position: sticky; position: -webkit-sticky; top: 0; z-index: 100;">
           <ul class="list-group">
             <li class="list-group-item">
-              {% if addressBookInfo|length!=0 %}
+              {% if addressBookInfo|length!=0 and cartCountInfo.0 is not none %}
                 <div class="d-flex align-items-center justify-content-center mt-2">
                   <button
                   class="btn btn-primary"
@@ -238,7 +238,7 @@
               <li class="list-group-item">
                 <div class="d-flex align-items-center justify-content-between">
                   <h4>Order Total:</h4>
-                  <h4>P {{cartSumInfo}}</h4>
+                  <h4>P {{cartSumInfo+50}}</h4>
                 </div>
               </li>
           </ul>

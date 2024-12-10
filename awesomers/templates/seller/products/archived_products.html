@@ -1,6 +1,6 @@
 {% extends 'seller/index.html' %}
 
-{% block title %}Product Management | Seller Center | Awesomers{% endblock %}
+{% block title %}Archived Products | Seller Center | Awesomers{% endblock %}
 
 {% block sidebar %}
 <ul class="nav nav-secondary">
@@ -248,8 +248,7 @@
                 <thead>
                   <tr>
                     <th style="width: 120px;">Product Name</th>
-                    <th>Category</th>
-                    <th>Variations</th>
+                    <th style="width: 70px;">Category</th>
                     <th style="width: 70px;">Price</th>
                     <th style="width: 70px;">Quantity</th>
                     <th style="width: 50px;">Date Added</th> 
@@ -260,7 +259,6 @@
                   <tr>
                     <th>Product Name</th>
                     <th>Category</th>
-                    <th>Variations</th>
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Date Added</th>
@@ -286,9 +284,6 @@
                       </td>
                       <td>
                         {{product.6}}
-                      </td>
-                      <td>
-                          {{product.8}}
                       </td>
                       <td>{{product.9}}</td>
                       <td>{{product.10}}</td>

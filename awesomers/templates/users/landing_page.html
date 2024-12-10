@@ -146,7 +146,7 @@
             <div class="col">
               <div class="product-item">
                 <figure>
-                  <a href="{{ url_for('users.viewProductPage', productID=info[0]) }}" title="Product Title">
+                  <a href="{{ url_for('users.viewLandingProductPage', productID=info[0]) }}" title="Product Title">
                     <img src="/static/imgs/{{availableProductsPicturesInfo[loop.index-1]}}" alt="Product Thumbnail" class="tab-image" width="150" height="150">
                   </a>
                 </figure>
@@ -202,7 +202,7 @@
               {% for linfo in latestProductsInfo %}
               <div class="product-item swiper-slide">
                 <figure>
-                  <a href="{{url_for('users.viewProductPage', productID=linfo[0])}}" title="Product Title">
+                  <a href="{{url_for('users.viewLandingProductPage', productID=linfo[0])}}" title="Product Title">
                     <img src="/static/imgs/{{latestProductsPicturesInfo[loop.index-1]}}" alt="Product Thumbnail" class="tab-image" width="150" height="150">
                   </a>
                 </figure>

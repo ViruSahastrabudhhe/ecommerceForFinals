@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 
 # renders ----------------------------------------------------------------------------------------------
-@products.route('/product-info/<productID>')
+@products.route('/home/product-info/<productID>')
 def viewProductPage(productID):
     conn =get_db_connection()
     if conn is None:
@@ -63,21 +63,74 @@ def viewCheckout():
 
     return render_template('products/checkout.html', wishlistInfo=wishlist, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Checkout", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
-@products.route('/search')
+@products.route('/search', methods=['GET'])
 def viewSearch():
-    searchQuery=request.form.get('searchQuery')
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
     
-    productRows=getAvailableProducts()
-    productRowPictures=getAvailableProductPictures()
+    query=request.args.get('searchQuery')
+    cursor=conn.cursor()
+    sql='SELECT * FROM products WHERE productName LIKE %s'
+    val=[query+'%']
+    cursor.execute(sql, val) 
+    rows=cursor.fetchall()  
+    pictureFiles=[]
+
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
     cartRows=getCart()
     cartPicturesRows=getCartPictures()
     cartCount = getCartCount()
     cartSum =getCartTotalPrice()
-    storeName=getStoreName()
     wishlist=getWishlist()
-    addressBookRows=getAddressBookRows()
 
-    return render_template('products/product_search.html', wishlistInfo=wishlist, productInfo=productRows, productPictureInfo=productRowPictures, storeNameInfo=storeName, addressBookInfo=addressBookRows, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Search products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    return render_template('products/product_search.html', searchInfo=query, productInfo=rows, productPictureInfo=pictureFiles, wishlistInfo=wishlist, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Search products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@products.route('/search/filtered/<searchQuery>', methods=['GET', 'POST'])
+def viewFilteredSearch(searchQuery):
+    priceFilter=request.args.get('priceFilter')
+    dateFilter=request.args.get('dateFilter')
+    cartRows=getCart()
+    cartPicturesRows=getCartPictures()
+    cartCount = getCartCount()
+    cartSum =getCartTotalPrice()
+    wishlist=getWishlist()
+    availableProducts=getAvailableProducts()
+    availableProductsPictures=getAvailableProductPictures()
+
+    return render_template('products/product_search.html', priceFilterInfo=priceFilter, dateFilterInfo=dateFilter, searchInfo=searchQuery, productInfo=availableProducts, productPictureInfo=availableProductsPictures, wishlistInfo=wishlist, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Search products", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+
+@products.route('/landing/search', methods=['GET'])
+def viewLandingSearch():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
+    
+    query=request.args.get('searchQuery')
+    cursor=conn.cursor()
+    sql='SELECT * FROM products WHERE productName LIKE %s'
+    val=[query+'%']
+    cursor.execute(sql, val) 
+    rows=cursor.fetchall()  
+    pictureFiles=[]
+
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
+    cartRows=getCart()
+    cartPicturesRows=getCartPictures()
+    cartCount = getCartCount()
+    cartSum =getCartTotalPrice()
+    wishlist=getWishlist()
+
+    return render_template('products/landing_product_search.html', searchInfo=query, productInfo=rows, productPictureInfo=pictureFiles, wishlistInfo=wishlist, cartInfo=cartRows, cartPicturesInfo=cartPicturesRows, cartCountInfo = cartCount, cartSumInfo=cartSum, isAddress='true', legend="Search products", id=session['accountID'], role=session['accountRole'])
+
 
 
 # cart functions ----------------------------------------------------------------------------------------------
@@ -175,6 +228,32 @@ def updateCart(productID):
     # cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
     # conn.commit()
     # flash(f"Successfully deleted product from cart! {cartQuantity}, {productID}, {accountID}", category='success')
+
+@products.route('/cart/delete-cart-item/<productID>', methods=['GET', 'POST'])
+def deleteCartInCheckout(productID):
+    if request.method=='POST':
+        accountID=session['accountID']
+
+        conn=get_db_connection()
+        if conn is None:
+            flash("NO DB CONNECTION", category='error')
+            return redirect(url_for('homepage.home'))
+
+        cursor=conn.cursor()
+
+        try:
+            cursor.execute('DELETE FROM cart WHERE productID=%s and accountID=%s', (productID, accountID))
+            conn.commit()
+            flash('Successfully deleted cart item!', category='error')
+            return redirect(url_for('products.viewCheckout'))
+        except Error as e:
+            conn.rollback()
+            flash(f'{e}', category='error')
+            return redirect(url_for('products.viewCheckout'))
+        finally:
+            cursor.close()
+            conn.close()
+
 
 @products.route('/cart/delete-cart-item/<productID>', methods=['GET', 'POST'])
 def deleteCart(productID):
@@ -579,3 +658,34 @@ def getAddressBookRows():
     addressBookRow = cursor.fetchall()
 
     return addressBookRow
+
+def getBestSellingProducts():
+    conn=get_db_connection()
+    if conn is None:
+        flash('NO DB CONNECTION', category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    cursor.execute('SELECT * FROM products ORDER BY quantitySold DESC LIMIT 10')
+    products=cursor.fetchall()
+
+    return products
+
+def getBestSellingProductsPictures():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('homepage.home'))
+
+    cursor = conn.cursor() 
+    cursor.execute('SELECT * FROM products ORDER BY quantitySold DESC LIMIT 10')
+    rows=cursor.fetchall()
+    pictureFiles=[]
+
+    # FIXME: COULDNT SHOW IMAGES
+    # FIXED: DONT EVER USE URL_FOR FOR IMAGES, SHIT DOESNT WORK. JUST GO FOR /static/imgs/SHIT
+    for row in rows:
+        pictureFile=row[2].decode(encoding='utf-8')
+        pictureFiles.append(pictureFile)
+
+    return pictureFiles

@@ -20,7 +20,11 @@ def sellerCenter():
         flash("You must be a registered seller in order to access this!", category='error')
         return redirect(url_for('homepage.home'))
     
-    return render_template('seller/seller_center.html', legend="Dashboard", id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
+    sales=getTotalSales()
+    orders=getTotalOrders()
+    productsSold=getProductsSold()
+    customers=getUniqueCustomers()
+    return render_template('seller/seller_center.html', legend="Dashboard", customersInfo=customers, salesInfo=sales, ordersInfo=orders, soldProductsInfo=productsSold, id=session['accountID'], email=session['accountEmail'], fname=session['accountFirstName'], lname=session['accountLastName'], role=session['accountRole'])
 
 @seller.route('/testTemplate')
 def testTemplate():
@@ -253,7 +257,7 @@ def addProduct():
         productBrand = request.form['productBrand']
         productDescription = request.form['productDescription']
         productCategory = request.form['productCategory']
-        productVariation = request.form['productVariation']
+        # productVariation = request.form['productVariation']
         productQuantity = request.form['productQuantity']
         productPrice = request.form['productPrice']
         productDate = dateNow
@@ -274,21 +278,19 @@ def addProduct():
         productImg = picName
             # listOfProductImages.append(productImg)
 
-        cursor.execute(f"SELECT * FROM products WHERE productName='{productName}'")
+        cursor.execute("SELECT * FROM products WHERE productName=%s AND accountID=%s", (productName, accountID))
         item = cursor.fetchone()
 
         if item:
-            flash("Product already exists!", category='error')
-            cursor.close()
-            conn.close()
+            flash("Product already exists in your store!", category='error')
             return redirect(url_for('seller.renderAddProducts'))
 
         if interact=="addProduct":
             try:
-                sql = "INSERT INTO products (accountID, picture, productName, brand, description, category, variation, price, quantity, dateAdded, isActive, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO products (accountID, picture, productName, brand, description, category, price, quantity, dateAdded, isActive, isArchived) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 # for img in productImgs:
                     # val.append((accountID, img, productName, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsArchived))
-                val = accountID, productImg, productName, productBrand, productDescription, productCategory, productVariation, productPrice, productQuantity, productDate, productIsActive, productIsArchived
+                val = accountID, productImg, productName, productBrand, productDescription, productCategory, productPrice, productQuantity, productDate, productIsActive, productIsArchived
                 cursor.execute(sql, val)
                 conn.commit()
                 flash('Product added successfully!', category='success')
@@ -301,7 +303,7 @@ def addProduct():
                 cursor.close()
                 conn.close()
 
-    return redirect(url_for('seller.renderAddProducts'))
+    # return redirect(url_for('seller.renderAddProducts'))
 
 @seller.route('/editProduct/<productID>', methods=['GET', 'POST'])
 def editProduct(productID):
@@ -315,7 +317,7 @@ def editProduct(productID):
         productBrand = request.form['productBrand']
         productDescription = request.form['productDescription']
         productCategory = request.form['productCategory']
-        productVariation = request.form['productVariation']
+        # productVariation = request.form['productVariation']
         productQuantity = request.form['productQuantity']
         productPrice = request.form['productPrice']
 
@@ -333,8 +335,8 @@ def editProduct(productID):
 
         if interact=='editProduct':
             try:
-                sql = "UPDATE products SET picture=%s, productName=%s, brand=%s, description=%s, category=%s, variation=%s, price=%s, quantity=%s, dateEdited=%s WHERE productID=%s AND accountID=%s"
-                val = productImg, productName, productBrand, productDescription, productCategory, productVariation, productPrice, productQuantity, dateEdited, productID, accountID
+                sql = "UPDATE products SET picture=%s, productName=%s, brand=%s, description=%s, category=%s, price=%s, quantity=%s, dateEdited=%s WHERE productID=%s AND accountID=%s"
+                val = productImg, productName, productBrand, productDescription, productCategory, productPrice, productQuantity, dateEdited, productID, accountID
                 cursor.execute(sql, val)
                 conn.commit()
                 flash('Product edited successfully!', category='success')
@@ -593,6 +595,67 @@ def getAddressStoreRows():
         return "none"
 
     return addressBookRow
+
+def getTotalSales():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sellerProfileID=getStoreProfileRow()[0]
+    sql='SELECT SUM(products.`price`*orders.`orderQuantity`) FROM orders JOIN products ON orders.`productID`=products.`productID` JOIN order_details ON order_details.`orderDetailsID`=orders.`orderDetailsID` WHERE order_details.`sellerProfileID`=%s'
+    val=sellerProfileID
+    cursor.execute(sql, (val, ))
+    sales=cursor.fetchone()
+
+    return sales
+        # SELECT SUM(products.`price`*orders.`orderQuantity`) FROM orders JOIN products ON orders.`productID`=products.`productID` JOIN order_details ON order_details.`orderDetailsID`=orders.`orderDetailsID` WHERE order_details.`sellerProfileID`=%s
+
+def getTotalOrders():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sellerProfileID=getStoreProfileRow()[0]
+    sql='SELECT COUNT(*) FROM order_details WHERE sellerProfileID=%s'
+    val=sellerProfileID
+    cursor.execute(sql, (val, ))
+    orders=cursor.fetchone()
+
+    return orders
+
+def getProductsSold():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sellerProfileID=getStoreProfileRow()[0]
+    sql='SELECT COUNT(*) FROM orders JOIN products ON orders.`productID`=products.`productID` JOIN order_details ON order_details.`orderDetailsID`=orders.`orderDetailsID` WHERE order_details.`sellerProfileID`=%s'
+    val=sellerProfileID
+    cursor.execute(sql, (val, ))
+    products=cursor.fetchone()
+
+    return products
+
+def getUniqueCustomers():
+    conn=get_db_connection()
+    if conn is None:
+        flash("NO DB CONNECTION", category='error')
+        return redirect(url_for('users.landing'))
+    
+    cursor=conn.cursor()
+    sellerProfileID=getStoreProfileRow()[0]
+    sql='SELECT orders.`accountID` FROM orders JOIN order_details ON orders.`orderDetailsID`=order_details.`orderDetailsID` WHERE order_details.`sellerProfileID`=%s GROUP BY order_details.`accountID`'
+    val=sellerProfileID
+    cursor.execute(sql, (val, ))
+    customers=cursor.fetchone()
+
+    return customers
 
 
 # old seller ----------------------------------------------------------------------------------------------
